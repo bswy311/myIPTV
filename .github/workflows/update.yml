@@ -26,7 +26,10 @@ concurrency:
 
 jobs:
   update:
-    runs-on: ubuntu-latest
+    # 固定版本而不是 ubuntu-latest：
+    # ubuntu-latest 将于 2026-10-19 迁到 Ubuntu 26，突发的基础镜像变更可能搞挂长跑任务。
+    # 想跟新镜像时手动改这里即可。
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     environment:
       name: github-pages
@@ -34,10 +37,10 @@ jobs:
 
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 安装 Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -86,13 +89,18 @@ jobs:
           exit 1
 
       - name: 配置 Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
+        with:
+          # 关键：Pages 站点默认是不存在的，直接跑 getPagesSite 会 404。
+          # enablement: true 会在首次运行时自动创建站点并把 Source 设为 GitHub Actions，
+          # 省得去 Settings 里手动开。
+          enablement: true
 
       - name: 打包 output 目录
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: output
 
       - name: 发布到 GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
