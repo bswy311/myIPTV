@@ -88,13 +88,24 @@ jobs:
           echo "连续 3 次推送失败，请检查仓库权限或分支保护规则"
           exit 1
 
+      # 提前把「Pages 没开」这件事说清楚。
+      # 注意：configure-pages 的 enablement: true 在这里没用 —— 创建 Pages 站点需要
+      # 管理员权限，Actions 自带的 GITHUB_TOKEN 会返回
+      # "Resource not accessible by integration"，所以必须在设置里手动开一次。
+      - name: 检查 Pages 是否已启用
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages")
+          echo "Pages API 返回 HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "::error title=Pages 还没启用::请打开 https://github.com/${{ github.repository }}/settings/pages ，在 Build and deployment → Source 选择 “GitHub Actions”，保存后重新运行本工作流。"
+            exit 1
+          fi
+
       - name: 配置 Pages
         uses: actions/configure-pages@v6
-        with:
-          # 关键：Pages 站点默认是不存在的，直接跑 getPagesSite 会 404。
-          # enablement: true 会在首次运行时自动创建站点并把 Source 设为 GitHub Actions，
-          # 省得去 Settings 里手动开。
-          enablement: true
 
       - name: 打包 output 目录
         uses: actions/upload-pages-artifact@v5
