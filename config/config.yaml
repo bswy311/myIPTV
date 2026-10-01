@@ -24,20 +24,20 @@ sources:
   - name: bestfan-cctv
     url: https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_cctv.m3u8
     enabled: true
-    filter: all
+    filter: include
   - name: bestfan-province
     url: https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_province.m3u8
     enabled: true
-    filter: all
+    filter: include
   - name: bestfan-all
     url: https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8
     enabled: true
-    filter: all
+    filter: include
   # 直连备份（GitHub Actions 上更快；本机连不上会自动忽略）
   - name: bestfan-all-direct
     url: https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8
     enabled: true
-    filter: all
+    filter: include
 
   # ===== vbskycn/iptv：国内可直连大源，每日更新 =====
   # 官网 https://live.zbds.top/（订阅地址见其页面），覆盖央视/卫视/地方/电影等。
@@ -62,29 +62,35 @@ sources:
   - name: chinaiptv-cntv
     url: https://ghproxy.net/https://raw.githubusercontent.com/hujingguang/ChinaIPTV/main/cnTV1_ALL.m3u8
     enabled: true
-    filter: all
+    filter: include
 
   # ===== 国际 / 体育补充 =====
   - name: iptv-org-sports
     url: https://iptv-org.github.io/iptv/categories/sports.m3u
     enabled: true
-    filter: all
+    filter: include
   - name: iptv-org-cn
     url: https://iptv-org.github.io/iptv/countries/cn.m3u
     enabled: true
-    filter: all
+    filter: include
   - name: iptv-org-hk
     url: https://iptv-org.github.io/iptv/countries/hk.m3u
     enabled: true
-    filter: all
+    filter: include
   - name: iptv-org-tw
     url: https://iptv-org.github.io/iptv/countries/tw.m3u
     enabled: true
-    filter: all
+    filter: include
   - name: iptv-org-zho
     url: https://iptv-org.github.io/iptv/languages/zho.m3u
     enabled: true
-    filter: all
+    filter: include
+  # 国际新闻台（BBC / Al Jazeera / France 24 / DW / Sky News / Euronews 等）
+  # 需要 include_keywords 里命中 bbc/news 等词才会被保留，见下方 filter 段。
+  - name: iptv-org-news
+    url: https://iptv-org.github.io/iptv/categories/news.m3u
+    enabled: true
+    filter: include
 
   # ===== 未启用 =====
   # fanmingming 的流是广东联通源，带会过期的 Authinfo token，实测存活率仅 2%，
@@ -92,7 +98,7 @@ sources:
   - name: fanmingming-index
     url: https://ghproxy.net/https://raw.githubusercontent.com/fanmingming/live/main/tv/m3u/index.m3u
     enabled: false
-    filter: all
+    filter: include
   - name: iptv-org-index
     url: https://iptv-org.github.io/iptv/index.m3u
     enabled: false
@@ -107,13 +113,17 @@ filter:
   mode: include
 
   include_keywords:
-    # 央视 / 国字头
+    # 央视 / 国字头（含 CCTV 全套：CCTV6电影/CCTV8电视剧/CCTV14少儿等因含 cctv 自动保留）
     - cctv
     - cgtn
     - 央视
     - 中央电视
-    # 卫视
+    # 卫视（全国省级卫视）
     - 卫视
+    # 吉林省级 / 长春市级地方台
+    - 吉林
+    - 长春
+    - 吉视
     # 港澳台
     - 翡翠
     - 明珠
@@ -138,7 +148,14 @@ filter:
     - 香港
     - 澳门
     - 台湾
-    # 体育
+    # 港澳台（iptv-org 的英文名，补充关键词）
+    - phoenix
+    - hong kong
+    - macau
+    - jade
+    - pearl
+    - viutv
+    # 体育（含天空体育 Sky Sports）
     - 体育
     - 足球
     - 篮球
@@ -153,24 +170,57 @@ filter:
     - 五星
     - 劲爆
     - 天元
-    # 常用综合
-    - 纪实
-    - 纪录
-    - 求索
-    - 探索
-    - 少儿
-    - 卡通
-    - 动画
-    - 电影
-    - 剧场
-    - 音乐
+    - nba
+    - 中超
+    - 英超
+    - 西甲
+    - 高尔夫
+    - golf
+    - 天空
+    - sky sports
+    # 体育（iptv-org 的英文体育台，补充关键词）
+    - bein
+    - dazn
+    - fox sports
+    - f1
+    - nfl
+    - nhl
+    - mlb
+    - ufc
+    - boxing
+    - arena
+    - premier
+    # 国际新闻台（只保留明确的主流国际新闻台，避免引入大量低质量小语种 News 台）
+    - bbc
+    - cnn
+    - 半岛
+    - al jazeera
+    - france 24
+    - dw
+    - euronews
+    - sky news
+    - cnbc
+    - bloomberg
+    - reuters
+    - nhk world
+    - cna
+    - arirang
+    - fox news
+    - abc news
+    - cbs news
+    - nbc news
 
   exclude_keywords:
     - 测试
     - test
     - 广告
     - 已停播
-    # ---- 吉林地级市台（只保留长春）----
+    # 提示频道 / 教育台 / 杂台（用户不需要）
+    - 支持作者
+    - 教育
+    - 熊猫直播
+    - 苏州4K
+    # ---- 吉林地级市台（只保留长春市级 + 省级）----
     - 白城
     - 四平
     - 通化
@@ -179,9 +229,43 @@ filter:
     - 辽源
     - 梅河口
     - 公主岭
+    # 延边州台（精确词，避免误删「延边卫视」）
     - 延边一套
     - 延边二套
+    - 延边综合
     - 延吉
+    # ---- 吉林县级台（长春代管县级市/县也一并排除，只留长春市区台）----
+    - 东丰
+    - 双辽
+    - 柳河
+    - 桦甸
+    - 汪清
+    - 磐石
+    - 靖宇
+    - 龙井
+    - 敦化
+    - 辉南
+    - 舒兰
+    - 珲春
+    - 图们
+    - 和龙
+    - 安图
+    - 抚松
+    - 德惠
+    - 榆树
+    - 农安
+    # ---- 风景摄像头 / 非电视频道 ----
+    - 中央电视塔
+    - 雪山
+    - 古城
+    - 全景
+    - 景区
+    - 瀑布
+    - 沙滩
+    - 航拍
+    - 摄像头
+    - 山顶
+    - 大容山
     # 英文名的地方台（iptv-org 用英文名，中文关键词匹配不到）
     - baicheng
     - siping
@@ -216,30 +300,28 @@ filter:
 categories:
   - name: 央视
     keywords: [cctv, cgtn, 央视, 中央电视]
-  - name: 体育
-    keywords: [体育, 足球, 篮球, 网球, 台球, 赛车, 围棋, 赛事, 五星, 劲爆, 天元, espn, sports, sport, golf, nba, 中超, 英超, 西甲]
+  # 港澳台放「卫视」之前，这样「凤凰卫视」「香港卫视」归港澳台而非卫视
   - name: 港澳台
-    keywords: [翡翠, 明珠, 无线, tvb, 凤凰, 东森, 中天, 三立, 民视, 台视, 华视, 中视, 亚视, 澳视, 莲花, 星空, 纬来, 龙华, 爱尔达, 靖天, 香港, 澳门, 台湾]
+    keywords: [翡翠, 明珠, 无线, tvb, 凤凰, 东森, 中天, 三立, 民视, 台视, 华视, 中视, 亚视, 澳视, 莲花, 星空, 纬来, 龙华, 爱尔达, 靖天, 香港, 澳门, 台湾, phoenix, hong kong, macau, jade, pearl, viutv]
   - name: 卫视
     keywords: [卫视]
   - name: 吉林
-    # 吉林省台 + 长春台（排在「卫视」之后，所以吉林卫视/延边卫视仍归卫视）
-    keywords: [吉视, 吉林, 长春, 东北戏曲]
-  - name: 影视
-    keywords: [电影, 影视, 剧场, 影院, 美剧, 港剧, 韩剧, cinema, movie, hbo, 天映]
-  - name: 少儿
-    keywords: [少儿, 卡通, 动画, 儿童, cartoon, kids, 金鹰, 优漫, 嘉佳]
-  - name: 纪录
-    keywords: [纪实, 纪录, 探索, 求索, discovery, 地理]
-  - name: 新闻
-    keywords: [新闻, 资讯, news, 财经, 经济]
-  - name: 音乐
-    keywords: [音乐, 歌曲, 演唱会, music, mtv]
+    # 吉林省台（吉视系列等）。排在「卫视」后，吉林卫视/延边卫视仍归卫视
+    keywords: [吉视, 吉林]
+  - name: 长春
+    # 长春市级台（长春综合/长春新闻等）
+    keywords: [长春]
+  - name: 体育
+    # 央视5/5+已在「央视」组；这里收五星/劲爆/ESPN/天空体育等其它体育台
+    keywords: [体育, 足球, 篮球, 网球, 台球, 赛车, 围棋, 赛事, 五星, 劲爆, 天元, espn, sports, sport, golf, nba, 中超, 英超, 西甲, 天空, sky sports]
+  - name: 国际新闻
+    # 与 include_keywords 保持一致，只收主流国际新闻台
+    keywords: [bbc, cnn, 半岛, al jazeera, france 24, dw, euronews, sky news, cnbc, bloomberg, reuters, nhk world, cna, arirang, fox news, abc news, cbs news, nbc news]
   - name: 其他
     keywords: []
 
 # 输出时的分组先后顺序（未列出的分组排最后）
-output_order: [央视, 卫视, 吉林, 港澳台, 体育, 影视, 少儿, 纪录, 新闻, 音乐, 其他]
+output_order: [央视, 卫视, 吉林, 长春, 体育, 港澳台, 国际新闻, 其他]
 
 # ---------------------------------------------------------------
 # 4. 频道名归一化
