@@ -1,15 +1,15 @@
 # IPTV 直播源检测报告
 
-- 运行时间：2026-10-01T12:24:01+00:00 → 2026-10-01T12:24:21+00:00（20.4 秒）
+- 运行时间：2026-10-01T12:27:42+00:00 → 2026-10-01T12:28:03+00:00（20.4 秒）
 - 解析到流：**854** 条
 - 筛选后：854 条，去重后：668 条
-- 实际探测：667 条（拉黑跳过 383 条）
-- 可用：**276** 条（41.4%），失效：8 条
-- 频道数：273，发布：273 个频道 / 276 条线路
+- 实际探测：667 条（拉黑跳过 386 条）
+- 可用：**273** 条（40.9%），失效：8 条
+- 频道数：270，发布：270 个频道 / 273 条线路
 
 ## 流类型分布
 
-- `hls`：275
+- `hls`：272
 - `dash`：1
 
 ## 分组统计
@@ -19,7 +19,7 @@
 | 央视 | 27 | 26 |
 | 卫视 | 4 | 4 |
 | 港澳台 | 3 | 3 |
-| 体育 | 193 | 191 |
+| 体育 | 190 | 188 |
 | 影视 | 4 | 4 |
 | 少儿 | 3 | 3 |
 | 新闻 | 6 | 6 |
@@ -40,35 +40,35 @@
 
 | 频道 | 分组 | 类型 | 分辨率 | 延迟 | 评分 |
 |---|---|---|---|---|---|
-| NBA TV | 体育 | hls | 1920x1080 | 501ms | 1300 |
-| MSG | 体育 | hls | 1920x1080 | 583ms | 1292 |
-| TVBS-Asia | 港澳台 | hls | 1920x1080 | 485ms | 1277 |
-| Extreme Sports Channel Polska | 体育 | hls | 1920x1080 | 1057ms | 1265 |
-| L1 Max | 体育 | hls | 1920x1080 | 1031ms | 1251 |
-| Win Sports | 体育 | hls | 1920x1080 | 1267ms | 1248 |
-| UDAR | 体育 | hls | 1920x1080 | 1268ms | 1234 |
-| MLB Strike Zone | 体育 | hls | 1280x720 | 548ms | 1218 |
-| Fox Deportes | 体育 | hls | 1280x720 | 537ms | 1214 |
-| Fox Sports 1 | 体育 | hls | 1280x720 | 886ms | 1182 |
-| 翡翠台 | 港澳台 | hls | 1920x1080 | 1932ms | 1178 |
-| Golden Jade | 其他 | hls | 1920x1080 | 1902ms | 1176 |
-| Mei Ah Movie Channel | 影视 | hls | 1920x1080 | 1905ms | 1176 |
-| Asian Drama | 其他 | hls | 1920x1080 | 1920ms | 1175 |
-| ESPNU | 体育 | hls | 1280x720 | 914ms | 1165 |
-| Belarus-5 | 体育 | hls | 720x576 | 1155ms | 1148 |
-| Star Sports Khel | 体育 | hls | 1024x576 | 813ms | 1144 |
-| Star Sports 2 | 体育 | hls | 1024x576 | 812ms | 1142 |
-| SporTV | 体育 | hls | 1024x576 | 800ms | 1140 |
-| Star Sports 1 | 体育 | hls | 1024x576 | 824ms | 1139 |
-| ESPNews | 体育 | hls | 1280x720 | 1734ms | 1119 |
-| Love Nature | 其他 | hls | 1920x1080 | 3220ms | 1078 |
-| NTD TV | 其他 | hls | 1920x1080 | 3221ms | 1073 |
-| CCTV-12 | 央视 | hls | - | 213ms | 1063 |
-| Racer Select | 体育 | hls | 1920x1080 | 3409ms | 1061 |
-| CCTV-10 | 央视 | hls | - | 240ms | 1061 |
-| ACC Network | 体育 | hls | - | 205ms | 1060 |
-| CCTV-11 | 央视 | hls | - | 271ms | 1058 |
-| Tigo Sports (El Salvador) | 体育 | hls | - | 598ms | 1058 |
-| CCTV-3 | 央视 | hls | - | 241ms | 1057 |
+| NBA TV | 体育 | hls | 1920x1080 | 565ms | 1301 |
+| Win Sports | 体育 | hls | 1920x1080 | 810ms | 1289 |
+| MSG | 体育 | hls | 1920x1080 | 709ms | 1286 |
+| Extreme Sports Channel Polska | 体育 | hls | 1920x1080 | 926ms | 1280 |
+| TVBS-Asia | 港澳台 | hls | 1920x1080 | 548ms | 1276 |
+| L1 Max | 体育 | hls | 1920x1080 | 952ms | 1258 |
+| UDAR | 体育 | hls | 1920x1080 | 1186ms | 1248 |
+| MLB Strike Zone | 体育 | hls | 1280x720 | 590ms | 1219 |
+| Fox Deportes | 体育 | hls | 1280x720 | 689ms | 1206 |
+| NTD TV | 其他 | hls | 1920x1080 | 1673ms | 1200 |
+| Love Nature | 其他 | hls | 1920x1080 | 1788ms | 1197 |
+| Fox Sports 1 | 体育 | hls | 1280x720 | 762ms | 1196 |
+| World Poker Tour Poland | 体育 | hls | 1920x1080 | 1825ms | 1192 |
+| CGTN Global Biz | 央视 | hls | 1920x1080 | 1880ms | 1191 |
+| BabyFirst | 少儿 | hls | 1920x1080 | 1736ms | 1190 |
+| Unbeaten | 体育 | hls | 1920x1080 | 1983ms | 1185 |
+| Discovering China | 其他 | hls | 1920x1080 | 1851ms | 1185 |
+| ESPNU | 体育 | hls | 1280x720 | 766ms | 1183 |
+| China Travel | 其他 | hls | 1920x1080 | 1879ms | 1183 |
+| World Poker Tour UK | 体育 | hls | 1920x1080 | 1990ms | 1179 |
+| World Poker Tour | 体育 | hls | 1920x1080 | 2040ms | 1177 |
+| TSN The Ocho | 体育 | hls | 1920x1080 | 2011ms | 1177 |
+| CGTN | 央视 | hls | 1920x1080 | 2172ms | 1173 |
+| 翡翠台 | 港澳台 | hls | 1920x1080 | 2057ms | 1172 |
+| Swerve Combat | 体育 | hls | 1920x1080 | 2103ms | 1170 |
+| Red Bull TV | 体育 | hls | 1920x1080 | 2274ms | 1170 |
+| World of Freesports | 体育 | hls | 1920x1080 | 2177ms | 1170 |
+| Asian Drama | 其他 | hls | 1920x1080 | 2045ms | 1169 |
+| Golden Jade | 其他 | hls | 1920x1080 | 2049ms | 1168 |
+| Mei Ah Movie Channel | 影视 | hls | 1920x1080 | 2054ms | 1168 |
 
-> 由 iptv-pipeline 自动生成 2026-10-01T12:24:21+00:00
+> 由 iptv-pipeline 自动生成 2026-10-01T12:28:03+00:00

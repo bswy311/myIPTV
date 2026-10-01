@@ -53,11 +53,11 @@ http://38.75.136.137:98/gslb/dsdqpub/sjdl.m3u8?auth=testpub
 https://amg00405-rakutentv-cgtn-rakuten-i9tar.amagi.tv/master.m3u8
 #EXTINF:-1 group-title="央视" tvg-name="CGTN Global Biz" tvg-id="CGTNGlobalBiz.cn@SD" tvg-logo="https://i.imgur.com/qBmomnF.png",CGTN Global Biz
 https://fastlive.cctvplus.com/out/v1/2b3d8a0c805d437f9dc85b764c2ac599/index.m3u8
-#EXTINF:-1 group-title="卫视" tvg-name="东方卫视国际" tvg-id="DragonTVInternational.cn@SD" tvg-logo="https://i.imgur.com/WqM6xnF.png",东方卫视国际
-https://restream.pdtvhd.com/memfs/0b1b95c9-3543-4af9-9fdb-cf45f1602f17.m3u8
 #EXTINF:-1 group-title="卫视" tvg-name="内蒙古卫视" tvg-id="NeiMonggolTV.cn@SD" tvg-logo="https://i.imgur.com/WeugJBE.png",内蒙古卫视
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36
 https://cdn4.skygo.mn/live/disk1/NeigMGL/HLSv3-FTA/NeigMGL.m3u8
+#EXTINF:-1 group-title="卫视" tvg-name="安徽卫视" tvg-id="AnhuiTV.cn@SD" tvg-logo="https://i.imgur.com/gDn101f.png",安徽卫视
+https://restream.pdtvhd.com/memfs/c1cd2ed0-3b2b-4c25-af98-a7fb0b1eb130.m3u8
 #EXTINF:-1 group-title="卫视" tvg-name="河北卫视" tvg-id="HebeiTV.cn@SD" tvg-logo="https://i.imgur.com/Z5Ppzbi.png",河北卫视
 https://event.pull.hebtv.com/live/live101.m3u8
 #EXTINF:-1 group-title="卫视" tvg-name="湖南卫视" tvg-id="HunanTV.cn@SD" tvg-logo="https://parco-zh.github.io/demo/HNWS.png",湖南卫视
@@ -68,8 +68,6 @@ https://chibrics.mediacdn.ru/cdn/brics/chinese/playlist.m3u8
 http://38.64.72.148/hls/modn/list/4005/playlist.m3u8
 #EXTINF:-1 group-title="港澳台" tvg-name="翡翠台" tvg-id="Jade.hk@SD" tvg-logo="https://raw.githubusercontent.com/wanglindl/TVlogo/main/img/TVB1.png",翡翠台
 http://103.172.187.30:12000/stream/mytv/null-1/master.m3u8
-#EXTINF:-1 group-title="体育" tvg-name="30A Golf Kingdom" tvg-id="30AGolfKingdom.us@SD" tvg-logo="https://i.imgur.com/Lv53nh4.png",30A Golf Kingdom
-https://30a-tv.com/feeds/vidaa/golf.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="ACC Digital Network" tvg-id="ACCDigitalNetwork.us@SD" tvg-logo="https://i.imgur.com/V6Kaqha.png",ACC Digital Network
 https://raycom-accdn-firetv.amagi.tv/playlist.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="ACC Network" tvg-id="ACCNetwork.us@SD" tvg-logo="https://i.imgur.com/TpCkbkT.png",ACC Network
@@ -80,8 +78,6 @@ https://webstream.multistream.it/memfs/e2cb3629-c1a2-495b-b43a-9eb386f04ed8.m3u8
 https://strhls.streamakaci.tv/ortb/ortb2-multi/playlist.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="Africa 24 Sport" tvg-id="Africa24Sport.fr@SD" tvg-logo="https://i0.wp.com/africa24tv.com/wp-content/uploads/2023/12/LOGO-AFRICASPORT-4-HD-sans-fond.png?fit=512%2C107&ssl=1",Africa 24 Sport
 https://africa24.vedge.infomaniak.com/livecast/ik:africa24sport/manifest.m3u8
-#EXTINF:-1 group-title="体育" tvg-name="Al Iraqia Sport" tvg-id="AlIraqiaSport.iq@SD" tvg-logo="https://i.imgur.com/DrrlxTO.png",Al Iraqia Sport
-https://imn-live.esite-lab.com/hls/iraqia-sports-1.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="Arena Sport 1" tvg-id="ArenaSport1.sk@SD" tvg-logo="https://i.imgur.com/2qf67zW.png",Arena Sport 1
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.3
 http://88.212.15.19/live/test_arenasport/playlist.m3u8
@@ -145,8 +141,6 @@ http://187.102.208.209:8000/play/a0bq/index.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="Dynamo Kyiv TV" tvg-id="DynamoKyivTV.ua@SD" tvg-logo="https://i.imgur.com/ymxmyyG.png",Dynamo Kyiv TV
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
 http://stream.mcquack.net/396/index.m3u8
-#EXTINF:-1 group-title="体育" tvg-name="El-Heddaf TV" tvg-id="ElHeddafTV.dz@SD" tvg-logo="https://i.imgur.com/cDkIDIA.png",El-Heddaf TV
-https://live.elheddaftv.com:8081/elheddaftv/index.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="Equalympic" tvg-id="Equalympic.ua@SD" tvg-logo="https://i.imgur.com/ixSj4H7.png",Equalympic
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
 http://stream.mcquack.net/485/index.m3u8
@@ -250,6 +244,8 @@ https://h.jcp.live.opencaster.com/play_src/index.m3u8
 https://mts1.iptv-playoutcenter.de/mts/mts-web/playlist.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="MSG" tvg-id="MSG.us@SD" tvg-logo="https://i.imgur.com/SEQFh0P.png",MSG
 http://23.237.104.106:8080/USA_MSG/index.m3u8
+#EXTINF:-1 group-title="体育" tvg-name="M Sports" tvg-id="MSports.pk@SD" tvg-logo="https://msports.pk/wp-content/uploads/2026/02/m-sports-300.png",M Sports
+https://cdn.rabta.stream/M-Sports/index.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="MUTV" tvg-id="MUTV.uk@SD" tvg-logo="https://d2n0069hmnqmmx.cloudfront.net/epgdata/1.0/newchanlogos/512/512/skychb1834.png",MUTV
 https://fastly.live.brightcove.com/6374054671112/eu-west-1/6058004203001/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJob3N0IjoiYXplMnp5LmVncmVzcy55ODN1ZWIiLCJhY2NvdW50X2lkIjoiNjA1ODAwNDIwMzAwMSIsImVobiI6ImZhc3RseS5saXZlLmJyaWdodGNvdmUuY29tIiwiaXNzIjoiYmxpdmUtcGxheWJhY2stc291cmNlLWFwaSIsInN1YiI6InBhdGhtYXB0b2tlbiIsImF1ZCI6WyI2MDU4MDA0MjAzMDAxIl0sImp0aSI6IjYzNzQwNTQ2NzExMTIifQ.3FmuTna3DAmY7xlhK5fk6LMrosrtrR5VsU2QOgYO5y4/playlist-hls.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="NBA TV" tvg-id="NBATV.us@SD" tvg-logo="https://upload.wikimedia.org/wikipedia/en/thumb/d/d2/NBA_TV.svg/960px-NBA_TV.svg.png",NBA TV
@@ -455,8 +451,6 @@ https://d1t5afz6qed3xk.cloudfront.net/Unbeaten.m3u8
 http://59.103.38.46:8000/play/a126/index.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="viju+ Sport" tvg-id="vijuPlusSport.ru@SD" tvg-logo="https://i.imgur.com/fXESG0l.png",viju+ Sport
 http://stream.mcquack.net/333/index.m3u8
-#EXTINF:-1 group-title="体育" tvg-name="Vinh Long TV 4" tvg-id="VinhLongTV4.vn@SD" tvg-logo="https://i.imgur.com/ARhIkvR.png",Vinh Long TV 4
-https://dethich.pw/thvl4/index.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="Vital Drive" tvg-id="VitalDrive.ru@HD" tvg-logo="https://i.imgur.com/XoR9zLh.png",Vital Drive
 https://autopilot.catcast.tv/content/37909/index.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="VSBet" tvg-id="VSBetHD.vn@HD" tvg-logo="https://i.imgur.com/sMhL2Nl.png",VSBet

@@ -3,6 +3,8 @@
 https://mediaserver.abnvideos.com/streams/abnchina.m3u8
 #EXTINF:-1 group-title="其他" tvg-name="Ando TV" tvg-id="AndoTV.cn@SD" tvg-logo="https://i.imgur.com/EpTsFVu.png",Ando TV
 http://play.kankanlive.com/live/1711956137852982.m3u8
+#EXTINF:-1 group-title="卫视" tvg-name="安徽卫视" tvg-id="AnhuiTV.cn@SD" tvg-logo="https://i.imgur.com/gDn101f.png",安徽卫视
+https://restream.pdtvhd.com/memfs/c1cd2ed0-3b2b-4c25-af98-a7fb0b1eb130.m3u8
 #EXTINF:-1 group-title="其他" tvg-name="Baicheng TV [Geo-blocked]" tvg-id="BaichengTV.cn@SD" tvg-logo="https://www.tvchinese.net/uploads/tv/baicheng.jpg",Baicheng TV [Geo-blocked]
 https://stream2.jlntv.cn/baicheng1/sd/live.m3u8
 #EXTINF:-1 group-title="其他" tvg-name="Bread TV" tvg-id="BreadTV.cn@SD" tvg-logo="https://bread-tv.com/uploads/allimg/241202/9_1836542371.png",Bread TV
@@ -65,8 +67,6 @@ http://113.64.146.48:1688/hls/4/index.m3u8
 http://play1-qk.nmtv.cn/live/1735546697341033.m3u8
 #EXTINF:-1 group-title="新闻" tvg-name="Chuxiong News Channel [Not 24/7]" tvg-id="ChuxiongNewsChannel.cn@SD" tvg-logo="https://www.tvchinese.net/uploads/tv/chuxiongtv.jpg",Chuxiong News Channel [Not 24/7]
 http://hwapi.yntv.net/ew265l/848y54.m3u8
-#EXTINF:-1 group-title="卫视" tvg-name="东方卫视国际" tvg-id="DragonTVInternational.cn@SD" tvg-logo="https://i.imgur.com/WqM6xnF.png",东方卫视国际
-https://restream.pdtvhd.com/memfs/0b1b95c9-3543-4af9-9fdb-cf45f1602f17.m3u8
 #EXTINF:-1 group-title="其他" tvg-name="Guangxi Variety & Travel Channel" tvg-id="GuangxiVarietyTravelChannel.cn@SD" tvg-logo="https://www.tvchinese.net/uploads/tv/gxzypd.jpg",Guangxi Variety & Travel Channel
 http://111.59.24.227:8181/tsfile/live/1001_1.m3u8?key=txiptv&playlive=1&authid=0
 #EXTINF:-1 group-title="其他" tvg-name="Guangzhou TV" tvg-id="GuangzhouTV.cn@SD" tvg-logo="https://i.imgur.com/ff3KQXp.png",Guangzhou TV
@@ -138,8 +138,6 @@ https://streamipcfapp.akamaized.net/live/_definst_/live_720/key_b1500.m3u8
 http://38.64.72.148/hls/modn/list/4005/playlist.m3u8
 #EXTINF:-1 group-title="其他" tvg-name="WXTV" tvg-id="WXTV.tw@SD" tvg-logo="https://i.imgur.com/s8tiTeb.png",WXTV
 https://mobile.ccdntech.com/transcoder/_definst_/vod164_Live/live/chunklist_w1177047531.m3u8
-#EXTINF:-1 group-title="体育" tvg-name="30A Golf Kingdom" tvg-id="30AGolfKingdom.us@SD" tvg-logo="https://i.imgur.com/Lv53nh4.png",30A Golf Kingdom
-https://30a-tv.com/feeds/vidaa/golf.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="A Spor" tvg-id="ASpor.tr@SD" tvg-logo="https://i.imgur.com/ZhkZzLf.png",A Spor
 https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/aspor/aspor.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="ACC Digital Network" tvg-id="ACCDigitalNetwork.us@SD" tvg-logo="https://i.imgur.com/V6Kaqha.png",ACC Digital Network
@@ -152,8 +150,6 @@ https://webstream.multistream.it/memfs/e2cb3629-c1a2-495b-b43a-9eb386f04ed8.m3u8
 https://strhls.streamakaci.tv/ortb/ortb2-multi/playlist.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="Africa 24 Sport" tvg-id="Africa24Sport.fr@SD" tvg-logo="https://i0.wp.com/africa24tv.com/wp-content/uploads/2023/12/LOGO-AFRICASPORT-4-HD-sans-fond.png?fit=512%2C107&ssl=1",Africa 24 Sport
 https://africa24.vedge.infomaniak.com/livecast/ik:africa24sport/manifest.m3u8
-#EXTINF:-1 group-title="体育" tvg-name="Al Iraqia Sport" tvg-id="AlIraqiaSport.iq@SD" tvg-logo="https://i.imgur.com/DrrlxTO.png",Al Iraqia Sport
-https://imn-live.esite-lab.com/hls/iraqia-sports-1.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="Arena Sport 1" tvg-id="ArenaSport1.sk@SD" tvg-logo="https://i.imgur.com/2qf67zW.png",Arena Sport 1
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.3
 http://88.212.15.19/live/test_arenasport/playlist.m3u8
@@ -209,8 +205,6 @@ http://38.187.7.252:8000/play/a03d/index.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="Dynamo Kyiv TV" tvg-id="DynamoKyivTV.ua@SD" tvg-logo="https://i.imgur.com/ymxmyyG.png",Dynamo Kyiv TV
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
 http://stream.mcquack.net/396/index.m3u8
-#EXTINF:-1 group-title="体育" tvg-name="El-Heddaf TV" tvg-id="ElHeddafTV.dz@SD" tvg-logo="https://i.imgur.com/cDkIDIA.png",El-Heddaf TV
-https://live.elheddaftv.com:8081/elheddaftv/index.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="Equalympic" tvg-id="Equalympic.ua@SD" tvg-logo="https://i.imgur.com/ixSj4H7.png",Equalympic
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
 http://stream.mcquack.net/485/index.m3u8
@@ -292,6 +286,8 @@ http://stream.mcquack.net/353/index.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="M4 Sport" tvg-id="M4Sport.hu@SD" tvg-logo="https://i.imgur.com/TQ4uJZk.png",M4 Sport
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
 http://88.212.15.19/live/uatlmvixrr/index.m3u8
+#EXTINF:-1 group-title="体育" tvg-name="M Sports" tvg-id="MSports.pk@SD" tvg-logo="https://msports.pk/wp-content/uploads/2026/02/m-sports-300.png",M Sports
+https://cdn.rabta.stream/M-Sports/index.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="MadeinBO TV" tvg-id="MadeinBOTV.it@SD" tvg-logo="https://i.imgur.com/47X44DD.png",MadeinBO TV
 https://srvx1.selftv.video/dmchannel/live/playlist.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="Maincast Cybersport" tvg-id="MaincastCybersport.ua@SD" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/5/57/Maincast_%28HD_Logo%29_2024.png",Maincast Cybersport
@@ -521,8 +517,6 @@ http://59.103.38.46:8000/play/a126/index.m3u8
 http://315e5a5d.ottrast.com/iptv/8XFKA8883W9M5K/12077/index.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="viju+ Sport" tvg-id="vijuPlusSport.ru@SD" tvg-logo="https://i.imgur.com/fXESG0l.png",viju+ Sport
 http://stream.mcquack.net/333/index.m3u8
-#EXTINF:-1 group-title="体育" tvg-name="Vinh Long TV 4" tvg-id="VinhLongTV4.vn@SD" tvg-logo="https://i.imgur.com/ARhIkvR.png",Vinh Long TV 4
-https://dethich.pw/thvl4/index.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="Vital Drive" tvg-id="VitalDrive.ru@HD" tvg-logo="https://i.imgur.com/XoR9zLh.png",Vital Drive
 https://autopilot.catcast.tv/content/37909/index.m3u8
 #EXTINF:-1 group-title="体育" tvg-name="VSBet" tvg-id="VSBetHD.vn@HD" tvg-logo="https://i.imgur.com/sMhL2Nl.png",VSBet
