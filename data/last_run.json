@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-01T12:07:06+00:00",
- "finished_at": "2026-10-01T12:08:01+00:00",
- "elapsed_sec": 54.63191750000033,
+ "started_at": "2026-10-01T12:08:02+00:00",
+ "finished_at": "2026-10-01T12:08:53+00:00",
+ "elapsed_sec": 51.46471359999987,
  "sources": [
   {
    "name": "iptv-org-cn",
@@ -50,15 +50,15 @@
  "after_filter": 854,
  "after_dedup": 668,
  "probed": 667,
- "skipped_blacklist": 30,
- "alive": 268,
- "dead": 369,
- "channels": 265,
- "published_channels": 265,
- "published_streams": 268,
+ "skipped_blacklist": 252,
+ "alive": 273,
+ "dead": 142,
+ "channels": 270,
+ "published_channels": 270,
+ "published_streams": 273,
  "kind_breakdown": {
-  "hls": 267,
+  "hls": 272,
   "dash": 1
  },
- "alive_rate": 40.18
+ "alive_rate": 40.93
 }
