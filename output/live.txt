@@ -1,8 +1,8 @@
 https://mediaserver.abnvideos.com/streams/abnchina.m3u8
 http://play.kankanlive.com/live/1711956137852982.m3u8
-https://restream.pdtvhd.com/memfs/c1cd2ed0-3b2b-4c25-af98-a7fb0b1eb130.m3u8
 https://stream2.jlntv.cn/baicheng1/sd/live.m3u8
 https://video.bread-tv.com:8091/hls-live24/online/index.m3u8
+https://cd-live-stream.news.cctvplus.com/live/smil:CHANNEL1.smil/playlist.m3u8
 http://74.91.26.218:82/live/cctv1hd.m3u8
 http://74.91.26.218:82/live/cctv2hd.m3u8
 http://74.91.26.218:82/live/cctv3hd.m3u8
@@ -31,6 +31,7 @@ http://38.75.136.137:98/gslb/dsdqpub/sjdl.m3u8?auth=testpub
 http://113.64.146.48:1688/hls/4/index.m3u8
 http://play1-qk.nmtv.cn/live/1735546697341033.m3u8
 http://hwapi.yntv.net/ew265l/848y54.m3u8
+https://restream.pdtvhd.com/memfs/0b1b95c9-3543-4af9-9fdb-cf45f1602f17.m3u8
 http://111.59.24.227:8181/tsfile/live/1001_1.m3u8?key=txiptv&playlive=1&authid=0
 https://tencentplaybusiness.gztv.com/live/zonghes.m3u8
 https://stream.hrbtv.net/xwzh/playlist.m3u8?_upt=ef41dd531755913594
@@ -66,6 +67,7 @@ https://d3e05csss9c272.cloudfront.net/out/v1/f0bf71c57581470fb9379f603e8f5d83/CG
 https://streamipcfapp.akamaized.net/live/_definst_/live_720/key_b1500.m3u8
 http://38.64.72.148/hls/modn/list/4005/playlist.m3u8
 https://mobile.ccdntech.com/transcoder/_definst_/vod164_Live/live/chunklist_w1177047531.m3u8
+https://30a-tv.com/feeds/vidaa/golf.m3u8
 https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/aspor/aspor.m3u8
 https://raycom-accdn-firetv.amagi.tv/playlist.m3u8
 http://23.239.31.26:8989/accnetwork/index.m3u8
@@ -138,10 +140,10 @@ https://kwtsplta.cdn.mangomolo.com/spl/smil:spl.stream.smil/chunklist.m3u8
 http://190.93.224.42/LIGA-1-MAX/index.m3u8
 http://stream.mcquack.net/353/index.m3u8
 http://88.212.15.19/live/uatlmvixrr/index.m3u8
-https://cdn.rabta.stream/M-Sports/index.m3u8
 https://srvx1.selftv.video/dmchannel/live/playlist.m3u8
 http://stream.mcquack.net/487/index.m3u8
 http://stream.mcquack.net/112/index.m3u8
+https://fs.uplink.kz/match_planeta/mono.m3u8?token=onlinetv
 http://181.78.8.199:8000/play/a0fr/index.m3u8
 http://23.237.104.106:8080/USA_MLB_STRIKE_ZONE/index.m3u8
 https://streams2.sofast.tv/vglive-sk-462904/playlist.m3u8
@@ -178,6 +180,7 @@ https://886bd3fbc782459f8de7555d32d7e9ce.mediatailor.us-west-2.amazonaws.com/v1/
 https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8
 https://1a3566cb46914c5499fbc86fbc4ac87e.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-932-WORBUKENFAST-WHALETVPLUS/932/whaletvplus/hls/master/playlist.m3u8
 https://0b73ace69ebb45eaa249bb87837cb958.mediatailor.us-west-2.amazonaws.com/v1/master/ba62fe743df0fe93366eba3a257d792884136c7f/LINEAR-644-WORBUSENFAST-LG_US/644/lgtv/hls/master/playlist.m3u8
+https://fs.uplink.kz/setanta_sports_1_hd/mono.m3u8?token=onlinetv
 http://stream.mcquack.net/234/index.m3u8
 http://stream.mcquack.net/235/index.m3u8
 http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/8P7MBSH7RRPL53/20074/index.m3u8
@@ -200,6 +203,7 @@ http://sewv654wfcsdwfi87fwvgbngh.siauliairsavlt.pw/iptv/BWGFFCU59AE6AEV3KF3FXTBA
 http://stream.mcquack.net/394/index.m3u8
 http://stream.mcquack.net/212/index.m3u8
 https://stream8.cinerama.uz/1004/tracks-v1a1/mono.m3u8
+https://fs.uplink.kz/sport+/mono.m3u8?token=onlinetv
 https://edge-001.streamup.eu/sportitalia/sihd_abr/playlist.m3u8
 https://live-3.otcnet.ru/sportivny/index.m3u8
 https://live.koryocdn.org/sports/index.m3u8
@@ -242,6 +246,7 @@ https://d1t5afz6qed3xk.cloudfront.net/Unbeaten.m3u8
 http://59.103.38.46:8000/play/a126/index.m3u8
 http://315e5a5d.ottrast.com/iptv/8XFKA8883W9M5K/12077/index.m3u8
 http://stream.mcquack.net/333/index.m3u8
+https://dethich.pw/thvl4/index.m3u8
 https://autopilot.catcast.tv/content/37909/index.m3u8
 https://live05.meung.app/live/16226575.m3u8
 http://forever.megogo.xyz/iptv/QGB4M3H62GC7E3/2471/index.m3u8
