@@ -145,6 +145,13 @@ https://<你的用户名>.github.io/<仓库名>/live.m3u
 >    `Settings → General → 拉到底部 Danger Zone → Change visibility → Public`
 > 2. **启用 Pages**：`Settings → Pages → Build and deployment → Source` 选择 **GitHub Actions**
 >
+> 第 2 步**没法用 workflow 自动完成**。虽然 `actions/configure-pages` 有个 `enablement: true`
+> 参数，但创建 Pages 站点需要管理员权限，Actions 自带的 `GITHUB_TOKEN` 会直接报
+> `Resource not accessible by integration`。所以这次点击是省不掉的。
+>
+> workflow 里加了一步前置检查，如果 Pages 没开，它会直接告诉你该点哪里，不会让你对着
+> `HttpError: Not Found` 猜。
+>
 > 顺带一提，仓库设为 Public 后 Actions 分钟数不计费（私有仓库才吃 2000 分钟/月的免费额度）。
 
 因为 `data/history.json` 会一起提交，**每次运行都在上一次的战绩基础上做判断**，
