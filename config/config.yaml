@@ -39,6 +39,23 @@ sources:
     enabled: true
     filter: all
 
+  # ===== vbskycn/iptv：国内可直连大源，每日更新 =====
+  # 官网 https://live.zbds.top/（订阅地址见其页面），覆盖央视/卫视/地方/电影等。
+  # iptv.hacks.tools 是同一项目的镜像，不重复添加。
+  # 注意：这是一个全量杂源（央视/卫视/县级台/风景摄像头混在一起），
+  #       故 filter: include，按 include_keywords 筛掉县级台、风景摄像头等噪音，
+  #       只保留央视/卫视/体育/电影等核心频道。
+  # 说明：该源另提供 IPv6 版本（tv/iptv6.m3u），需要 IPv6 网络才建议启用。
+  - name: vbskycn-ipv4
+    url: https://live.zbds.top/tv/iptv4.m3u
+    enabled: true
+    filter: include
+  # GitHub 加速备份（live.zbds.top 域名被污染时走这条）
+  - name: vbskycn-ipv4-gh
+    url: https://gh-proxy.com/raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv4.m3u
+    enabled: true
+    filter: include
+
   # ===== 补充：地方台合集（含吉林省台、各地市台）=====
   # 注意：这份列表里部分频道用的是已废弃域名（如 stream1.jlntv.cn），
   # 会被探测自动剔除，属正常现象。
