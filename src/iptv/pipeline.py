@@ -74,7 +74,9 @@ def cap_candidates(
     return ranked[:max_probe]
 
 
-async def run_pipeline(cfg: Dot, log=print, show_progress: bool = True) -> RunStats:
+async def run_pipeline(
+    cfg: Dot, log=print, show_progress: bool = True, force: bool = False
+) -> RunStats:
     started = now_utc()
     stats = RunStats(started_at=iso(started))
     t_begin = time.perf_counter()
@@ -180,9 +182,15 @@ async def run_pipeline(cfg: Dot, log=print, show_progress: bool = True) -> RunSt
 
     log("[6/6] 生成输出文件 ...")
     if alive:
-        written = publish.write_outputs(alive, cfg, stats)
-        for key, path in written.items():
-            log(f"      {key:<7} -> {path}")
+        try:
+            written = publish.write_outputs(alive, cfg, stats, force=force)
+        except publish.OutputRegression as exc:
+            log(f"      [保留旧文件] {exc}")
+            log("             为免把电视上的好列表冲掉，本次不覆盖输出。")
+            log("             确认要写入请加 --force 重跑。")
+        else:
+            for key, path in written.items():
+                log(f"      {key:<7} -> {path}")
     else:
         log("      没有任何可用流，未生成播放列表（保留上一版文件）。")
 
@@ -198,5 +206,7 @@ async def run_pipeline(cfg: Dot, log=print, show_progress: bool = True) -> RunSt
     return stats
 
 
-def run_sync(cfg: Dot, log=print, show_progress: bool = True) -> RunStats:
-    return asyncio.run(run_pipeline(cfg, log=log, show_progress=show_progress))
+def run_sync(
+    cfg: Dot, log=print, show_progress: bool = True, force: bool = False
+) -> RunStats:
+    return asyncio.run(run_pipeline(cfg, log=log, show_progress=show_progress, force=force))

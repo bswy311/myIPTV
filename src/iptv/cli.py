@@ -36,6 +36,7 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--timeout", type=float, default=None, help="覆盖单请求超时（秒）")
     r.add_argument("--max-probe", type=int, default=None, help="覆盖单次最大探测条数，0 为不限")
     r.add_argument("--mode", choices=["include", "all"], default=None, help="覆盖筛选模式")
+    r.add_argument("--force", action="store_true", help="跳过断崖保护，强制覆盖输出文件")
     r.add_argument("--serve", action="store_true", help="跑完后顺手起局域网服务")
 
     c = sub.add_parser("collect", help="只采集并保存原始清单，不做探测")
@@ -43,6 +44,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     pub = sub.add_parser("publish", help="用上次的探测结果重新生成输出文件（不联网）")
     pub.add_argument("--from", dest="src", default="data/probed.json", help="探测结果文件")
+    pub.add_argument("--force", action="store_true", help="跳过断崖保护，强制覆盖输出文件")
 
     s = sub.add_parser("serve", help="启动局域网 HTTP 服务，供电视订阅")
     s.add_argument("--port", type=int, default=None, help="覆盖端口")
@@ -120,7 +122,14 @@ def cmd_publish(cfg, args, log) -> int:
         dead=len(streams) - len(alive),
         channels=len({s.key for s in alive}),
     )
-    written = publish.write_outputs(alive, cfg, stats)
+    written = None
+    try:
+        written = publish.write_outputs(alive, cfg, stats, force=getattr(args, "force", False))
+    except publish.OutputRegression as exc:
+        log(f"[保留旧文件] {exc}")
+        log("确认要写入请加 --force。")
+        return 1
+
     log(f"已发布 {stats.published_channels} 个频道 / {stats.published_streams} 条线路")
     for key, path in written.items():
         log(f"  {key:<7} -> {path}")
@@ -163,7 +172,9 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         if args.cmd == "run":
-            stats = pipeline.run_sync(cfg, log=log, show_progress=not args.no_progress)
+            stats = pipeline.run_sync(
+                cfg, log=log, show_progress=not args.no_progress, force=args.force
+            )
             if args.serve:
                 server.serve(cfg, log=log)
             return 0 if stats.alive else 2

@@ -226,6 +226,7 @@ output:
   index: index.html
   max_per_channel: 3       # 每个频道保留几个源（作为备用线路）
   max_channels: 0          # 0 = 不限制频道数
+  min_keep_ratio: 0.5      # 断崖保护：新结果频道数不足上次 50% 时拒绝覆盖旧文件
   epg_url: ""              # 可选 EPG 地址，会写入 #EXTM3U x-tvg-url
 
 # ---------------------------------------------------------------

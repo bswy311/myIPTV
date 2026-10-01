@@ -181,7 +181,35 @@ def _index_html(stats: RunStats, streams: list[Stream], files: dict[str, str], c
 """
 
 
-def write_outputs(streams: list[Stream], cfg, stats: RunStats) -> dict[str, Path]:
+def _previous_published(out_dir: Path) -> int:
+    """读上一次运行发布的频道数，用于断崖保护。"""
+    snapshot = out_dir / "stats.json"
+    if not snapshot.exists():
+        return 0
+    try:
+        data = json.loads(snapshot.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return 0
+    try:
+        return int(data.get("published_channels") or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+class OutputRegression(Exception):
+    """本次结果比上次少太多，为避免把好列表冲掉而拒绝写入。"""
+
+    def __init__(self, new_count: int, prev_count: int, ratio: float) -> None:
+        super().__init__(
+            f"本次仅 {new_count} 个频道，不到上次 {prev_count} 个的 {ratio:.0%}"
+        )
+        self.new_count = new_count
+        self.prev_count = prev_count
+
+
+def write_outputs(
+    streams: list[Stream], cfg, stats: RunStats, force: bool = False
+) -> dict[str, Path]:
     out_dir = Path(cfg.output.get("dir") or "output")
     if not out_dir.is_absolute():
         out_dir = Path(cfg._root) / out_dir
@@ -198,6 +226,13 @@ def write_outputs(streams: list[Stream], cfg, stats: RunStats) -> dict[str, Path
                 seen_keys.append(st.key)
         keep = set(seen_keys[:max_channels])
         main_streams = [s for s in main_streams if s.key in keep]
+
+    # 断崖保护：网络一旦抽风，可用源会骤降，不能就这么把电视上的列表冲掉
+    new_count = len({s.key for s in main_streams})
+    guard = float(cfg.output.get("min_keep_ratio") or 0)
+    prev_count = _previous_published(out_dir)
+    if not force and guard > 0 and prev_count >= 20 and new_count < prev_count * guard:
+        raise OutputRegression(new_count, prev_count, guard)
 
     written: dict[str, Path] = {}
 

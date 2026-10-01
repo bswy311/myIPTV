@@ -169,6 +169,22 @@ https://<你的用户名>.github.io/<仓库名>/live.m3u
 
 想手动重置：`python main.py reset -y`
 
+### 断崖保护
+
+网络抽风时可用源会骤降。如果某次检测出的频道数不到上次的 `min_keep_ratio`
+（默认 50%），程序会**拒绝覆盖** `output/` 里的文件并打印提示：
+
+```
+[保留旧文件] 本次仅 6 个频道，不到上次 263 个的 50%
+        为免把电视上的好列表冲掉，本次不覆盖输出。
+```
+
+这样即使某次跑失败，电视上的订阅列表也不会被清空。确认要写入就加 `--force`：
+
+```powershell
+python main.py run --force
+```
+
 ---
 
 ## 六、配置说明（`config/config.yaml`）
@@ -252,8 +268,9 @@ output:
 python main.py run                      # 完整流程（最常用）
 python main.py run --serve              # 跑完顺手起局域网服务
 python main.py run --mode all           # 不限关键词，全量检测
-python main.py run --max-probe 500      # 只探测前 500 条
+python main.py run --max-probe 500      # 只探测前 500 条（调试用）
 python main.py run --concurrency 400    # 提高并发
+python main.py run --force              # 跳过断崖保护，强制覆盖输出
 python main.py collect                  # 只采集，存成 data/raw.json
 python main.py publish                  # 用上次探测结果重新生成输出（不联网）
 python main.py serve                    # 只起局域网服务
