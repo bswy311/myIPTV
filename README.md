@@ -220,35 +220,85 @@ python main.py run --force
 
 ```yaml
 sources:
-  - name: iptv-org-cn
-    url: https://iptv-org.github.io/iptv/countries/cn.m3u
+  - name: bestfan-cctv
+    url: https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_cctv.m3u8
     enabled: true
     filter: all          # all=这个源的频道全都要；include=按关键词筛
 ```
 
-- 默认启用了 iptv-org 的中国大陆/香港/台湾/澳门、体育分类、中文语言共 6 个源
-- `url` 也支持**本地文件路径**，可以填自己整理的清单
-- 社区聚合源（`raw.githubusercontent.com`、`live.fanmingming.com`）**默认关闭**，
-  这两个域名在本机实测连不上，但 GitHub Actions 的出口网络通常可以，需要时改 `enabled: true`
-- 想全量收录，把 `iptv-org-index` 打开即可（一万多频道，本机跑要十几分钟）
+默认启用的源：
 
-> **`filter: all` 很重要**：iptv-org 的 `countries/cn.m3u` 用的是英文频道名
-> （`Beijing Satellite TV`、`Hunan TV`），源本身已经是「中文频道」范围，
-> 再用中文关键词去卡它只会把整个源全部误杀。所以国家/语言类源一律写 `filter: all`，
-> 只有 `index.m3u` 这种跨国家的全量源才需要靠关键词筛。
+| 源 | 内容 | 实测存活率 |
+|---|---|---|
+| `best-fan/iptv-sources` (`cn_cctv` / `cn_province` / `cn_all`) | **主力**：央视 1~17 全套 + 省卫视 | 78% ~ 90% |
+| `hujingguang/ChinaIPTV` (`cnTV1_ALL`) | 地方台合集，含吉林省台 | 16% |
+| `iptv-org` (sports / cn / hk / tw / zho) | 国际频道、体育、港澳台补充 | 40% |
 
-### 中文频道名自动本地化
+> **关于 ghproxy.net**：本机访问 `raw.githubusercontent.com` 会间歇性失败，
+> 所以 GitHub 上的源统一走 ghproxy 镜像，同时保留直连版本作备份，
+> 哪条通用哪条，重复 URL 自动去重。单个源失败不影响整体。
 
-程序内置了英文 → 中文的频道名映射，`Beijing Satellite TV` 会自动变成 **北京卫视**，
-`Hunan TV` → **湖南卫视**，`Dragon TV` → **东方卫视**，`TVB Jade` → **翡翠台**。
+`url` 也支持**本地文件路径**，可以填自己整理的清单。想全量收录（一万多频道），
+把 `iptv-org-index` 的 `enabled` 改成 `true` 即可。
 
-这带来两个好处：
+> **`filter: all` 很重要**：像 `countries/cn.m3u` 这种源本身就是「中文频道」范围，
+> 而且用的是英文名（`Beijing Satellite TV`），再用中文关键词去卡只会全部误杀。
+> 所以范围明确的源一律写 `filter: all`，只有跨国家的全量源才靠关键词筛。
 
-1. 电视上显示的是中文台名，不用看一堆英文
-2. 同一个频道的英文写法（来自 iptv-org）和中文写法（来自别的源）会被归并成**同一频道的多条备用线路**，
-   而不是两个重复频道
+### 节目单 EPG
 
-映射表在 `src/iptv/normalize.py` 的 `_PROVINCE_EN` / `_EN2ZH_EXACT`，想补充直接加即可。
+程序不下载 EPG，只把地址写进 m3u 头部的 `x-tvg-url`，**播放器自己去拉**：
+
+```
+#EXTM3U x-tvg-url="https://live.fanmingming.cn/e.xml"
+```
+
+这个 `e.xml` 恰好覆盖**央视全套 + 39 个省卫视**，而且它的 channel id 就是
+`CCTV1` / `CCTV5+` / `北京卫视` 这种格式——程序生成的 `tvg-id` 就是按这个规则
+对齐的（见 `normalize.epg_id()`），所以 央视和卫视两组能直接看到节目单。
+
+吉林地方台、长春台等上游 EPG 里没有的频道，自然不显示节目单。
+想换 EPG 改 `output.epg_url` 即可；注意换成别的 EPG 往往需要同步改 `epg_id()`
+的 id 规则，否则匹配不上。
+
+### 台标
+
+```yaml
+output:
+  logo_template: "https://live.fanmingming.com/tv/{id}.png"
+  logo_prefer_template: true    # 央视和卫视一律用模板，避免同频道混用几套图源
+```
+
+`{id}` 就是 `tvg-id`（如 `CCTV1`）。开启 `logo_prefer_template` 后央视和卫视
+统一用同一套台标，否则优先用源里自带的，只在缺失或碰到已失效图床
+（`tv.haoqu99.com` 等）时才回退到模板。
+
+### 命名与排序
+
+- **央视**：显示为规范中文名 `CCTV-1 综合` / `CCTV-5+ 体育赛事`，
+  而不是 `CCTV-1`。央视付费频道也做了中文化（`CCTV-Storm Music` → `央视风云音乐`）。
+- **英文名本地化**：`Beijing Satellite TV` → `北京卫视`，`Hunan TV` → `湖南卫视`，
+  `Dragon TV` → `东方卫视`，`TVB Jade` → `翡翠台`。
+  好处是同一频道的英文写法和中文写法会合并成**同一频道的多条备用线路**。
+- **去噪**：`[Not 24/7]`、`[Geo-blocked]` 这类上游标注不会出现在电视上；
+  `HEVC`、`50 FPS` 这些变体会归并到同一频道。
+- **排序**：央视按 **数字** 排（1,2,3…17，`CCTV-5+` 紧跟 `CCTV-5`），
+  而不是字符串排序（否则会变成 1,10,11,12…2,3）。
+  卫视按中国行政区划顺序（北京→天津→河北→…→黑龙江→上海→…）。
+- **分组顺序**：央视 → 卫视 → 吉林 → 港澳台 → 体育 → 影视 → 少儿 → 纪录 → 新闻 → 音乐 → 其他。
+
+### 地方台过滤
+
+```yaml
+filter:
+  local_filter_enabled: true
+  local_keep: [吉林, 长春, 吉视]     # 地方台白名单
+```
+
+有些源的 `group-title` 是 `浙江台` / `黑龙江台` / `吉林台` 这种形式，里面混了
+大量县级台（「浙江上虞新闻综合频道」之类）。开了这个开关后，
+**只有白名单命中的地方台会保留**，其它一律丢弃。
+不想过滤就把它改成 `false`。
 
 ### 筛选范围
 

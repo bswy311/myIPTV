@@ -11,14 +11,47 @@
 # filter  : 该源自己的筛选模式，覆盖下面的 filter.mode
 #             all     = 这个源里的频道全都要
 #             include = 按 include_keywords 筛
-#           像 countries/cn.m3u 这种源本身就是「中文频道」范围，而且用的是
-#           英文名（Beijing Satellite TV），再用中文关键词去卡只会全部误杀，
-#           所以这类源一律写 filter: all。
 #
-# 实测：*.github.io 可达性最好；raw.githubusercontent.com 在部分
-# 网络下会间歇性失败，因此社区源默认关闭，需要时自行改 enabled。
+# 关于 ghproxy.net：本机访问 raw.githubusercontent.com 会间歇性失败，
+# 所以 GitHub 上的源统一走 ghproxy 镜像；同时保留直连版本作为备份，
+# 两个都配、哪条通用哪条，重复的 URL 会被自动去重。
+# 单个源失败不会影响整体，不用管。
 sources:
-  # ---- iptv-org 官方发布源 ----
+  # ===== 主力：中文频道（央卫全覆盖，实测存活率最高）=====
+  # best-fan 的列表上游已做过可用性筛选，实测存活率：
+  #   cn_cctv 78% / cn_province 90% / cn_all 85%
+  # 这是解决「央视和卫视不全」的关键源。
+  - name: bestfan-cctv
+    url: https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_cctv.m3u8
+    enabled: true
+    filter: all
+  - name: bestfan-province
+    url: https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_province.m3u8
+    enabled: true
+    filter: all
+  - name: bestfan-all
+    url: https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8
+    enabled: true
+    filter: all
+  # 直连备份（GitHub Actions 上更快；本机连不上会自动忽略）
+  - name: bestfan-all-direct
+    url: https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8
+    enabled: true
+    filter: all
+
+  # ===== 补充：地方台合集（含吉林省台、各地市台）=====
+  # 注意：这份列表里部分频道用的是已废弃域名（如 stream1.jlntv.cn），
+  # 会被探测自动剔除，属正常现象。
+  - name: chinaiptv-cntv
+    url: https://ghproxy.net/https://raw.githubusercontent.com/hujingguang/ChinaIPTV/main/cnTV1_ALL.m3u8
+    enabled: true
+    filter: all
+
+  # ===== 国际 / 体育补充 =====
+  - name: iptv-org-sports
+    url: https://iptv-org.github.io/iptv/categories/sports.m3u
+    enabled: true
+    filter: all
   - name: iptv-org-cn
     url: https://iptv-org.github.io/iptv/countries/cn.m3u
     enabled: true
@@ -31,39 +64,20 @@ sources:
     url: https://iptv-org.github.io/iptv/countries/tw.m3u
     enabled: true
     filter: all
-  - name: iptv-org-mo
-    url: https://iptv-org.github.io/iptv/countries/mo.m3u
-    enabled: true
-    filter: all
-  - name: iptv-org-sports
-    url: https://iptv-org.github.io/iptv/categories/sports.m3u
-    enabled: true
-    filter: all
   - name: iptv-org-zho
     url: https://iptv-org.github.io/iptv/languages/zho.m3u
     enabled: true
     filter: all
-  # ---- 全量索引（一万+ 频道，跨国家，需要靠关键词筛，默认关闭）----
+
+  # ===== 未启用 =====
+  # fanmingming 的流是广东联通源，带会过期的 Authinfo token，实测存活率仅 2%，
+  # 价值在于它的台标和 EPG（见下面 output 段，已经直接引用）。
+  - name: fanmingming-index
+    url: https://ghproxy.net/https://raw.githubusercontent.com/fanmingming/live/main/tv/m3u/index.m3u
+    enabled: false
+    filter: all
   - name: iptv-org-index
     url: https://iptv-org.github.io/iptv/index.m3u
-    enabled: false
-    filter: include
-
-  # ---- 社区聚合源（raw.githubusercontent，默认关闭）----
-  - name: yang1989-gather
-    url: https://raw.githubusercontent.com/YanG-1989/m3u/main/Gather.m3u
-    enabled: false
-    filter: include
-  - name: fanmingming-ipv4
-    url: https://live.fanmingming.com/tv/m3u/ipv4.m3u
-    enabled: false
-    filter: include
-  - name: aptv-iptv
-    url: https://raw.githubusercontent.com/Kimentanm/aptv/master/m3u/iptv.m3u
-    enabled: false
-    filter: include
-  - name: vbskycn-iptv4
-    url: https://raw.githubusercontent.com/vbskycn/iptv/master/tv/iptv4.m3u
     enabled: false
     filter: include
 
@@ -139,24 +153,61 @@ filter:
     - test
     - 广告
     - 已停播
+    # ---- 吉林地级市台（只保留长春）----
+    - 白城
+    - 四平
+    - 通化
+    - 白山
+    - 松原
+    - 辽源
+    - 梅河口
+    - 公主岭
+    - 延边一套
+    - 延边二套
+    - 延吉
+    # 英文名的地方台（iptv-org 用英文名，中文关键词匹配不到）
+    - baicheng
+    - siping
 
   # 命中这些 URL 片段的直接丢弃
   exclude_url_keywords: []
 
+  # ---------- 地方台过滤 ----------
+  # 有些源（如 chinaiptv）用 group-title="浙江台"/"黑龙江台"/"吉林台" 这种形式
+  # 组织地方台，里面混杂了大量县级台。对吉林用户来说「浙江上虞新闻综合频道」
+  # 这类频道只是噪声。
+  # 规则：group 以 local_group_suffix 结尾且不是卫视台的，视为地方台，
+  #       只有 group 名字命中 local_keep 才保留。
+  local_group_suffix: 台
+  local_group_exempt:
+    - 卫视台
+    - 央视
+    - 港澳台
+  local_keep:
+    - 吉林
+    - 长春
+    - 吉视
+  # 不想过滤地级市/县级台就改成 false
+  local_filter_enabled: true
+
 # ---------------------------------------------------------------
 # 3. 频道分类（决定 group-title）
 # ---------------------------------------------------------------
-# 匹配规则：按下面顺序，命中第一条即归类。所以「体育」放在「央视」
-# 前面，才能让 CCTV-5 归到体育组。
+# 匹配规则：按下面顺序，命中第一条即归类。
+# 央视 放在最前面，这样 CCTV-5 / CCTV-5+ 归到「央视」而不是「体育」，
+# 保证央视那组是完整的 1~17。其它体育频道（五星体育、ESPN 等）仍归体育。
 categories:
-  - name: 体育
-    keywords: [体育, 足球, 篮球, 网球, 台球, 赛车, 围棋, 赛事, cctv5, cctv-5, 五星, 劲爆, 天元, espn, sports, sport, golf, nba, 中超, 英超, 西甲]
   - name: 央视
     keywords: [cctv, cgtn, 央视, 中央电视]
+  - name: 体育
+    keywords: [体育, 足球, 篮球, 网球, 台球, 赛车, 围棋, 赛事, 五星, 劲爆, 天元, espn, sports, sport, golf, nba, 中超, 英超, 西甲]
   - name: 港澳台
     keywords: [翡翠, 明珠, 无线, tvb, 凤凰, 东森, 中天, 三立, 民视, 台视, 华视, 中视, 亚视, 澳视, 莲花, 星空, 纬来, 龙华, 爱尔达, 靖天, 香港, 澳门, 台湾]
   - name: 卫视
     keywords: [卫视]
+  - name: 吉林
+    # 吉林省台 + 长春台（排在「卫视」之后，所以吉林卫视/延边卫视仍归卫视）
+    keywords: [吉视, 吉林, 长春, 东北戏曲]
   - name: 影视
     keywords: [电影, 影视, 剧场, 影院, 美剧, 港剧, 韩剧, cinema, movie, hbo, 天映]
   - name: 少儿
@@ -171,7 +222,7 @@ categories:
     keywords: []
 
 # 输出时的分组先后顺序（未列出的分组排最后）
-output_order: [央视, 卫视, 港澳台, 体育, 影视, 少儿, 纪录, 新闻, 音乐, 其他]
+output_order: [央视, 卫视, 吉林, 港澳台, 体育, 影视, 少儿, 纪录, 新闻, 音乐, 其他]
 
 # ---------------------------------------------------------------
 # 4. 频道名归一化
@@ -224,10 +275,29 @@ output:
   text: live.txt           # 纯 URL 列表，给 PotPlayer 手工测试用
   report: report.md
   index: index.html
-  max_per_channel: 3       # 每个频道保留几个源（作为备用线路）
+  max_per_channel: 5       # 每个频道保留几个源（作为备用线路）
   max_channels: 0          # 0 = 不限制频道数
   min_keep_ratio: 0.5      # 断崖保护：新结果频道数不足上次 50% 时拒绝覆盖旧文件
-  epg_url: ""              # 可选 EPG 地址，会写入 #EXTM3U x-tvg-url
+
+  # ---------- 节目单（EPG）----------
+  # 会被写进 m3u 的 #EXTM3U x-tvg-url="..."，由播放器自己去拉，我们不下载。
+  # 这个 e.xml 恰好覆盖央视全套 + 39 个省卫视，并且 id 就是 CCTV1 / 北京卫视
+  # 这种格式，与程序生成的 tvg-id 完全对齐。
+  # 缺省覆盖不到的频道（吉林地方台等）自然不显示节目单。
+  epg_url: "https://live.fanmingming.cn/e.xml"
+
+  # ---------- 台标 ----------
+  # 源里没提供台标、或台标来自已失效的图床时，用这个模板按 tvg-id 拼一个。
+  # 仅在 tvg-id 形如 CCTV1 / 北京卫视 时启用（这类台标确实存在）。
+  logo_template: "https://live.fanmingming.com/tv/{id}.png"
+  # true = 央视和卫视一律用上面的模板（统一好看）
+  # false = 优先用源里自带的台标，只在缺失/失效时用模板
+  logo_prefer_template: true
+  # 这些图床/占位图已失效，遇到就换成上面的模板
+  logo_skip_domains:
+    - tv.haoqu99.com
+    - notemp.gif
+    - haoqu99
 
 # ---------------------------------------------------------------
 # 8. 局域网服务（给电视订阅 http://电脑IP:8899/live.m3u）

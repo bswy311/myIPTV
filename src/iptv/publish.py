@@ -9,6 +9,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .models import RunStats, Stream
+from .normalize import channel_sort
 
 
 def _order_map(cfg) -> dict[str, int]:
@@ -17,9 +18,15 @@ def _order_map(cfg) -> dict[str, int]:
 
 
 def sort_key_factory(cfg):
+    """排序：先按分组的配置顺序，再按频道内部权重（CCTV 按数字、卫视按行政区划）。"""
     order = _order_map(cfg)
     big = len(order) + 1
-    return lambda st: (order.get(st.category, big), st.key, -st.score)
+
+    def _key(st: Stream) -> tuple:
+        inner, tie = channel_sort(st)
+        return (order.get(st.category, big), inner, tie, st.key, -st.score)
+
+    return _key
 
 
 def group_by_channel(streams: list[Stream]) -> dict[str, list[Stream]]:
@@ -118,9 +125,9 @@ def _report_md(stats: RunStats, streams: list[Stream], cfg) -> str:
 
 def _index_html(stats: RunStats, streams: list[Stream], files: dict[str, str], cfg) -> str:
     groups = group_by_channel(streams)
-    order = _order_map(cfg)
+    sort_key = sort_key_factory(cfg)
     rows = []
-    for key in sorted(groups, key=lambda k: (order.get(groups[k][0].category, 99), k)):
+    for key in sorted(groups, key=lambda k: sort_key(groups[k][0])):
         items = groups[key]
         best = items[0]
         rows.append(

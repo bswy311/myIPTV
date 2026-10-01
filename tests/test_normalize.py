@@ -17,9 +17,11 @@ from iptv.models import Stream  # noqa: E402
 from iptv.normalize import (  # noqa: E402
     canonical_key,
     categorize,
+    channel_sort,
     clean_name,
     dedupe,
     display_name,
+    epg_id,
     matches_filter,
     normalize,
     source_modes,
@@ -74,8 +76,11 @@ def test_normalize_and_categorize():
     assert keys["湖南卫视高清"] == "湖南卫视"
 
     cats = {s.name: s.category for s in streams}
-    assert cats["CCTV-5 体育"] == "体育", cats
+    # 央视分类排在体育之前，所以 CCTV-5 归「央视」，保证央视那组 1~17 是完整的
+    assert cats["CCTV-5 体育"] == "央视", cats
     assert cats["CCTV-1 综合"] == "央视", cats
+    # 非央视的体育频道仍然归体育
+    assert cats["五星体育"] == "体育", cats
     assert cats["湖南卫视高清"] == "卫视", cats
     assert cats["翡翠台"] == "港澳台", cats
 
@@ -136,6 +141,109 @@ def test_resolution_marks_do_not_pollute_key():
     # 不能为了去掉分辨率而误伤含数字的台名
     assert canonical_key("TV1000") == "tv1000"
     assert clean_name("TV1000") == "TV1000"
+
+
+def test_annotation_and_variant_marks_are_stripped():
+    # iptv-org 的标注不应该出现在电视上
+    assert display_name("CCTV+ 1 [Not 24/7]") == "CCTV+ 1"
+    assert display_name("Beijing Satellite TV [Geo-blocked]") == "北京卫视"
+    # 上游的编码/帧率变体应归并成同一频道，作为备用线路
+    assert canonical_key("北京卫视 HEVC") == "北京卫视"
+    assert canonical_key("北京卫视 50 FPS") == "北京卫视"
+    assert canonical_key("北京卫视") == "北京卫视"
+
+
+def test_cctv_4k_8k_not_destroyed_by_noise_regex():
+    # 回归：4K/8K 曾被画质清洗规则当成后缀删掉，使 CCTV-4K 退化成 CCTV
+    assert canonical_key("CCTV-4K") == "cctv4k"
+    assert canonical_key("CCTV-8K") == "cctv8k"
+    assert canonical_key("CCTV-16 4K") == "cctv16"
+    assert display_name("CCTV-4K") == "CCTV-4K"
+
+
+def test_cctv_display_names_are_full():
+    cfg = load_config()
+    streams = [Stream(url="u", name="CCTV-1"), Stream(url="u2", name="CCTV5+")]
+    normalize(streams, cfg)
+    assert streams[0].display == "CCTV-1 综合"
+    assert streams[1].display == "CCTV-5+ 体育赛事"
+
+
+def test_epg_ids_match_the_epg_file():
+    # 必须和 e.xml 里的 channel id 完全一致，否则节目单匹配不上
+    assert epg_id("cctv1") == "CCTV1"
+    assert epg_id("cctv5+") == "CCTV5+"
+    assert epg_id("cctv4k") == "CCTV4K"
+    assert epg_id("北京卫视") == "北京卫视"
+    assert epg_id("湖南卫视") == "湖南卫视"
+    # 没有节目单的频道返回空
+    assert epg_id("吉林都市频道") == ""
+
+
+def test_channel_sort_fixes_lexicographic_order():
+    cfg = load_config()
+    names = [f"CCTV-{i}" for i in range(1, 18)] + ["CCTV-5+", "CCTV-4K"]
+    streams = [Stream(url=f"u{i}", name=n) for i, n in enumerate(names)]
+    normalize(streams, cfg)
+    ordered = [s.display for s in sorted(streams, key=channel_sort)]
+
+    assert ordered[0] == "CCTV-1 综合"
+    assert ordered[1] == "CCTV-2 财经"
+    assert ordered[2] == "CCTV-3 综艺"
+    assert ordered[4] == "CCTV-5 体育"
+    # CCTV-5+ 紧跟在 CCTV-5 后面，而不是排到最后
+    assert ordered[5] == "CCTV-5+ 体育赛事"
+    assert ordered[6] == "CCTV-6 电影"
+    # 字典序会把 CCTV-10 排到 CCTV-2 前面，这里必须不是那样
+    assert ordered.index("CCTV-9 纪录") < ordered.index("CCTV-10 科教")
+    assert ordered.index("CCTV-10 科教") < ordered.index("CCTV-17 农业农村")
+    assert ordered[-1].startswith("CCTV-4K")
+
+
+def test_cctv_paid_channels_localized_and_sorted_last():
+    cfg = load_config()
+    paid = ["CCTV-Billiards", "CCTV-Storm Football", "CCTV-Health", "CCTV-Weapon & Technology"]
+    streams = [Stream(url=f"u{i}", name=n)
+               for i, n in enumerate(paid + ["CCTV-1", "CCTV-17"])]
+    normalize(streams, cfg)
+
+    displays = {s.display for s in streams}
+    assert {"央视台球", "央视风云足球", "央视卫生健康", "央视兵器科技"} <= displays
+
+    ordered = [s.display for s in sorted(streams, key=channel_sort)]
+    assert ordered[0] == "CCTV-1 综合"
+    assert ordered[1] == "CCTV-17 农业农村"
+    # 回归：无编号的央视频道曾被当作 0 权重，排到 CCTV-1 前面
+    assert ordered.index("央视台球") > ordered.index("CCTV-17 农业农村")
+
+
+def test_local_channel_whitelist():
+    """外省地级市/县级台应被过滤，只留吉林省台和长春台。"""
+    cfg = load_config()
+    modes = {"src": "all"}   # 模拟 filter: all 的源，此时只剩 exclude 和本地台白名单生效
+
+    def mk(name, group):
+        return Stream(url="u", name=name, group=group, source="src")
+
+    assert matches_filter(mk("吉林都市频道", "吉林台"), cfg, modes) is True
+    assert matches_filter(mk("长春综合频道", "长春台"), cfg, modes) is True
+    assert matches_filter(mk("浙江少儿频道", "浙江台"), cfg, modes) is False
+    assert matches_filter(mk("黑龙江都市频道", "黑龙江台"), cfg, modes) is False
+    assert matches_filter(mk("上虞新闻综合频道", "浙江台"), cfg, modes) is False
+    # 卫视台不是地方台，不受白名单影响
+    assert matches_filter(mk("北京卫视", "卫视台"), cfg, modes) is True
+
+
+def test_satellite_sort_puts_jilin_near_heilongjiang():
+    cfg = load_config()
+    streams = [Stream(url=f"u{i}", name=n) for i, n in enumerate(
+        ["广东卫视", "吉林卫视", "北京卫视", "黑龙江卫视", "湖南卫视"])]
+    normalize(streams, cfg)
+    ordered = [s.display for s in sorted(streams, key=channel_sort)]
+    # 行政区划顺序：北京 → 吉林 → 黑龙江，吉林应该在黑龙江前面
+    assert ordered.index("黑龙江卫视") - ordered.index("吉林卫视") == 1
+    assert ordered.index("北京卫视") < ordered.index("吉林卫视")
+    assert ordered.index("吉林卫视") < ordered.index("湖南卫视")
 
 
 def test_filter_include_and_exclude():
