@@ -1,10 +1,10 @@
 # IPTV 直播源检测报告
 
-- 运行时间：2026-10-01T12:08:02+00:00 → 2026-10-01T12:08:53+00:00（51.5 秒）
+- 运行时间：2026-10-01T12:19:28+00:00 → 2026-10-01T12:19:40+00:00（12.4 秒）
 - 解析到流：**854** 条
 - 筛选后：854 条，去重后：668 条
-- 实际探测：667 条（拉黑跳过 252 条）
-- 可用：**273** 条（40.9%），失效：142 条
+- 实际探测：667 条（拉黑跳过 383 条）
+- 可用：**273** 条（40.9%），失效：11 条
 - 频道数：270，发布：270 个频道 / 273 条线路
 
 ## 流类型分布
@@ -16,14 +16,14 @@
 
 | 分组 | 可用线路 | 频道数 |
 |---|---|---|
-| 央视 | 27 | 26 |
+| 央视 | 26 | 25 |
 | 卫视 | 5 | 5 |
 | 港澳台 | 3 | 3 |
-| 体育 | 188 | 186 |
-| 影视 | 4 | 4 |
+| 体育 | 191 | 189 |
+| 影视 | 3 | 3 |
 | 少儿 | 3 | 3 |
 | 新闻 | 6 | 6 |
-| 其他 | 37 | 37 |
+| 其他 | 36 | 36 |
 
 ## 采集源
 
@@ -40,35 +40,35 @@
 
 | 频道 | 分组 | 类型 | 分辨率 | 延迟 | 评分 |
 |---|---|---|---|---|---|
-| Extreme Sports Channel Polska | 体育 | hls | 1920x1080 | 1720ms | 1196 |
-| UDAR | 体育 | hls | 1920x1080 | 1578ms | 1194 |
-| Setanta Sports 1 Eurasia | 体育 | hls | 1920x1080 | 1816ms | 1172 |
-| TV BRICS Chinese | 港澳台 | hls | 1920x1080 | 1934ms | 1170 |
-| Red Bull TV DE | 体育 | hls | 1920x1080 | 2047ms | 1161 |
-| Setanta Sports 2 Eurasia | 体育 | hls | 1920x1080 | 1972ms | 1160 |
-| Maincast Cybersport | 体育 | hls | 1920x1080 | 1982ms | 1160 |
-| Okko Futbol | 体育 | hls | 1920x1080 | 2184ms | 1159 |
-| World Poker Tour | 体育 | hls | 1920x1080 | 2036ms | 1158 |
-| Go3 Sport 1 | 体育 | hls | 1920x1080 | 2117ms | 1155 |
-| CCTV-9 | 央视 | hls | 1920x1080 | 2078ms | 1155 |
-| Sport 2 (Ukraine) | 体育 | hls | 1920x1080 | 1997ms | 1154 |
-| LRT Plius | 体育 | hls | 1920x1080 | 2049ms | 1154 |
-| Swerve Combat | 体育 | hls | 1920x1080 | 2066ms | 1153 |
-| Okko Prajm Sport | 体育 | hls | 1920x1080 | 2190ms | 1152 |
-| QazSport | 体育 | hls | 1920x1080 | 2085ms | 1151 |
-| Love Nature | 其他 | hls | 1920x1080 | 2116ms | 1151 |
-| N Sports | 体育 | hls | 1920x1080 | 2092ms | 1150 |
-| 安徽卫视 | 卫视 | hls | 1920x1080 | 1926ms | 1149 |
-| Okko Sport | 体育 | hls | 1920x1080 | 2314ms | 1148 |
-| Equalympic | 体育 | hls | 1920x1080 | 2144ms | 1146 |
-| Sport 5 | 体育 | hls | 1920x1080 | 2161ms | 1145 |
-| Sport 1 Baltic | 体育 | hls | 1920x1080 | 2172ms | 1144 |
-| Sport 3 (Ukraine) | 体育 | hls | 1920x1080 | 2175ms | 1144 |
-| Red Bull TV ES | 体育 | hls | 1920x1080 | 2256ms | 1143 |
-| L1 Max | 体育 | hls | 1920x1080 | 2216ms | 1142 |
-| Red Bull TV UK | 体育 | hls | 1920x1080 | 2319ms | 1142 |
-| Match! Boets | 体育 | hls | 1920x1080 | 2215ms | 1141 |
-| Suspilne. Sport | 体育 | hls | 1920x1080 | 2247ms | 1138 |
-| Dynamo Kyiv TV | 体育 | hls | 1920x1080 | 2246ms | 1138 |
+| MSG | 体育 | hls | 1920x1080 | 430ms | 1293 |
+| NBA TV | 体育 | hls | 1920x1080 | 378ms | 1291 |
+| Extreme Sports Channel Polska | 体育 | hls | 1920x1080 | 1164ms | 1244 |
+| Win Sports | 体育 | hls | 1920x1080 | 1193ms | 1242 |
+| UDAR | 体育 | hls | 1920x1080 | 1333ms | 1225 |
+| L1 Max | 体育 | hls | 1920x1080 | 1118ms | 1225 |
+| Fox Deportes | 体育 | hls | 1280x720 | 361ms | 1219 |
+| MLB Strike Zone | 体育 | hls | 1280x720 | 444ms | 1214 |
+| TVBS-Asia | 港澳台 | hls | 1920x1080 | 1392ms | 1193 |
+| 翡翠台 | 港澳台 | hls | 1920x1080 | 1827ms | 1174 |
+| Mei Ah Movie Channel | 影视 | hls | 1920x1080 | 1826ms | 1174 |
+| Golden Jade | 其他 | hls | 1920x1080 | 1813ms | 1171 |
+| Fox Sports 1 | 体育 | hls | 1280x720 | 969ms | 1163 |
+| ESPNU | 体育 | hls | 1280x720 | 998ms | 1150 |
+| Belarus-5 | 体育 | hls | 720x576 | 1212ms | 1132 |
+| Star Sports Khel | 体育 | hls | 1024x576 | 902ms | 1126 |
+| SporTV | 体育 | hls | 1024x576 | 847ms | 1126 |
+| Star Sports 2 | 体育 | hls | 1024x576 | 887ms | 1124 |
+| Star Sports 1 | 体育 | hls | 1024x576 | 918ms | 1120 |
+| Love Nature | 其他 | hls | 1920x1080 | 2597ms | 1116 |
+| CGTN Global Biz | 央视 | hls | 1920x1080 | 2655ms | 1113 |
+| ESPNews | 体育 | hls | 1280x720 | 1772ms | 1112 |
+| Discovering China | 其他 | hls | 1920x1080 | 2589ms | 1110 |
+| World Poker Tour | 体育 | hls | 1920x1080 | 2688ms | 1110 |
+| China Travel | 其他 | hls | 1920x1080 | 2643ms | 1106 |
+| BabyFirst | 少儿 | hls | 1920x1080 | 2715ms | 1103 |
+| World Poker Tour Poland | 体育 | hls | 1920x1080 | 2774ms | 1100 |
+| Unbeaten | 体育 | hls | 1920x1080 | 2859ms | 1099 |
+| NTD TV | 其他 | hls | 1920x1080 | 2739ms | 1097 |
+| TSN The Ocho | 体育 | hls | 1920x1080 | 2829ms | 1095 |
 
-> 由 iptv-pipeline 自动生成 2026-10-01T12:08:53+00:00
+> 由 iptv-pipeline 自动生成 2026-10-01T12:19:40+00:00
