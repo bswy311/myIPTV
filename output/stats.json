@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-01T12:57:41+00:00",
- "finished_at": "2026-10-01T12:58:42+00:00",
- "elapsed_sec": 61.471397700000125,
+ "started_at": "2026-10-01T12:59:12+00:00",
+ "finished_at": "2026-10-01T13:00:01+00:00",
+ "elapsed_sec": 49.086056361999994,
  "sources": [
   {
    "name": "bestfan-cctv",
@@ -79,14 +79,15 @@
  "after_dedup": 831,
  "probed": 830,
  "skipped_blacklist": 0,
- "alive": 355,
- "dead": 475,
- "channels": 294,
- "published_channels": 294,
- "published_streams": 353,
+ "alive": 450,
+ "dead": 380,
+ "channels": 384,
+ "published_channels": 384,
+ "published_streams": 448,
  "kind_breakdown": {
-  "hls": 354,
+  "hls": 448,
+  "ts": 1,
   "dash": 1
  },
- "alive_rate": 42.77
+ "alive_rate": 54.22
 }

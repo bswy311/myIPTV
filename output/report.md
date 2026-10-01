@@ -1,29 +1,30 @@
 # IPTV 直播源检测报告
 
-- 运行时间：2026-10-01T12:57:41+00:00 → 2026-10-01T12:58:42+00:00（61.5 秒）
+- 运行时间：2026-10-01T12:59:12+00:00 → 2026-10-01T13:00:01+00:00（49.1 秒）
 - 解析到流：**1602** 条
 - 筛选后：1255 条，去重后：831 条
 - 实际探测：830 条（拉黑跳过 0 条）
-- 可用：**355** 条（42.8%），失效：475 条
-- 频道数：294，发布：294 个频道 / 353 条线路
+- 可用：**450** 条（54.2%），失效：380 条
+- 频道数：384，发布：384 个频道 / 448 条线路
 
 ## 流类型分布
 
-- `hls`：354
+- `hls`：448
+- `ts`：1
 - `dash`：1
 
 ## 分组统计
 
 | 分组 | 可用线路 | 频道数 |
 |---|---|---|
-| 央视 | 62 | 33 |
-| 卫视 | 57 | 29 |
-| 港澳台 | 6 | 4 |
-| 体育 | 182 | 180 |
-| 影视 | 4 | 4 |
+| 央视 | 63 | 33 |
+| 卫视 | 57 | 28 |
+| 港澳台 | 7 | 5 |
+| 体育 | 262 | 258 |
+| 影视 | 5 | 5 |
 | 少儿 | 4 | 4 |
 | 新闻 | 6 | 6 |
-| 其他 | 34 | 34 |
+| 其他 | 46 | 45 |
 
 ## 采集源
 
@@ -44,35 +45,35 @@
 
 | 频道 | 分组 | 类型 | 分辨率 | 延迟 | 评分 |
 |---|---|---|---|---|---|
-| UDAR | 体育 | hls | 1920x1080 | 1261ms | 1214 |
-| Extreme Sports Channel Polska | 体育 | hls | 1920x1080 | 1578ms | 1195 |
-| TV BRICS Chinese | 港澳台 | hls | 1920x1080 | 1564ms | 1192 |
-| Astrahan.Ru Sport | 体育 | hls | 1920x1080 | 2073ms | 1156 |
-| CCTV-9 纪录 | 央视 | hls | 1920x1080 | 1982ms | 1147 |
-| Love Nature | 其他 | hls | 1920x1080 | 2134ms | 1141 |
-| NBC Sports NOW | 体育 | hls | 1920x1080 | 2143ms | 1136 |
-| NBA TV | 体育 | hls | 1920x1080 | 2208ms | 1136 |
-| Red Bull TV UK | 体育 | hls | 1920x1080 | 2299ms | 1131 |
-| NHL Network | 体育 | hls | 1920x1080 | 2210ms | 1130 |
-| FITE 24/7 | 体育 | hls | 1920x1080 | 2233ms | 1130 |
-| Rally TV | 体育 | hls | 1920x1080 | 2416ms | 1128 |
-| FloHockey | 体育 | hls | 1920x1080 | 2320ms | 1126 |
-| Red Bull TV ES | 体育 | hls | 1920x1080 | 2323ms | 1125 |
-| L1 Max | 体育 | hls | 1920x1080 | 2360ms | 1124 |
-| MMA-TV.com | 体育 | hls | 1920x1080 | 2399ms | 1124 |
-| N Sports | 体育 | hls | 1920x1080 | 2282ms | 1123 |
-| Red Bull TV AU | 体育 | hls | 1920x1080 | 2380ms | 1123 |
-| DD Sports | 体育 | hls | 1920x1080 | 2259ms | 1122 |
-| Pac-12 Insider | 体育 | hls | 1920x1080 | 2431ms | 1117 |
-| TSN The Ocho | 体育 | hls | 1920x1080 | 2364ms | 1116 |
-| CGTN Global Biz | 央视 | hls | 1920x1080 | 2358ms | 1116 |
-| ESPN8: The Ocho | 体育 | hls | 1920x1080 | 2443ms | 1116 |
-| VoA TV China | 其他 | hls | 1920x1080 | 2450ms | 1114 |
-| Red Bull TV | 体育 | hls | 1920x1080 | 2578ms | 1114 |
-| Okko Sport | 体育 | hls | 1920x1080 | 2610ms | 1113 |
-| Swerve Combat | 体育 | hls | 1920x1080 | 2418ms | 1113 |
-| Discovering China | 其他 | hls | 1920x1080 | 2407ms | 1112 |
-| Unbeaten | 体育 | hls | 1920x1080 | 2496ms | 1112 |
-| Racer Select | 体育 | hls | 1920x1080 | 2447ms | 1110 |
+| N Sports | 体育 | hls | 1920x1080 | 129ms | 1299 |
+| Rally TV | 体育 | hls | 1920x1080 | 366ms | 1296 |
+| World Poker Tour | 体育 | hls | 1920x1080 | 242ms | 1293 |
+| NBC Sports NOW | 体育 | hls | 1920x1080 | 238ms | 1293 |
+| Red Bull TV UK | 体育 | hls | 1920x1080 | 334ms | 1293 |
+| Red Bull TV US | 体育 | hls | 1920x1080 | 311ms | 1292 |
+| Unbeaten | 体育 | hls | 1920x1080 | 380ms | 1286 |
+| Red Bull TV DE | 体育 | hls | 1920x1080 | 398ms | 1285 |
+| Red Bull TV ES | 体育 | hls | 1920x1080 | 386ms | 1284 |
+| Red Bull TV AU | 体育 | hls | 1920x1080 | 427ms | 1283 |
+| TV Cuatro 4.3 | 体育 | hls | 1920x1080 | 374ms | 1281 |
+| BabyFirst | 少儿 | hls | 1920x1080 | 279ms | 1281 |
+| Red Bull TV | 体育 | hls | 1920x1080 | 548ms | 1280 |
+| FTF Sports | 体育 | hls | 1920x1080 | 588ms | 1278 |
+| Pac-12 Insider | 体育 | hls | 1920x1080 | 476ms | 1278 |
+| NBA TV | 体育 | hls | 1920x1080 | 537ms | 1276 |
+| Racer Select | 体育 | hls | 1920x1080 | 461ms | 1273 |
+| TSN The Ocho | 体育 | hls | 1920x1080 | 474ms | 1272 |
+| Red Bull TV BR | 体育 | hls | 1920x1080 | 420ms | 1271 |
+| FITE 24/7 | 体育 | hls | 1920x1080 | 563ms | 1268 |
+| MSG | 体育 | hls | 1920x1080 | 654ms | 1267 |
+| FloRacing | 体育 | hls | 1920x1080 | 725ms | 1258 |
+| FloHockey | 体育 | hls | 1920x1080 | 729ms | 1258 |
+| RACER International | 体育 | hls | 1920x1080 | 663ms | 1256 |
+| NHL Network | 体育 | hls | 1920x1080 | 714ms | 1254 |
+| DD Sports | 体育 | hls | 1920x1080 | 693ms | 1251 |
+| ge Fast | 体育 | hls | 1920x1080 | 751ms | 1251 |
+| NTD TV | 其他 | hls | 1920x1080 | 733ms | 1251 |
+| CGNTV Chinese | 其他 | hls | 1920x1080 | 948ms | 1244 |
+| Swerve Combat | 体育 | hls | 1920x1080 | 871ms | 1240 |
 
-> 由 iptv-pipeline 自动生成 2026-10-01T12:58:42+00:00
+> 由 iptv-pipeline 自动生成 2026-10-01T13:00:01+00:00
