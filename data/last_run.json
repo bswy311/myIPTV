@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-01T13:55:50+00:00",
- "finished_at": "2026-10-01T13:57:48+00:00",
- "elapsed_sec": 117.416927999,
+ "started_at": "2026-10-01T14:26:19+00:00",
+ "finished_at": "2026-10-01T14:28:54+00:00",
+ "elapsed_sec": 154.309779518,
  "sources": [
   {
    "name": "bestfan-cctv",
@@ -29,6 +29,20 @@
    "url": "https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
    "fetched": 24863,
    "parsed": 118,
+   "error": ""
+  },
+  {
+   "name": "vbskycn-ipv4",
+   "url": "https://live.zbds.top/tv/iptv4.m3u",
+   "fetched": 97803,
+   "parsed": 544,
+   "error": ""
+  },
+  {
+   "name": "vbskycn-ipv4-gh",
+   "url": "https://gh-proxy.com/raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv4.m3u",
+   "fetched": 97803,
+   "parsed": 544,
    "error": ""
   },
   {
@@ -74,20 +88,22 @@
    "error": ""
   }
  ],
- "total_parsed": 1602,
- "after_filter": 1255,
- "after_dedup": 831,
- "probed": 830,
+ "total_parsed": 2690,
+ "after_filter": 1639,
+ "after_dedup": 1012,
+ "probed": 1011,
  "skipped_blacklist": 0,
- "alive": 437,
- "dead": 393,
- "channels": 362,
- "published_channels": 362,
- "published_streams": 418,
+ "alive": 592,
+ "dead": 419,
+ "channels": 507,
+ "published_channels": 507,
+ "published_streams": 571,
  "kind_breakdown": {
-  "hls": 435,
+  "hls": 519,
+  "mp4": 10,
+  "flv": 61,
   "ts": 1,
   "dash": 1
  },
- "alive_rate": 52.65
+ "alive_rate": 58.56
 }
