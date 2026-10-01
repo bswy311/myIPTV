@@ -30,9 +30,15 @@ class Stream:
     latency_ms: float = 0.0
     resolution: str = ""
     height: int = 0             # 分辨率高度，用于评分
-    bandwidth: int = 0
+    bandwidth: int = 0          # 清单里声明的码率（bps）
     error: str = ""
     checked_at: str = ""
+
+    # ---- 带宽实测（决定会不会卡）----
+    bitrate_kbps: float = 0.0   # 视频实际码率
+    speed_kbps: float = 0.0     # 实测下载速度
+    stability: float = 0.0      # 0~100，分片拉取成功率
+    headroom: float = 0.0       # speed / bitrate，越大越不容易卡
 
     # ---- 评分 ----
     score: float = 0.0
@@ -58,6 +64,9 @@ class ProbeResult:
     resolution: str = ""
     bandwidth: int = 0
     error: str = ""
+    bitrate_kbps: float = 0.0
+    speed_kbps: float = 0.0
+    stability: float = 0.0
 
     @property
     def height(self) -> int:
@@ -67,6 +76,12 @@ class ProbeResult:
             return int(self.resolution.split("x", 1)[1])
         except (ValueError, IndexError):
             return 0
+
+    @property
+    def headroom(self) -> float:
+        if self.bitrate_kbps <= 0:
+            return 0.0
+        return self.speed_kbps / self.bitrate_kbps
 
 
 @dataclass

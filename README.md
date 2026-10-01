@@ -170,7 +170,82 @@ workflow 里已经做了处理：推送被拒时会自动 `git fetch` + `git reb
 
 ---
 
-## 五、自动剔除 / 自动复活机制
+## 五、带宽筛选 · 自动剔除 · 自动复活
+
+### 带宽测速：解决「能打开但一直转圈」
+
+「源可用」和「源能流畉看」是两件事。一个返回 `200`、分片也能拉到 64KB 的源，
+完全可能只有 200kbps —— 打开有画面，然后一直转圈。
+
+所以探测分两个阶段：
+
+```mermaid
+flowchart LR
+    A["阶段一 · 可达性<br/>并发 200，每条只读 64KB"] -->|"活下来"| B["阶段二 · 带宽测速<br/>并发 16，实测下载速度"]
+    B --> C{"速度 ≥ min_speed_kbps?"}
+    C -->|"是"| D["记下 speed / bitrate / 稳定性"]
+    C -->|"否"| E["剔除"]
+    D --> F["按 speed ÷ bitrate 余量排序"]
+```
+
+阶段一求「快、广」，阶段二求「准」，所以**并发必须低**。
+用 200 并发去测速等于同时从 200 个服务器下载，把自己家带宽占满，
+测出来每个源都只有几百 kbps —— 结论全是错的。
+
+| 指标 | 含义 | 怎么看 |
+|---|---|---|
+| `speed_kbps` | 实测下载速度 | 越大越好 |
+| `bitrate_kbps` | 视频本身码率 | 分片完整下完时按 `#EXTINF` 时长算，否则用清单里声明的 `BANDWIDTH` |
+| `headroom` | `speed ÷ bitrate` | **<1 必卡；1~2 勉强；>2 流畉** |
+| `stability` | 分片拉取成功率 | <100% 说明源不稳定 |
+
+排序完全按 `headroom` 优先，所以「同一频道留 3 条备用线路」时，
+排第一的一定是速度最宽裕的那条。`output/report.md` 和 `index.html` 里都有这一列。
+
+#### 墙钟预算：一个踩过的坑
+
+单条流的测速有个全局时间上限 `bw_total_timeout`。这个值**必须 ≥「拉清单 + 下完 `bw_sample_bytes`」**，
+否则会出大问题：
+
+```
+内层：每个分片软超时 8s，要连测 2 个分片        -> 最坏 16s
+外层：bw_total_timeout = 12s
+结果：外层 asyncio.wait_for 一到点就 cancel 掉整个协程
+      -> 已经下载到的字节也一起丢掉
+      -> 一个完全能看的源被记成「整体超时」
+```
+
+这个 bug 实测吃掉了 **122 条流**，其中央视 26 条、卫视 26 条，
+央视/卫视频道数直接腰斩。
+
+现在的做法是**让内层自己看着 deadline 提前收工**（`validate._limit()`）：
+每个 HTTP 请求的墙钟上限都被压到「剩余预算」以内，
+于是外层那道 `asyncio.wait_for` 只是个永远不该触发的保险。
+`tests/test_bandwidth.py` 里有针对它的回归测试。
+
+#### 先量一下自己家的宽带
+
+`bw_concurrency` 该填多少，取决于你这条线有多宽：
+
+```powershell
+python tools/speedtest.py        # 多源测单流速度
+python tools/speedtest.py -p 6   # 6 路并发，看聚合上限
+```
+
+按「单条流平均 3 Mbps、留 4 倍余量」估：
+
+| 宽带 | 建议 `bw_concurrency` |
+|---|---|
+| 50M | 8 |
+| 100M | 16 |
+| 200M | 24 |
+| 500M+ | 32 |
+
+> **检测所在网络会直接决定结果。** 在 GitHub Actions（美国机房）测出来的速度，
+> 和你家电视实际能跑的速度不是一回事。如果在意播放质量，
+> 建议在本机跑检测（见第八节），或者至少把 `min_speed_kbps` 调保守些。
+
+### 历史战绩：自动剔除与复活
 
 `data/history.json` 记录了每条 URL 的成功/失败次数：
 
@@ -327,6 +402,26 @@ network:
 python main.py run --concurrency 400 --max-probe 1000
 ```
 
+### 带宽测速参数
+
+```yaml
+validate:
+  bw_enabled: true         # 总开关；关掉后退回「只验证能出流」（快很多，但会卡）
+  bw_segments: 2           # 每个流连续拉几个分片（用来算稳定性和码率）
+  bw_sample_bytes: 700000  # 每个流总共最多下载多少字节（约 0.68MB）
+  min_speed_kbps: 800      # 实测速度低于此值直接剔除；嫌频道少就降到 400
+  bw_concurrency: 16       # 测速并发，必须低；太大等于自己把带宽占满
+  bw_total_timeout: 18     # 单条流测速的墙钟上限，见第五节
+```
+
+四个值的相互关系（改一个就得跟着改另一个）：
+
+- `bw_total_timeout` ≥ 「拉清单 + 下完 `bw_sample_bytes`」
+  （800kbps 下 700KB 约需 7s，加上拉清单给到 18s 已经很宽裕）
+- `min_speed_kbps` × `bw_concurrency` 要明显小于你家宽带上限，
+  否则测出来的速度会普遍偏低
+- `bw_sample_bytes` 太小会把突发速度当成真实速度，太大则拖慢整轮
+
 ### 输出
 
 ```yaml
@@ -376,15 +471,18 @@ iptv/
 │   ├── collect.py              # 采集 + M3U/TXT 解析
 │   ├── normalize.py            # 频道名归一化、分类、筛选
 │   ├── hls.py                  # 自研极简 m3u8 解析器（零依赖）
-│   ├── validate.py             # ★ 分层探测引擎（核心）
+│   ├── validate.py             # ★ 分层探测 + 带宽测速（核心）
 │   ├── history.py              # 历史战绩：剔除与复活
 │   ├── publish.py              # 生成 M3U / 报告 / 网页
 │   ├── server.py               # 局域网订阅服务
 │   ├── pipeline.py             # 流程编排
 │   └── cli.py                  # 命令行
+├── tools/speedtest.py          # 量本机宽带，用来定 bw_concurrency
 ├── data/                       # history.json / raw.json / probed.json
 ├── output/                     # 生成结果
-└── tests/test_normalize.py     # 回归测试
+└── tests/
+    ├── test_normalize.py       # 频道名归一化回归测试
+    └── test_bandwidth.py       # 带宽测速与评分回归测试
 ```
 
 ---

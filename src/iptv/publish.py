@@ -98,9 +98,30 @@ def _report_md(stats: RunStats, streams: list[Stream], cfg) -> str:
     for kind, cnt in sorted(stats.kind_breakdown.items(), key=lambda kv: -kv[1]):
         lines.append(f"- `{kind}`：{cnt}")
 
+    speeds = [s.speed_kbps for s in streams if s.speed_kbps > 0]
+    rates = [s.bitrate_kbps for s in streams if s.bitrate_kbps > 0]
+    heads = [s.headroom for s in streams if s.headroom > 0]
+    if speeds:
+        lines += ["", "## 带宽实测概览", ""]
+        lines.append(
+            f"- 平均下载速度：**{sum(speeds) / len(speeds) / 1000:.1f} Mbps**"
+            f"（最低 {min(speeds) / 1000:.1f}，最高 {max(speeds) / 1000:.1f}）"
+        )
+        lines.append(f"- 平均视频码率：**{sum(rates) / len(rates) / 1000:.1f} Mbps**" if rates else "")
+        if heads:
+            good = sum(1 for h in heads if h >= 2.0)
+            lines.append(
+                f"- 带宽余量 ≥2x（基本不会卡）：**{good}/{len(heads)}** 条"
+                f"（占 {good / len(heads) * 100:.0f}%）"
+            )
+        lines.append("")
+        lines.append(
+            "> 余量 = 实测速度 ÷ 视频码率。余量 <1 必定卡；1~2 勉强；>2 流畅。"
+        )
+
     lines += ["", "## 分组统计", "", "| 分组 | 可用线路 | 频道数 |", "|---|---|---|"]
     cat_channels: dict[str, int] = defaultdict(int)
-    for key, items in groups.items():
+    for items in groups.values():
         cat_channels[items[0].category] += 1
     for cat in sorted(cat_channels, key=lambda c: order.get(c, 999)):
         lines.append(f"| {cat} | {by_cat.get(cat, 0)} | {cat_channels[cat]} |")
@@ -111,12 +132,16 @@ def _report_md(stats: RunStats, streams: list[Stream], cfg) -> str:
         lines.append(f"| {s.name} | {s.parsed} | {status} |")
 
     top = sorted(streams, key=lambda s: -s.score)[:30]
-    lines += ["", "## 质量最高的 30 条线路", "",
-              "| 频道 | 分组 | 类型 | 分辨率 | 延迟 | 评分 |", "|---|---|---|---|---|---|"]
+    lines += [
+        "", "## 带宽实测（决定会不会卡）", "",
+        "| 频道 | 分辨率 | 码率 | 实测速度 | 余量 | 稳定性 | 评分 |",
+        "|---|---|---|---|---|---|---|",
+    ]
     for st in top:
         lines.append(
-            f"| {st.display} | {st.category} | {st.kind} | {st.resolution or '-'} | "
-            f"{st.latency_ms:.0f}ms | {st.score:.0f} |"
+            f"| {st.display} | {st.resolution or '-'} | "
+            f"{st.bitrate_kbps / 1000:.1f}M | {st.speed_kbps / 1000:.1f}M | "
+            f"{st.headroom:.1f}x | {st.stability:.0f}% | {st.score:.0f} |"
         )
 
     lines += ["", f"> 由 iptv-pipeline 自动生成 {stats.finished_at}", ""]
@@ -137,7 +162,7 @@ def _index_html(stats: RunStats, streams: list[Stream], files: dict[str, str], c
             f"<td>{len(items)}</td>"
             f"<td>{html.escape(best.kind)}</td>"
             f"<td>{html.escape(best.resolution or '-')}</td>"
-            f"<td>{best.latency_ms:.0f} ms</td>"
+            f"<td>{best.speed_kbps / 1000:.1f}M / {best.bitrate_kbps / 1000:.1f}M</td>"
             f"<td class='u'><a href='{html.escape(best.url)}' target='_blank'>测试</a></td>"
             "</tr>"
         )
@@ -181,7 +206,7 @@ def _index_html(stats: RunStats, streams: list[Stream], files: dict[str, str], c
 </div>
 <div class="card"><div class="wrap"><table>
 <thead><tr><th>分组</th><th>频道</th><th>线路</th><th>类型</th><th>分辨率</th>
-<th>延迟</th><th>直连测试</th></tr></thead>
+<th>速度/码率</th><th>直连测试</th></tr></thead>
 <tbody>{''.join(rows)}</tbody>
 </table></div></div>
 </body></html>

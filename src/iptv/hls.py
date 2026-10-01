@@ -17,6 +17,12 @@ _ATTR_RE = re.compile(r'([A-Za-z0-9\-]+)\s*=\s*(?:"([^"]*)"|([^,]*))')
 
 
 @dataclass
+class Segment:
+    uri: str = ""
+    duration: float = 0.0     # #EXTINF 里声明的时长（秒），算码率要用
+
+
+@dataclass
 class Variant:
     uri: str = ""
     bandwidth: int = 0
@@ -26,7 +32,7 @@ class Variant:
 @dataclass
 class Playlist:
     variants: list[Variant] = field(default_factory=list)
-    segments: list[str] = field(default_factory=list)
+    segments: list[Segment] = field(default_factory=list)
     init_segment: str = ""
     is_master: bool = False
     is_endlist: bool = False
@@ -49,6 +55,13 @@ def _to_int(value: str) -> int:
         return 0
 
 
+def _to_float(value: str) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 def _normalize_resolution(value: str) -> str:
     value = (value or "").strip()
     if not value:
@@ -63,6 +76,7 @@ def parse_playlist(content: str) -> Playlist:
     lines = [ln.strip().lstrip("\ufeff") for ln in (content or "").splitlines()]
 
     pending_variant: dict[str, str] | None = None
+    pending_duration = 0.0
     expect_segment = False
 
     for line in lines:
@@ -79,6 +93,7 @@ def parse_playlist(content: str) -> Playlist:
                 pending_variant = parse_attributes(body)
             elif tag == "#EXTINF":
                 expect_segment = True
+                pending_duration = _to_float(body.split(",", 1)[0])
             elif tag == "#EXT-X-MAP":
                 attrs = parse_attributes(body)
                 if attrs.get("URI"):
@@ -86,10 +101,7 @@ def parse_playlist(content: str) -> Playlist:
             elif tag == "#EXT-X-ENDLIST":
                 pl.is_endlist = True
             elif tag == "#EXT-X-TARGETDURATION":
-                try:
-                    pl.target_duration = float(body)
-                except ValueError:
-                    pl.target_duration = 0.0
+                pl.target_duration = _to_float(body)
             continue
 
         # 非 # 开头 → URI 行
@@ -110,13 +122,14 @@ def parse_playlist(content: str) -> Playlist:
             continue
 
         if expect_segment:
-            pl.segments.append(line)
+            pl.segments.append(Segment(uri=line, duration=pending_duration))
             expect_segment = False
+            pending_duration = 0.0
             continue
 
         # 少数清单直接跟 URI（无 EXTINF），一并收集以免漏判
         if not pl.is_master:
-            pl.segments.append(line)
+            pl.segments.append(Segment(uri=line, duration=0.0))
 
     return pl
 

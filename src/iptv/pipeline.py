@@ -133,14 +133,15 @@ async def run_pipeline(
 
     last = {"done": 0}
 
-    def progress(done: int, total: int, alive: int) -> None:
+    def progress(done: int, total: int, alive: int, phase: str = "") -> None:
         last["done"] = done
         if show_progress:
             pct = done / total * 100 if total else 100
             bar_len = 24
             filled = int(bar_len * done / total) if total else bar_len
             bar = "#" * filled + "-" * (bar_len - filled)
-            log(f"      [{bar}] {pct:5.1f}%  {done}/{total}  可用 {alive}")
+            tag = f" {phase}" if phase else ""
+            log(f"      [{bar}] {pct:5.1f}%  {done}/{total}  可用 {alive}{tag}")
 
     await validate.probe_all(candidates, cfg, history, on_progress=progress)
     stats.probed = len(candidates)
