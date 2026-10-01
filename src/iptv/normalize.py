@@ -338,8 +338,10 @@ def categorize(stream: Stream, categories: list) -> str:
 def source_modes(cfg) -> dict[str, str]:
     """收集每个采集源自己的筛选模式（sources[].filter）。
 
-    iptv-org 的 countries/cn.m3u 本身就是中文频道范围，用中文关键词再去卡它
-    只会把 Beijing Satellite TV 这类英文名误杀，所以这种源直接声明 filter: all。
+    备注：iptv-org 的 countries/cn.m3u 用的是英文名（Beijing Satellite TV），
+    按中文关键词去卡会把它们全部误杀。这一点现在靠 matches_filter 里
+    「先本地化再匹配」解决（Beijing Satellite TV → 北京卫视 → 命中「卫视」），
+    所以不再需要把它设成 filter: all。
     """
     modes: dict[str, str] = {}
     for src in cfg.sources or []:
@@ -375,7 +377,15 @@ def _is_noise_local(stream: Stream, cfg) -> bool:
 
 
 def matches_filter(stream: Stream, cfg, modes: dict[str, str] | None = None) -> bool:
-    """按 filter 配置判断是否保留该频道。"""
+    """按 filter 配置判断是否保留该频道。
+
+    匹配前会先把频道的**本地化名**一并放进候选文本。这一步很关键：
+    iptv-org 之类源里卫视的叫法是英文（Beijing Satellite TV / Hunan TV /
+    Dragon TV / Jiangsu Satellite TV），而 include_keywords 写的是中文「卫视」。
+    不做本地化的话，只要这些源声明 filter: include，
+    **北京/湖南/东方/江苏/浙江/深圳卫视会被整个筛掉**——实测 122 条里只剩 17 条。
+    本地化后 "Beijing Satellite TV" → "北京卫视"，命中「卫视」，行为才符合直觉。
+    """
     flt = cfg.filter
     mode = (flt.get("mode") or "include").lower()
     if modes:
@@ -383,7 +393,11 @@ def matches_filter(stream: Stream, cfg, modes: dict[str, str] | None = None) -> 
         if override:
             mode = override
 
-    haystack = f"{stream.name} {stream.tvg_name} {stream.group}".lower()
+    parts = [stream.name or "", stream.tvg_name or "", stream.group or ""]
+    localized = display_name(stream.name or "")
+    if localized and localized != stream.name:
+        parts.append(localized)
+    haystack = " ".join(parts).lower()
     url_low = (stream.url or "").lower()
 
     for kw in flt.get("exclude_url_keywords") or []:

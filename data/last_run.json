@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-01T14:26:19+00:00",
- "finished_at": "2026-10-01T14:28:54+00:00",
- "elapsed_sec": 154.309779518,
+ "started_at": "2026-10-01T16:07:28+00:00",
+ "finished_at": "2026-10-01T16:10:47+00:00",
+ "elapsed_sec": 199.62203069999998,
  "sources": [
   {
    "name": "bestfan-cctv",
@@ -86,24 +86,29 @@
    "fetched": 43473,
    "parsed": 214,
    "error": ""
+  },
+  {
+   "name": "iptv-org-news",
+   "url": "https://iptv-org.github.io/iptv/categories/news.m3u",
+   "fetched": 231770,
+   "parsed": 1032,
+   "error": ""
   }
  ],
- "total_parsed": 2690,
- "after_filter": 1639,
- "after_dedup": 1012,
- "probed": 1011,
- "skipped_blacklist": 0,
- "alive": 592,
- "dead": 419,
- "channels": 507,
- "published_channels": 507,
- "published_streams": 571,
+ "total_parsed": 3722,
+ "after_filter": 1240,
+ "after_dedup": 832,
+ "probed": 832,
+ "skipped_blacklist": 263,
+ "alive": 327,
+ "dead": 242,
+ "channels": 258,
+ "published_channels": 258,
+ "published_streams": 314,
  "kind_breakdown": {
-  "hls": 519,
-  "mp4": 10,
-  "flv": 61,
-  "ts": 1,
-  "dash": 1
+  "hls": 316,
+  "mp4": 8,
+  "dash": 3
  },
- "alive_rate": 58.56
+ "alive_rate": 39.3
 }

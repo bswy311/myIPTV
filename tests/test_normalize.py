@@ -114,21 +114,90 @@ def test_english_channel_names_are_localized():
     assert display_name("NBA TV") == "NBA TV"
 
 
-def test_per_source_filter_override():
+def test_english_named_channels_survive_include_filter():
+    """回归：英文名的中文频道不能在 include 模式下被误杀。
+
+    iptv-org 用英文名（Beijing Satellite TV），而 include_keywords 写的是中文。
+    曾经靠把这些源设成 filter: all 绕过去；后来所有源统一改成 include，
+    结果 iptv-org-cn 的 122 条只剩 17 条 ——
+    北京/湖南/东方/江苏/浙江/深圳卫视全部消失。
+    正确做法是匹配前先本地化：Beijing Satellite TV → 北京卫视 → 命中「卫视」。
+
+    这里的断言是「不变式」而不是「实现方式」：不管用什么手段，
+    这些频道都必须能通过筛选。
+    """
     cfg = load_config()
     modes = source_modes(cfg)
-    # 源自带 range，声明 all 后不再受中文关键词限制
-    assert modes.get("iptv-org-cn") == "all"
 
+    for name in (
+        "Beijing Satellite TV",
+        "Hunan TV",
+        "Dragon TV",
+        "Jiangsu Satellite TV",
+        "Zhejiang Satellite TV",
+        "Shenzhen Satellite TV",
+    ):
+        st = Stream(url="u", name=name, source="iptv-org-cn")
+        assert matches_filter(st, cfg, modes) is True, f"{name} 被误杀"
+
+    # 不管有没有 per-source override，都不该被挡
     en = Stream(url="u", name="Beijing Satellite TV", source="iptv-org-cn")
     assert matches_filter(en, cfg, modes) is True
+    assert matches_filter(en, cfg) is True
 
-    # 同一个频道名，来自需要关键词筛选的源时会被挡掉
-    assert matches_filter(en, cfg, {}) is False
+    # 白名单意图不能被破坏：真正的杂台仍要挡掉
+    junk = Stream(url="u", name="Random Shopping Channel", source="iptv-org-cn")
+    assert matches_filter(junk, cfg, modes) is False
 
     # exclude 规则任何模式下都生效
     bad = Stream(url="u", name="Test Channel 测试", source="iptv-org-cn")
     assert matches_filter(bad, cfg, modes) is False
+
+
+def test_per_source_filter_override():
+    """sources[].filter 覆盖全局 filter.mode 的机制。
+
+    用合成配置而不是真实 config.yaml，这样用户改配置不会把这个测试弄挂。
+    """
+
+    class _Cfg:
+        def __init__(self, filter_cfg, sources):
+            self.filter = filter_cfg
+            self.sources = sources
+
+    cfg = _Cfg(
+        filter_cfg={
+            "mode": "include",
+            "include_keywords": ["卫视"],
+            "exclude_keywords": ["test"],
+        },
+        sources=[
+            {"name": "src-all", "filter": "all"},
+            {"name": "src-inc", "filter": "include"},
+            {"name": "src-default"},
+        ],
+    )
+    modes = source_modes(cfg)
+    assert modes.get("src-all") == "all"
+    assert modes.get("src-inc") == "include"
+    assert "src-default" not in modes      # 没写 filter 的不进表
+
+    # 声明 all 的源：不受 include_keywords 限制
+    other = Stream(url="u", name="Some Unlisted Channel", source="src-all")
+    assert matches_filter(other, cfg, modes) is True
+    # 同一个频道，来自声明 include 的源时被挡掉
+    assert matches_filter(
+        Stream(url="u", name="Some Unlisted Channel", source="src-inc"), cfg, modes
+    ) is False
+    # 没写 filter 的源走全局 mode=include
+    assert matches_filter(
+        Stream(url="u", name="Some Unlisted Channel", source="src-default"), cfg, modes
+    ) is False
+
+    # exclude 在任何模式下都生效
+    assert matches_filter(
+        Stream(url="u", name="Test Channel", source="src-all"), cfg, modes
+    ) is False
 
 
 def test_resolution_marks_do_not_pollute_key():

@@ -298,16 +298,17 @@ sources:
   - name: bestfan-cctv
     url: https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_cctv.m3u8
     enabled: true
-    filter: all          # all=这个源的频道全都要；include=按关键词筛
+    filter: include      # include=按关键词筛（默认）；all=这个源的频道全都要
 ```
 
 默认启用的源：
 
-| 源 | 内容 | 实测存活率 |
-|---|---|---|
-| `best-fan/iptv-sources` (`cn_cctv` / `cn_province` / `cn_all`) | **主力**：央视 1~17 全套 + 省卫视 | 78% ~ 90% |
-| `hujingguang/ChinaIPTV` (`cnTV1_ALL`) | 地方台合集，含吉林省台 | 16% |
-| `iptv-org` (sports / cn / hk / tw / zho) | 国际频道、体育、港澳台补充 | 40% |
+| 源 | 内容 |
+|---|---|
+| `best-fan/iptv-sources` (`cn_cctv` / `cn_province` / `cn_all`) | 央视 1~17 全套 + 省卫视 |
+| `vbskycn/iptv` (`iptv4`) | 国内直连大源，央视/卫视/地方/影视，每日更新 |
+| `hujingguang/ChinaIPTV` (`cnTV1_ALL`) | 地方台合集 |
+| `iptv-org` (sports / news / cn / hk / tw / zho) | 体育、国际新闻、港澳台补充 |
 
 > **关于 ghproxy.net**：本机访问 `raw.githubusercontent.com` 会间歇性失败，
 > 所以 GitHub 上的源统一走 ghproxy 镜像，同时保留直连版本作备份，
@@ -316,9 +317,16 @@ sources:
 `url` 也支持**本地文件路径**，可以填自己整理的清单。想全量收录（一万多频道），
 把 `iptv-org-index` 的 `enabled` 改成 `true` 即可。
 
-> **`filter: all` 很重要**：像 `countries/cn.m3u` 这种源本身就是「中文频道」范围，
-> 而且用的是英文名（`Beijing Satellite TV`），再用中文关键词去卡只会全部误杀。
-> 所以范围明确的源一律写 `filter: all`，只有跨国家的全量源才靠关键词筛。
+> **筛选会先做本地化，这点很重要**。像 `iptv-org` 的 `countries/cn.m3u` 用的是
+> 英文名（`Beijing Satellite TV` / `Hunan TV` / `Dragon TV`），而
+> `include_keywords` 里写的是中文「卫视」。如果直接拿英文名去比，这些源一旦声明
+> `filter: include`，**北京/湖南/东方/江苏/浙江/深圳卫视会被整个筛掉**
+> （实测 122 条里只剩 17 条）。
+>
+> 所以 `normalize.matches_filter()` 会先把频道名本地化再匹配：
+> `Beijing Satellite TV` → `北京卫视` → 命中「卫视」。
+> 于是**所有源都可以统一用 `filter: include`**，不必再靠 `filter: all` 绕开。
+> 白名单的初衷（把杂台滤掉）不受影响。
 
 ### 节目单 EPG
 
