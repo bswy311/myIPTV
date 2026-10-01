@@ -1,0 +1,236 @@
+# ================================================================
+#  IPTV 直播源 自动采集 / 有效性检测 / 自动剔除 / 发布   配置
+# ================================================================
+#  改完直接重跑 `python main.py run` 即可，不需要动代码。
+# ================================================================
+
+# ---------------------------------------------------------------
+# 1. 采集源（M3U / TXT 皆可）
+# ---------------------------------------------------------------
+# enabled : 是否启用
+# filter  : 该源自己的筛选模式，覆盖下面的 filter.mode
+#             all     = 这个源里的频道全都要
+#             include = 按 include_keywords 筛
+#           像 countries/cn.m3u 这种源本身就是「中文频道」范围，而且用的是
+#           英文名（Beijing Satellite TV），再用中文关键词去卡只会全部误杀，
+#           所以这类源一律写 filter: all。
+#
+# 实测：*.github.io 可达性最好；raw.githubusercontent.com 在部分
+# 网络下会间歇性失败，因此社区源默认关闭，需要时自行改 enabled。
+sources:
+  # ---- iptv-org 官方发布源 ----
+  - name: iptv-org-cn
+    url: https://iptv-org.github.io/iptv/countries/cn.m3u
+    enabled: true
+    filter: all
+  - name: iptv-org-hk
+    url: https://iptv-org.github.io/iptv/countries/hk.m3u
+    enabled: true
+    filter: all
+  - name: iptv-org-tw
+    url: https://iptv-org.github.io/iptv/countries/tw.m3u
+    enabled: true
+    filter: all
+  - name: iptv-org-mo
+    url: https://iptv-org.github.io/iptv/countries/mo.m3u
+    enabled: true
+    filter: all
+  - name: iptv-org-sports
+    url: https://iptv-org.github.io/iptv/categories/sports.m3u
+    enabled: true
+    filter: all
+  - name: iptv-org-zho
+    url: https://iptv-org.github.io/iptv/languages/zho.m3u
+    enabled: true
+    filter: all
+  # ---- 全量索引（一万+ 频道，跨国家，需要靠关键词筛，默认关闭）----
+  - name: iptv-org-index
+    url: https://iptv-org.github.io/iptv/index.m3u
+    enabled: false
+    filter: include
+
+  # ---- 社区聚合源（raw.githubusercontent，默认关闭）----
+  - name: yang1989-gather
+    url: https://raw.githubusercontent.com/YanG-1989/m3u/main/Gather.m3u
+    enabled: false
+    filter: include
+  - name: fanmingming-ipv4
+    url: https://live.fanmingming.com/tv/m3u/ipv4.m3u
+    enabled: false
+    filter: include
+  - name: aptv-iptv
+    url: https://raw.githubusercontent.com/Kimentanm/aptv/master/m3u/iptv.m3u
+    enabled: false
+    filter: include
+  - name: vbskycn-iptv4
+    url: https://raw.githubusercontent.com/vbskycn/iptv/master/tv/iptv4.m3u
+    enabled: false
+    filter: include
+
+# ---------------------------------------------------------------
+# 2. 频道筛选
+# ---------------------------------------------------------------
+filter:
+  # include = 只保留命中 include_keywords 的频道（快、精）
+  # all     = 全部保留（慢、杂）
+  mode: include
+
+  include_keywords:
+    # 央视 / 国字头
+    - cctv
+    - cgtn
+    - 央视
+    - 中央电视
+    # 卫视
+    - 卫视
+    # 港澳台
+    - 翡翠
+    - 明珠
+    - 无线
+    - tvb
+    - 凤凰
+    - 东森
+    - 中天
+    - 三立
+    - 民视
+    - 台视
+    - 华视
+    - 中视
+    - 亚视
+    - 澳视
+    - 莲花
+    - 星空
+    - 纬来
+    - 龙华
+    - 爱尔达
+    - 靖天
+    - 香港
+    - 澳门
+    - 台湾
+    # 体育
+    - 体育
+    - 足球
+    - 篮球
+    - 网球
+    - 台球
+    - 赛车
+    - 围棋
+    - 赛事
+    - sports
+    - sport
+    - espn
+    - 五星
+    - 劲爆
+    - 天元
+    # 常用综合
+    - 纪实
+    - 纪录
+    - 求索
+    - 探索
+    - 少儿
+    - 卡通
+    - 动画
+    - 电影
+    - 剧场
+    - 音乐
+
+  exclude_keywords:
+    - 测试
+    - test
+    - 广告
+    - 已停播
+
+  # 命中这些 URL 片段的直接丢弃
+  exclude_url_keywords: []
+
+# ---------------------------------------------------------------
+# 3. 频道分类（决定 group-title）
+# ---------------------------------------------------------------
+# 匹配规则：按下面顺序，命中第一条即归类。所以「体育」放在「央视」
+# 前面，才能让 CCTV-5 归到体育组。
+categories:
+  - name: 体育
+    keywords: [体育, 足球, 篮球, 网球, 台球, 赛车, 围棋, 赛事, cctv5, cctv-5, 五星, 劲爆, 天元, espn, sports, sport, golf, nba, 中超, 英超, 西甲]
+  - name: 央视
+    keywords: [cctv, cgtn, 央视, 中央电视]
+  - name: 港澳台
+    keywords: [翡翠, 明珠, 无线, tvb, 凤凰, 东森, 中天, 三立, 民视, 台视, 华视, 中视, 亚视, 澳视, 莲花, 星空, 纬来, 龙华, 爱尔达, 靖天, 香港, 澳门, 台湾]
+  - name: 卫视
+    keywords: [卫视]
+  - name: 影视
+    keywords: [电影, 影视, 剧场, 影院, 美剧, 港剧, 韩剧, cinema, movie, hbo, 天映]
+  - name: 少儿
+    keywords: [少儿, 卡通, 动画, 儿童, cartoon, kids, 金鹰, 优漫, 嘉佳]
+  - name: 纪录
+    keywords: [纪实, 纪录, 探索, 求索, discovery, 地理]
+  - name: 新闻
+    keywords: [新闻, 资讯, news, 财经, 经济]
+  - name: 音乐
+    keywords: [音乐, 歌曲, 演唱会, music, mtv]
+  - name: 其他
+    keywords: []
+
+# 输出时的分组先后顺序（未列出的分组排最后）
+output_order: [央视, 卫视, 港澳台, 体育, 影视, 少儿, 纪录, 新闻, 音乐, 其他]
+
+# ---------------------------------------------------------------
+# 4. 频道名归一化
+# ---------------------------------------------------------------
+normalize:
+  # 把不同写法合并成同一频道的补充别名，格式 "归一化键": "显示名"
+  display_overrides: {}
+  # 手工补充别名：把左侧写法并入右侧频道键
+  aliases: {}
+
+# ---------------------------------------------------------------
+# 5. 网络与探测
+# ---------------------------------------------------------------
+network:
+  concurrency: 200        # 并发探测数，本机 200 稳；GitHub Actions 用 120
+  timeout: 8.0            # 单请求空闲超时（秒）
+  connect_timeout: 5.0
+  retries: 1              # 失败重试次数
+  verify_ssl: false       # 很多公开流证书不规范
+  max_probe: 4000         # 单次最多探测多少条（0 = 不限）
+  total_timeout: 45       # 单条流探测的墙钟硬上限（含重试），防止慢速流拖死整轮
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+
+validate:
+  deep: true              # 深检：HLS 继续拉第一个分片确认真能出流
+  manifest_max_bytes: 524288
+  segment_bytes: 65536    # 分片只读前 64KB
+  segment_timeout: 8.0
+  request_hard_timeout: 15   # 单个 HTTP 请求的墙钟硬上限（秒）
+  min_segment_bytes: 1024
+  allowed_kinds: [hls, ts, mp4, flv, dash, audio]
+  skipped_schemes: [rtmp, rtsp, udp, rtp, mms, rtmpi]   # 无法用 HTTP 探测的协议
+
+# ---------------------------------------------------------------
+# 6. 失效源剔除 / 自动复活
+# ---------------------------------------------------------------
+history:
+  path: data/history.json
+  blacklist_after: 4       # 连续失败 N 次 → 拉黑不再探测
+  blacklist_hours: 72      # 冷却 N 小时后自动重新探测（可能复活）
+  keep_days: 60            # 历史记录保留天数
+
+# ---------------------------------------------------------------
+# 7. 输出
+# ---------------------------------------------------------------
+output:
+  dir: output
+  main: live.m3u           # ★ 给电视订阅的主文件（每频道保留优质源）
+  full: live_full.m3u      # 全部验证可用的源
+  text: live.txt           # 纯 URL 列表，给 PotPlayer 手工测试用
+  report: report.md
+  index: index.html
+  max_per_channel: 3       # 每个频道保留几个源（作为备用线路）
+  max_channels: 0          # 0 = 不限制频道数
+  epg_url: ""              # 可选 EPG 地址，会写入 #EXTM3U x-tvg-url
+
+# ---------------------------------------------------------------
+# 8. 局域网服务（给电视订阅 http://电脑IP:8899/live.m3u）
+# ---------------------------------------------------------------
+server:
+  host: 0.0.0.0
+  port: 8899

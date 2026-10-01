@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.pytest_cache/
+.idea/
+.vscode/
+*.log
+
+# 中间产物（历史记录与 output 需要保留以便增量检测 / Pages 发布，故不忽略）
+data/raw.json
+data/probed.json

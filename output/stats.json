@@ -1,0 +1,64 @@
+{
+ "started_at": "2026-10-01T12:03:22+00:00",
+ "finished_at": "2026-10-01T12:04:14+00:00",
+ "elapsed_sec": 52.439512599999944,
+ "sources": [
+  {
+   "name": "iptv-org-cn",
+   "url": "https://iptv-org.github.io/iptv/countries/cn.m3u",
+   "fetched": 29257,
+   "parsed": 145,
+   "error": ""
+  },
+  {
+   "name": "iptv-org-hk",
+   "url": "https://iptv-org.github.io/iptv/countries/hk.m3u",
+   "fetched": 3733,
+   "parsed": 18,
+   "error": ""
+  },
+  {
+   "name": "iptv-org-tw",
+   "url": "https://iptv-org.github.io/iptv/countries/tw.m3u",
+   "fetched": 4747,
+   "parsed": 26,
+   "error": ""
+  },
+  {
+   "name": "iptv-org-mo",
+   "url": "https://iptv-org.github.io/iptv/countries/mo.m3u",
+   "fetched": 1568,
+   "parsed": 7,
+   "error": ""
+  },
+  {
+   "name": "iptv-org-sports",
+   "url": "https://iptv-org.github.io/iptv/categories/sports.m3u",
+   "fetched": 111304,
+   "parsed": 444,
+   "error": ""
+  },
+  {
+   "name": "iptv-org-zho",
+   "url": "https://iptv-org.github.io/iptv/languages/zho.m3u",
+   "fetched": 43473,
+   "parsed": 214,
+   "error": ""
+  }
+ ],
+ "total_parsed": 854,
+ "after_filter": 854,
+ "after_dedup": 668,
+ "probed": 667,
+ "skipped_blacklist": 0,
+ "alive": 264,
+ "dead": 403,
+ "channels": 261,
+ "published_channels": 261,
+ "published_streams": 264,
+ "kind_breakdown": {
+  "hls": 263,
+  "dash": 1
+ },
+ "alive_rate": 39.58
+}

@@ -1,0 +1,74 @@
+name: update-iptv
+
+on:
+  # 每 6 小时自动跑一次（UTC 时间，可自行调整）
+  schedule:
+    - cron: "17 */6 * * *"
+  # 支持手动触发
+  workflow_dispatch:
+  # 代码/配置变更时也跑一次
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "config/**"
+      - "requirements.txt"
+      - ".github/workflows/update.yml"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: update-iptv
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 采集 + 检测 + 剔除 + 发布
+        run: python main.py run --no-progress --concurrency 120 --timeout 10
+
+      - name: 提交历史库与输出结果
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          mkdir -p data
+          git add -f output data || true
+          if git diff --staged --quiet; then
+            echo "没有变化，跳过提交"
+          else
+            git commit -m "chore: 自动更新直播源 $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git push
+          fi
+
+      - name: 配置 Pages
+        uses: actions/configure-pages@v5
+
+      - name: 打包 output 目录
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: output
+
+      - name: 发布到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
