@@ -138,10 +138,28 @@ PotPlayer / 本机测试：
 https://<你的用户名>.github.io/<仓库名>/live.m3u
 ```
 
-> 首次使用需在仓库 `Settings → Pages → Build and deployment → Source` 选择 **GitHub Actions**。
+> **首次使用必须手动做两件事，缺一不可：**
+>
+> 1. **仓库必须是 Public**。GitHub Pages 在私有仓库上需要付费账号（Pro / Team / Enterprise），
+>    Free 账号的私有仓库无法启用 Pages。改法：
+>    `Settings → General → 拉到底部 Danger Zone → Change visibility → Public`
+> 2. **启用 Pages**：`Settings → Pages → Build and deployment → Source` 选择 **GitHub Actions**
+>
+> 顺带一提，仓库设为 Public 后 Actions 分钟数不计费（私有仓库才吃 2000 分钟/月的免费额度）。
 
 因为 `data/history.json` 会一起提交，**每次运行都在上一次的战绩基础上做判断**，
 失效源会持续累积失败次数直至被拉黑，稳定源则越用越靠前。
+
+### 关于「推送撞车」
+
+流水线跑完会自动把结果 commit 回仓库。如果你**同时**在本机手动 `git push`，
+两者会撞车（`! [rejected] main -> main (fetch first)`）。
+
+workflow 里已经做了处理：推送被拒时会自动 `git fetch` + `git rebase -X theirs` 后重试，
+最多 3 次。所以正常情况下你不需要管它，只管在本机正常 `git push` 即可。
+
+另外 workflow 只会提交 `output/`、`data/history.json`、`data/last_run.json`。
+`data/raw.json` 和 `data/probed.json` 是中间产物，不进仓库。
 
 ---
 

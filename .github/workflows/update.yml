@@ -45,21 +45,45 @@ jobs:
       - name: 安装依赖
         run: pip install -r requirements.txt
 
+      - name: 跑单元测试
+        run: python tests/test_normalize.py
+
       - name: 采集 + 检测 + 剔除 + 发布
         run: python main.py run --no-progress --concurrency 120 --timeout 10
 
       - name: 提交历史库与输出结果
         run: |
+          set -e
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          mkdir -p data
-          git add -f output data || true
+
+          # 只提交需要长期保留的产物。
+          # data/raw.json 和 data/probed.json 是中间产物（已在 .gitignore 里），
+          # 千万别用 `git add -f data`，那会把它们强推进仓库。
+          git add output data/history.json data/last_run.json 2>/dev/null || true
+
           if git diff --staged --quiet; then
             echo "没有变化，跳过提交"
-          else
-            git commit -m "chore: 自动更新直播源 $(date -u +'%Y-%m-%d %H:%M UTC')"
-            git push
+            exit 0
           fi
+
+          git commit -m "chore: 自动更新直播源 $(date -u +'%Y-%m-%d %H:%M UTC')"
+
+          # 本机可能也在推，会撞车。被拒就同步远端后重试。
+          # rebase 用 -X theirs：output/ 和 history 都是本次刚生成的，冲突时以本次为准。
+          for attempt in 1 2 3; do
+            if git push origin main; then
+              echo "推送成功（第 $attempt 次尝试）"
+              exit 0
+            fi
+            echo "第 $attempt 次推送被拒，同步远端后重试 ..."
+            git fetch origin main
+            git rebase -X theirs origin/main
+            sleep 5
+          done
+
+          echo "连续 3 次推送失败，请检查仓库权限或分支保护规则"
+          exit 1
 
       - name: 配置 Pages
         uses: actions/configure-pages@v5
