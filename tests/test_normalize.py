@@ -419,6 +419,32 @@ def test_cctv_display_names_are_full():
     assert streams[1].display == "CCTV-5+ 体育赛事"
 
 
+def test_current_config_excludes_the_reported_bad_entries():
+    """锁住两处人工排除（都是用户实测反馈的）：
+
+    1. 「黑龙江卫视」的 0143_1 实际播的是辽宁卫视 —— 按 URL 路径排掉。
+       注意**不能**顺手把同频道另一路也排掉，否则黑龙江卫视会整个消失。
+    2. 河北4K 用户不要，但不能误伤河北卫视。
+    """
+    cfg = load_config()
+    modes = source_modes(cfg)
+
+    wrong = Stream(
+        url="http://36.136.38.87:9901/tsfile/live/0143_1.m3u8?key=txiptv&playlive=1",
+        name="黑龙江卫视",
+    )
+    assert not matches_filter(wrong, cfg, modes)
+
+    keep = Stream(
+        url="http://120.198.95.220:9901/tsfile/live/1049_1.m3u8?key=txiptv&playlive=1",
+        name="黑龙江卫视",
+    )
+    assert matches_filter(keep, cfg, modes), "同频道剩下的线路要保住"
+
+    assert not matches_filter(Stream(url="u", name="河北4K"), cfg, modes)
+    assert matches_filter(Stream(url="u2", name="河北卫视"), cfg, modes)
+
+
 def test_epg_ids_match_the_epg_file():
     # 必须和 e.xml 里的 channel id 完全一致，否则节目单匹配不上
     assert epg_id("cctv1") == "CCTV1"

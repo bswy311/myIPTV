@@ -315,6 +315,10 @@ def analyze(url: str, client: httpx.Client) -> None:
         if not v_pids:
             print("    ⚠ 没有视频轨")
 
+        names = _lib.service_names(blob)
+        if names:
+            print(f"    [SDT] 流里自带的台名: {list(names.values())}")
+
         # 库模块（src/iptv/tsinfo.py）的判定——它就是流水线里用的那套
         total_kbps = len(blob) * 8 / secs / 1000 if secs else 0.0
         lib = _lib.profile(blob)

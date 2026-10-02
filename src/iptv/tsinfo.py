@@ -29,6 +29,35 @@ CODEC_NAMES = {
 }
 
 NULL_PID = 0x1FFF
+SDT_PID = 0x11
+
+
+
+def _decode_dvb_text(raw: bytes) -> str:
+    """DVB 文本：首字节常常是编码选择符（0x15 = UTF-8）。"""
+    if not raw:
+        return ""
+    enc = raw[0]
+    body = raw[1:] if 0x01 <= enc <= 0x1F else raw
+    order = ("utf-8", "gb18030") if enc == 0x15 else ("gb18030", "utf-8")
+    for codec in order:
+        try:
+            return body.decode(codec).strip()
+        except UnicodeDecodeError:
+            continue
+    return body.decode("latin-1", "replace").strip()
+
+
+def _service_name(data: bytes) -> str:
+    """service_descriptor(0x48)：service_type + 提供商名 + 服务名。"""
+    if len(data) < 3:
+        return ""
+    i = 1
+    i += 1 + data[i]              # 跳过 service_provider_name
+    if i >= len(data):
+        return ""
+    n = data[i]
+    return _decode_dvb_text(data[i + 1: i + 1 + n])
 
 
 @dataclass
@@ -196,6 +225,36 @@ def _concat_payloads(buf: bytes, pid: int) -> bytes:
     for _pid, _pusi, payload in ts_packets(buf, {pid}):
         out += payload
     return bytes(out)
+
+
+def service_names(buf: bytes) -> dict[int, str]:
+    """读 SDT（PID 0x11）里的台名：{service_id: 频道名}。
+
+    为什么要它：公开源列表里经常「名字写 A、实际播 B」——
+    比如某条标着「黑龙江卫视」的源，TS 里自带的 SDT 写的是「辽宁卫视」。
+    这是判断源站有没有标错频道最直接的依据（不用看画面）。
+    """
+    body = _first_section(buf, SDT_PID, 0x42)
+    if body is None:
+        return {}
+    sec_len = ((body[1] & 0x0F) << 8) | body[2]
+    end = min(3 + sec_len - 4, len(body))
+    out: dict[int, str] = {}
+    i = 11                      # 跳过 tsid/version/段号/onid
+    while i + 5 <= end:
+        svc = (body[i] << 8) | body[i + 1]
+        dlen = ((body[i + 3] & 0x0F) << 8) | body[i + 4]
+        j = i + 5
+        stop = min(j + dlen, end)
+        while j + 2 <= stop:
+            tag, ln = body[j], body[j + 1]
+            if tag == 0x48:
+                name = _service_name(body[j + 2: j + 2 + ln])
+                if name:
+                    out[svc] = name
+            j += 2 + ln
+        i += 5 + dlen
+    return out
 
 
 # 低于这个包数就不下结论——PMT 可能还没出现，统计也没意义
