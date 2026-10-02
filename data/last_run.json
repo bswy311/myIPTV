@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-02T07:52:19+00:00",
- "finished_at": "2026-10-02T07:56:17+00:00",
- "elapsed_sec": 238.063328058,
+ "started_at": "2026-10-02T08:53:34+00:00",
+ "finished_at": "2026-10-02T08:57:28+00:00",
+ "elapsed_sec": 233.58276452500002,
  "sources": [
   {
    "name": "local-extra",
@@ -100,21 +100,36 @@
    "fetched": 232145,
    "parsed": 1035,
    "error": ""
+  },
+  {
+   "name": "suxuang-iptv",
+   "url": "https://cdn.jsdelivr.net/gh/suxuang/myIPTV@main/ipv4.m3u",
+   "fetched": 230681,
+   "parsed": 1225,
+   "error": ""
+  },
+  {
+   "name": "suxuang-iptv-gh",
+   "url": "https://ghproxy.net/https://raw.githubusercontent.com/suxuang/myIPTV/main/ipv4.m3u",
+   "fetched": 230681,
+   "parsed": 1225,
+   "error": ""
   }
  ],
- "total_parsed": 4645,
- "after_filter": 1423,
- "after_dedup": 905,
- "probed": 905,
+ "total_parsed": 6908,
+ "after_filter": 2140,
+ "after_dedup": 1160,
+ "probed": 1152,
  "skipped_blacklist": 0,
- "alive": 505,
- "dead": 400,
+ "alive": 411,
+ "dead": 741,
  "channels": 136,
  "published_channels": 136,
- "published_streams": 248,
+ "published_streams": 263,
  "kind_breakdown": {
-  "hls": 492,
-  "mp4": 13
+  "hls": 397,
+  "mp4": 11,
+  "flv": 3
  },
- "alive_rate": 55.8
+ "alive_rate": 35.68
 }
