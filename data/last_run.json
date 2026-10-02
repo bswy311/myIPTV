@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-02T09:17:10+00:00",
- "finished_at": "2026-10-02T09:20:08+00:00",
- "elapsed_sec": 177.80061569999998,
+ "started_at": "2026-10-02T09:48:40+00:00",
+ "finished_at": "2026-10-02T09:51:00+00:00",
+ "elapsed_sec": 139.832299677,
  "sources": [
   {
    "name": "local-extra",
@@ -34,9 +34,9 @@
   {
    "name": "bestfan-all-direct",
    "url": "https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
-   "fetched": 0,
-   "parsed": 0,
-   "error": "ReadTimeout: "
+   "fetched": 40681,
+   "parsed": 187,
+   "error": ""
   },
   {
    "name": "vbskycn-ipv4",
@@ -118,32 +118,32 @@
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live_full.m3u",
-   "fetched": 0,
-   "parsed": 0,
-   "error": "ReadTimeout: "
+   "fetched": 49823,
+   "parsed": 255,
+   "error": ""
   },
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live.m3u",
-   "fetched": 48930,
-   "parsed": 263,
+   "fetched": 43317,
+   "parsed": 222,
    "error": ""
   }
  ],
- "total_parsed": 6571,
- "after_filter": 1864,
- "after_dedup": 873,
- "probed": 865,
- "skipped_blacklist": 0,
- "alive": 270,
- "dead": 595,
- "channels": 109,
- "published_channels": 109,
- "published_streams": 214,
+ "total_parsed": 7092,
+ "after_filter": 2493,
+ "after_dedup": 1071,
+ "probed": 1063,
+ "skipped_blacklist": 284,
+ "alive": 322,
+ "dead": 457,
+ "channels": 128,
+ "published_channels": 128,
+ "published_streams": 248,
  "kind_breakdown": {
-  "hls": 254,
-  "mp4": 10,
-  "flv": 6
+  "hls": 304,
+  "mp4": 15,
+  "flv": 3
  },
- "alive_rate": 31.21
+ "alive_rate": 30.29
 }
