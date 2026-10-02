@@ -1,34 +1,34 @@
 {
- "started_at": "2026-10-01T18:27:51+00:00",
- "finished_at": "2026-10-01T18:29:28+00:00",
- "elapsed_sec": 96.982970799,
+ "started_at": "2026-10-02T05:46:57+00:00",
+ "finished_at": "2026-10-02T05:49:15+00:00",
+ "elapsed_sec": 137.10698571799998,
  "sources": [
   {
    "name": "bestfan-cctv",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_cctv.m3u8",
-   "fetched": 10785,
-   "parsed": 54,
+   "fetched": 16838,
+   "parsed": 80,
    "error": ""
   },
   {
    "name": "bestfan-province",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_province.m3u8",
-   "fetched": 13269,
-   "parsed": 60,
+   "fetched": 21218,
+   "parsed": 95,
    "error": ""
   },
   {
    "name": "bestfan-all",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
-   "fetched": 24863,
-   "parsed": 118,
+   "fetched": 40681,
+   "parsed": 187,
    "error": ""
   },
   {
    "name": "bestfan-all-direct",
    "url": "https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
-   "fetched": 24863,
-   "parsed": 118,
+   "fetched": 40681,
+   "parsed": 187,
    "error": ""
   },
   {
@@ -55,7 +55,7 @@
   {
    "name": "iptv-org-sports",
    "url": "https://iptv-org.github.io/iptv/categories/sports.m3u",
-   "fetched": 111304,
+   "fetched": 111194,
    "parsed": 444,
    "error": ""
   },
@@ -90,25 +90,25 @@
   {
    "name": "iptv-org-news",
    "url": "https://iptv-org.github.io/iptv/categories/news.m3u",
-   "fetched": 231770,
-   "parsed": 1032,
+   "fetched": 232145,
+   "parsed": 1035,
    "error": ""
   }
  ],
- "total_parsed": 3722,
- "after_filter": 1240,
- "after_dedup": 832,
- "probed": 832,
- "skipped_blacklist": 264,
- "alive": 469,
- "dead": 99,
- "channels": 395,
- "published_channels": 395,
- "published_streams": 451,
+ "total_parsed": 3924,
+ "after_filter": 1422,
+ "after_dedup": 893,
+ "probed": 893,
+ "skipped_blacklist": 279,
+ "alive": 510,
+ "dead": 104,
+ "channels": 393,
+ "published_channels": 393,
+ "published_streams": 472,
  "kind_breakdown": {
-  "hls": 458,
+  "hls": 499,
   "mp4": 8,
   "dash": 3
  },
- "alive_rate": 56.37
+ "alive_rate": 57.11
 }
