@@ -1,120 +1,18 @@
 {
- "started_at": "2026-10-02T07:52:19+00:00",
- "finished_at": "2026-10-02T07:56:17+00:00",
- "elapsed_sec": 238.063328058,
- "sources": [
-  {
-   "name": "local-extra",
-   "url": "config/sources/local.m3u",
-   "fetched": 2221,
-   "parsed": 1,
-   "error": ""
-  },
-  {
-   "name": "bestfan-cctv",
-   "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_cctv.m3u8",
-   "fetched": 16838,
-   "parsed": 80,
-   "error": ""
-  },
-  {
-   "name": "bestfan-province",
-   "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_province.m3u8",
-   "fetched": 21218,
-   "parsed": 95,
-   "error": ""
-  },
-  {
-   "name": "bestfan-all",
-   "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
-   "fetched": 40681,
-   "parsed": 187,
-   "error": ""
-  },
-  {
-   "name": "bestfan-all-direct",
-   "url": "https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
-   "fetched": 40681,
-   "parsed": 187,
-   "error": ""
-  },
-  {
-   "name": "vbskycn-ipv4",
-   "url": "https://live.zbds.top/tv/iptv4.m3u",
-   "fetched": 97803,
-   "parsed": 544,
-   "error": ""
-  },
-  {
-   "name": "vbskycn-ipv4-gh",
-   "url": "https://gh-proxy.com/raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv4.m3u",
-   "fetched": 97803,
-   "parsed": 544,
-   "error": ""
-  },
-  {
-   "name": "chinaiptv-cntv",
-   "url": "https://ghproxy.net/https://raw.githubusercontent.com/hujingguang/ChinaIPTV/main/cnTV1_ALL.m3u8",
-   "fetched": 76279,
-   "parsed": 405,
-   "error": ""
-  },
-  {
-   "name": "iptv-org-sports",
-   "url": "https://iptv-org.github.io/iptv/categories/sports.m3u",
-   "fetched": 111194,
-   "parsed": 444,
-   "error": ""
-  },
-  {
-   "name": "iptv-org-cn",
-   "url": "https://iptv-org.github.io/iptv/countries/cn.m3u",
-   "fetched": 29257,
-   "parsed": 145,
-   "error": ""
-  },
-  {
-   "name": "iptv-org-hk",
-   "url": "https://iptv-org.github.io/iptv/countries/hk.m3u",
-   "fetched": 3733,
-   "parsed": 18,
-   "error": ""
-  },
-  {
-   "name": "iptv-org-tw",
-   "url": "https://iptv-org.github.io/iptv/countries/tw.m3u",
-   "fetched": 4747,
-   "parsed": 26,
-   "error": ""
-  },
-  {
-   "name": "iptv-org-zho",
-   "url": "https://iptv-org.github.io/iptv/languages/zho.m3u",
-   "fetched": 43473,
-   "parsed": 214,
-   "error": ""
-  },
-  {
-   "name": "iptv-org-news",
-   "url": "https://iptv-org.github.io/iptv/categories/news.m3u",
-   "fetched": 232145,
-   "parsed": 1035,
-   "error": ""
-  }
- ],
- "total_parsed": 4645,
- "after_filter": 1423,
- "after_dedup": 905,
- "probed": 905,
+ "started_at": "2026-10-02T08:37:34+00:00",
+ "finished_at": "2026-10-02T08:37:34+00:00",
+ "elapsed_sec": 0.0,
+ "sources": [],
+ "total_parsed": 0,
+ "after_filter": 0,
+ "after_dedup": 0,
+ "probed": 538,
  "skipped_blacklist": 0,
- "alive": 505,
- "dead": 400,
- "channels": 136,
- "published_channels": 136,
- "published_streams": 248,
- "kind_breakdown": {
-  "hls": 492,
-  "mp4": 13
- },
- "alive_rate": 55.8
+ "alive": 197,
+ "dead": 341,
+ "channels": 84,
+ "published_channels": 84,
+ "published_streams": 165,
+ "kind_breakdown": {},
+ "alive_rate": 36.62
 }

@@ -52,6 +52,7 @@ jobs:
         run: |
           python tests/test_normalize.py
           python tests/test_bandwidth.py
+          python tests/test_quality.py
           python tests/test_epg.py
 
       - name: 采集 + 检测 + 剔除 + 发布

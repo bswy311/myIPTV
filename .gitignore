@@ -16,3 +16,7 @@ data/probed.json
 # （7MB 且每天都变，提交进去会让 git 历史迅速膨胀）
 output/e.xml
 output/e.xml.tmp
+
+# 诊断工具（tools/tsprobe.py 等）重定向出来的临时文件
+*_out.txt
+_commit.txt

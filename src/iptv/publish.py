@@ -12,6 +12,27 @@ from .models import RunStats, Stream
 from .normalize import channel_sort
 
 
+def audio_text(st: Stream) -> str:
+    """音轨一列：正常显示「编码 + 码率」，残缺的加警示符。
+
+    为什么要显示出来：音轨残缺的源视频很漂亮、跑分很高，
+    不把音轨码率摊开看根本发现不了（CCTV-5+ 那条只有 23.8k）。
+    """
+    if st.audio_kbps <= 0:
+        return st.audio_codec or "-"
+    return f"{'⚠ ' if st.audio_bad else ''}{st.audio_codec or '?'} {st.audio_kbps:.0f}k"
+
+
+def _line_rank(st: Stream) -> tuple:
+    """同频道内线路排序：音轨残缺的一律排到最后，再按评分。
+
+    为什么单独提一档：音轨残缺的源视频往往更好、跑分更高
+    （CCTV-5+ 实测音轨 23.8k，视频却有 2.9Mbps），只靠扣分压不住。
+    audio_kbps=0 表示没测出来（非 TS 容器等），不下结论，按正常处理。
+    """
+    return (1 if st.audio_bad else 0, -st.score)
+
+
 def _order_map(cfg) -> dict[str, int]:
     order = list(cfg.get("output_order") or [])
     return {name: i for i, name in enumerate(order)}
@@ -34,7 +55,7 @@ def group_by_channel(streams: list[Stream]) -> dict[str, list[Stream]]:
     for st in streams:
         groups[st.key].append(st)
     for items in groups.values():
-        items.sort(key=lambda s: -s.score)
+        items.sort(key=_line_rank)
     return groups
 
 
@@ -140,15 +161,18 @@ def _report_md(stats: RunStats, streams: list[Stream], cfg) -> str:
     top = sorted(streams, key=lambda s: -s.score)[:30]
     lines += [
         "", "## 带宽实测（决定会不会卡）", "",
-        "| 频道 | 分辨率 | 码率 | 实测速度 | 余量 | 稳定性 | 评分 |",
-        "|---|---|---|---|---|---|---|",
+        "| 频道 | 分辨率 | 音轨 | 码率 | 实测速度 | 余量 | 稳定性 | 评分 |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for st in top:
         lines.append(
-            f"| {st.display} | {st.resolution or '-'} | "
+            f"| {st.display} | {st.resolution or '-'} | {audio_text(st)} | "
             f"{st.bitrate_kbps / 1000:.1f}M | {st.speed_kbps / 1000:.1f}M | "
             f"{st.headroom:.1f}x | {st.stability:.0f}% | {st.score:.0f} |"
         )
+    lines.append("")
+    lines.append(f"> 音轨码率低于音轨阈值会标 ⚠ 并被降权："
+                 "这种源视频很好但声音是噪音。")
 
     lines += ["", f"> 由 iptv-pipeline 自动生成 {stats.finished_at}", ""]
     return "\n".join(lines)
@@ -168,6 +192,7 @@ def _index_html(stats: RunStats, streams: list[Stream], files: dict[str, str], c
             f"<td>{len(items)}</td>"
             f"<td>{html.escape(best.kind)}</td>"
             f"<td>{html.escape(best.resolution or '-')}</td>"
+            f"<td>{html.escape(audio_text(best))}</td>"
             f"<td>{best.speed_kbps / 1000:.1f}M / {best.bitrate_kbps / 1000:.1f}M</td>"
             f"<td class='u'><a href='{html.escape(best.url)}' target='_blank'>测试</a></td>"
             "</tr>"
@@ -212,7 +237,7 @@ def _index_html(stats: RunStats, streams: list[Stream], files: dict[str, str], c
 </div>
 <div class="card"><div class="wrap"><table>
 <thead><tr><th>分组</th><th>频道</th><th>线路</th><th>类型</th><th>分辨率</th>
-<th>速度/码率</th><th>直连测试</th></tr></thead>
+<th>音轨</th><th>速度/码率</th><th>直连测试</th></tr></thead>
 <tbody>{''.join(rows)}</tbody>
 </table></div></div>
 </body></html>

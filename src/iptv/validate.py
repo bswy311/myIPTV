@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 
 import httpx
 
-from . import hls
+from . import hls, tsinfo
 from .history import History
 from .models import ProbeResult, Stream
 
@@ -50,6 +50,42 @@ def sniff_audio(head: bytes) -> str:
 
 # 低于这个码率的“视领”几乎不可能存在，只可能是广播。
 DEFAULT_AUDIO_MAX_KBPS = 400.0
+
+# 第一个分片里留多少字节做样本（容器魔数 + TS 音轨体检）。
+# 256KB 约 1400 个 TS 包，足够拿到 PAT/PMT 并估出 PID 占比。
+SNIFF_BYTES = 262144
+
+# 分辨率档位。
+# 为什么不用 height × 系数：720x576 这类标清源的码率往往比高清还高，
+# 用线性系数（1080p 只比 576p 高 60 分）经常把标清顶到第一条线路上。
+_RES_TIERS: tuple[tuple[int, float], ...] = (
+    (1800, 340.0),   # 4K / 2K
+    (1000, 300.0),   # 1080p
+    (700, 200.0),    # 720p
+    (500, 30.0),     # 720x576 / 480p 等标清
+    (1, 0.0),        # 更低
+)
+_RES_UNKNOWN = 150.0   # 清单没声明分辨率：不奖不罚，落在 720p 与标清之间
+
+
+def resolution_score(height: int) -> float:
+    """分辨率得分。标清（720x576 等）会被明显压低。"""
+    if height <= 0:
+        return _RES_UNKNOWN
+    for floor, bonus in _RES_TIERS:
+        if height >= floor:
+            return bonus
+    return _RES_UNKNOWN
+
+
+def _audio_min_kbps(cfg) -> float:
+    """音轨码率低于多少算「残缺」（validate.audio_min_kbps）。"""
+    if cfg is None:
+        return tsinfo.DEFAULT_AUDIO_MIN_KBPS
+    try:
+        return float(cfg.validate.get("audio_min_kbps") or tsinfo.DEFAULT_AUDIO_MIN_KBPS)
+    except (AttributeError, TypeError, ValueError):
+        return tsinfo.DEFAULT_AUDIO_MIN_KBPS
 
 
 def looks_audio(
@@ -224,8 +260,8 @@ async def _download_timed(
                 return
             try:
                 async for chunk in resp.aiter_bytes(32768):
-                    if sniff is not None and len(sniff) < 16:
-                        sniff.extend(chunk[: 16 - len(sniff)])
+                    if sniff is not None and len(sniff) < SNIFF_BYTES:
+                        sniff.extend(chunk[: SNIFF_BYTES - len(sniff)])
                     stats["n"] += len(chunk)
                     if stats["n"] >= max_bytes:
                         break
@@ -288,6 +324,7 @@ async def _measure_hls(
     full_dur = 0.0
     ok_segments = 0
     attempted = 0           # 真的发起过的分片数（稳定性 = ok / attempted）
+    ts_prof: tsinfo.TsProfile | None = None   # TS 体检结果，音轨码率靠它算
 
     targets = segs[:want]
     for seg in targets:
@@ -312,8 +349,9 @@ async def _measure_hls(
         # 按「总预算」分配：第一个分片给足，尽量完整读完才能算出真实码率
         budget = min(sample_bytes, max(sample_bytes - total_bytes, 262144))
         attempted += 1
-        # 第一个分片顺便嗅一下容器类型，用来识别广播台
-        sniff = bytearray() if (ok_segments == 0 and drop_audio) else None
+        # 第一个分片顺便留一段样本：既用来嗅容器类型（识别广播台），
+        # 也用来给 TS 做音轨体检（解析 PAT/PMT，数各 PID 的包数）
+        sniff = bytearray() if ok_segments == 0 else None
         st, n, ms, cut = await _download_timed(
             client, seg_url, budget, headers, soft, hard_seg, sniff
         )
@@ -328,11 +366,17 @@ async def _measure_hls(
         # 广播电台也大量用 HLS 分发，速度还很快，会被当成好源混进电视列表。
         # 点开只有声音没画面，所以这里直接判死。
         if sniff is not None:
-            why = sniff_audio(bytes(sniff))
-            if why:
-                return ProbeResult(False, "audio", status, resolution=resolution,
-                                   bandwidth=bandwidth,
-                                   error=f"纯音频流（{why}），不是电视频道")
+            head = bytes(sniff)
+            if drop_audio:
+                why = sniff_audio(head[:16])
+                if why:
+                    return ProbeResult(False, "audio", status, resolution=resolution,
+                                       bandwidth=bandwidth,
+                                       error=f"纯音频流（{why}），不是电视频道")
+            # 音轨体检：音轨码率远低于正常值的源，听着就是唦唦的噪音（CCTV-5+ 就踩过）
+            prof = tsinfo.profile(head)
+            if prof.ok:
+                ts_prof = prof
 
         total_bytes += n
         total_ms += ms
@@ -346,6 +390,12 @@ async def _measure_hls(
         return ProbeResult(False, "hls", status, resolution=resolution,
                            bandwidth=bandwidth, error="分片数据不足")
 
+    # 清单里没声明分辨率时，用从 TS 里解出来的真实分辨率补上。
+    # 实测只有 9.6% 的源带 RESOLUTION（197 条可用流里只有 19 条），
+    # 不补这一下，「720x576 往后排」就基本不起作用。
+    if not resolution and ts_prof and ts_prof.resolution:
+        resolution = ts_prof.resolution
+
     speed_kbps = total_bytes * 8.0 / max(total_ms, 1.0)
     if full_dur > 0:
         bitrate_kbps = full_bytes * 8.0 / full_dur / 1000.0
@@ -353,6 +403,16 @@ async def _measure_hls(
         bitrate_kbps = bandwidth / 1000.0
     else:
         bitrate_kbps = 0.0
+
+    # 音轨码率 = 整条流码率 × 音轨包占比（不需要额外测时长）
+    audio_kbps = round(ts_prof.audio_kbps(bitrate_kbps), 1) if ts_prof else 0.0
+    audio_codec = ts_prof.audio_codec if ts_prof else ""
+    audio_share = round(ts_prof.audio_share, 5) if ts_prof else 0.0
+    # 音轨残缺：码率低得不正常，或者 PMT 里声明了音轨却一个包都没收到。
+    # 这种源视频往往很好、跑分很高，但听着是唣唣的噪音（CCTV-5+ 实测 23.8k）。
+    audio_bad = bool(ts_prof) and (
+        ts_prof.dead_audio or tsinfo.is_bad_audio(audio_kbps, _audio_min_kbps(cfg))
+    )
 
     requested = max(attempted, 1)
     stability = round(ok_segments / requested * 100.0, 1)
@@ -366,17 +426,24 @@ async def _measure_hls(
                                bitrate_kbps=round(bitrate_kbps, 1),
                                speed_kbps=round(speed_kbps, 1),
                                stability=stability,
+                               audio_kbps=audio_kbps, audio_codec=audio_codec,
+                               audio_share=audio_share, audio_bad=audio_bad,
                                error=f"纯音频流（码率仅 {max(bandwidth / 1000.0, bitrate_kbps):.0f}k，"
                                      f"应为广播），不是电视频道")
 
     if min_speed > 0 and speed_kbps < min_speed:
         return ProbeResult(False, "hls", status, resolution=resolution, bandwidth=bandwidth,
                            bitrate_kbps=round(bitrate_kbps, 1), speed_kbps=round(speed_kbps, 1),
-                           stability=stability, error=f"带宽不足 {speed_kbps:.0f}kbps")
+                           stability=stability, audio_kbps=audio_kbps,
+                           audio_codec=audio_codec, audio_share=audio_share,
+                           audio_bad=audio_bad,
+                           error=f"带宽不足 {speed_kbps:.0f}kbps")
 
     return ProbeResult(True, "hls", status, resolution=resolution, bandwidth=bandwidth,
                        bitrate_kbps=round(bitrate_kbps, 1), speed_kbps=round(speed_kbps, 1),
-                       stability=stability)
+                       stability=stability, audio_kbps=audio_kbps,
+                       audio_codec=audio_codec, audio_share=audio_share,
+                       audio_bad=audio_bad)
 
 
 async def _validate_hls(
@@ -572,7 +639,7 @@ async def probe(
 
 
 def compute_score(stream: Stream) -> float:
-    """评分：**带宽余量优先**。
+    """评分：**带宽余量优先，再看画质，音轨有毛病直接降权**。
 
     之前以延迟为主，结果「能出流但只有 200kbps」的源能排到前面——点开能播、
     实际一直转圈。现在改成：供得上数据 > 画质 > 延迟。
@@ -586,11 +653,14 @@ def compute_score(stream: Stream) -> float:
     score += min(headroom, 6.0) * 80.0                     # 带宽余量，最多 +480
     score += min(stream.speed_kbps / 1000.0, 12.0) * 20.0  # 绝对速度，最多 +240
     score += min(stream.bitrate_kbps, 8000.0) * 0.02       # 码率（画质），最多 +160
-    score += min(stream.height, 1080) * 0.12               # 分辨率，最多 +130
+    score += resolution_score(stream.height)               # 分辨率档位，标清被压到最低
     score += (stream.stability / 100.0) * 120.0            # 稳定性，最多 +120
     score -= min(stream.latency_ms, 5000.0) * 0.02         # 延迟只做微调，最多 -100
     score += min(stream.ok_count, 20) * 4.0                # 历史稳定加分
     score -= stream.fail_streak * 120.0
+    # 音轨残缺的源（视频很高清、声音是噪音）降权
+    if stream.audio_bad:
+        score -= tsinfo.BAD_AUDIO_PENALTY
     return round(score, 1)
 
 
@@ -701,6 +771,10 @@ async def probe_all(
                     st.speed_kbps = result.speed_kbps
                     st.stability = result.stability
                     st.headroom = round(result.headroom, 2)
+                    st.audio_kbps = result.audio_kbps
+                    st.audio_codec = result.audio_codec
+                    st.audio_share = result.audio_share
+                    st.audio_bad = result.audio_bad
                     st.error = result.error
                     st.score = compute_score(st) if result.ok else 0.0
                     history.record(st)

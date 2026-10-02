@@ -40,6 +40,12 @@ class Stream:
     stability: float = 0.0      # 0~100，分片拉取成功率
     headroom: float = 0.0       # speed / bitrate，越大越不容易卡
 
+    # ---- 音轨体检（TS 流才有；没有数据时为 0）----
+    audio_kbps: float = 0.0     # 估算的音轨码率，正常 64~256，残缺的只有二十几
+    audio_codec: str = ""       # aac / mp2 / ac3 ...
+    audio_share: float = 0.0    # 音轨包占比（0~1）
+    audio_bad: bool = False     # 音轨残缺（听着是噪音），发布时排到最后
+
     # ---- 评分 ----
     score: float = 0.0
     fail_streak: int = 0        # 历史连续失败次数
@@ -67,6 +73,10 @@ class ProbeResult:
     bitrate_kbps: float = 0.0
     speed_kbps: float = 0.0
     stability: float = 0.0
+    audio_kbps: float = 0.0
+    audio_codec: str = ""
+    audio_share: float = 0.0
+    audio_bad: bool = False
 
     @property
     def height(self) -> int:
