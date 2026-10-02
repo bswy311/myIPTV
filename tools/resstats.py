@@ -14,18 +14,38 @@ data = json.loads(src.read_text(encoding="utf-8"))
 alive = [s for s in data if s.get("ok")]
 
 print(f"{src}：共 {len(data)} 条，可用 {len(alive)} 条")
-cnt = collections.Counter((s.get("resolution") or "(未声明)") for s in alive)
-for name, n in cnt.most_common(15):
-    print(f"  {name:14s} {n:5d}  {n / max(len(alive), 1) * 100:5.1f}%")
 
-named = sum(n for k, n in cnt.items() if k != "(未声明)")
-print(f"\n有分辨率声明的 {named}/{len(alive)}（{named / max(len(alive), 1) * 100:.1f}%）")
+# ---- 分辨率 ----
+named = [s for s in alive if s.get("height")]
+print(f"\n分辨率解出来的：{len(named)}/{len(alive)}"
+      f"（{len(named) / max(len(alive), 1) * 100:.1f}%）")
+buckets = collections.Counter()
+for s in named:
+    h = s["height"]
+    if h >= 1800:
+        buckets["2160p+   340分"] += 1
+    elif h >= 1000:
+        buckets["1080p    300分"] += 1
+    elif h >= 700:
+        buckets["720p     200分"] += 1
+    elif h >= 500:
+        buckets["标清576   30分"] += 1
+    else:
+        buckets["更低       0分"] += 1
+buckets["未解出   150分"] = len(alive) - len(named)
+for k in sorted(buckets, key=lambda x: -int(x.split()[-1].rstrip("分"))):
+    print(f"  {k}  {buckets[k]:4d}")
+
+# ---- 音轨 ----
+bad = [s for s in alive if s.get("audio_bad")]
+with_audio = [s for s in alive if s.get("audio_kbps")]
+print(f"\n音轨测出来的：{len(with_audio)}/{len(alive)}"
+      f"（{len(with_audio) / max(len(alive), 1) * 100:.1f}%）")
+print(f"判定音轨残缺（audio_bad）的：{len(bad)} 条")
+for s in sorted(bad, key=lambda s: (s["audio_kbps"], s.get("display") or "")):
+    print(f"  {s['audio_kbps']:6.1f} kbps  {s.get('audio_codec') or '-':5s} "
+          f"{s.get('resolution') or '-':12s} {s.get('display')}")
+    print(f"        {s.get('url')}")
 
 kinds = collections.Counter(s.get("kind") for s in alive)
-print("流类型：", dict(kinds))
-
-print("\n非 1080p 声明的源（拿来验证标清判定）：")
-for s in alive:
-    res = s.get("resolution") or ""
-    if res and res != "1920x1080":
-        print(f"  {res:12s} {s.get('display')} | {s.get('url')}")
+print("\n流类型：", dict(kinds))

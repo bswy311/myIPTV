@@ -10,6 +10,7 @@ from pathlib import Path
 
 from .models import RunStats, Stream
 from .normalize import channel_sort
+from .validate import resolution_rank
 
 
 def audio_text(st: Stream) -> str:
@@ -24,13 +25,13 @@ def audio_text(st: Stream) -> str:
 
 
 def _line_rank(st: Stream) -> tuple:
-    """同频道内线路排序：音轨残缺的一律排到最后，再按评分。
+    """同频道内线路排序：**先按画质硬档位**，再按音轨、评分。
 
-    为什么单独提一档：音轨残缺的源视频往往更好、跑分更高
-    （CCTV-5+ 实测音轨 23.8k，视频却有 2.9Mbps），只靠扣分压不住。
-    audio_kbps=0 表示没测出来（非 TS 容器等），不下结论，按正常处理。
+    用户的要求是「非高清的一律往后排」，所以分辨率必须是第一排序键，
+    不能只靠评分里的加分（标清源的码率往往比高清还高，加分压不住）。
+    实测非高清的排最后；没解出分辨率的归入高清档（见 resolution_rank）。
     """
-    return (1 if st.audio_bad else 0, -st.score)
+    return (resolution_rank(st.height), 1 if st.audio_bad else 0, -st.score)
 
 
 def _order_map(cfg) -> dict[str, int]:

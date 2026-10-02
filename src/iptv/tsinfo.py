@@ -129,14 +129,31 @@ def scan_pids(buf: bytes) -> dict[int, dict]:
 
 
 def _first_section(buf: bytes, pid: int, table_id: int) -> bytes | None:
-    """取该 PID 上第一个以 table_id 开头的完整 section（跳过 pointer_field）。"""
+    """取该 PID 上第一个以 table_id 开头的**完整** section。
+
+    必须重组跨包 section：带多音轨/多字幕的频道（CCTV-1、BBC News 这类）
+    PMT 轻松超过 184 字节，只读第一个 TS 包会解出错误的 ES 列表——
+    实测后果是「音轨 PID 一个包都没有」，被误判成音轨残缺而白白降权 18 个源。
+    """
+    out = bytearray()
+    expected = 0
+    started = False
     for _pid, pusi, payload in ts_packets(buf, {pid}):
-        if not pusi or not payload:
-            continue
-        body = payload[1 + payload[0]:]
-        if len(body) >= 3 and body[0] == table_id:
-            return body
-    return None
+        if pusi:
+            if not payload:
+                continue
+            body = payload[1 + payload[0]:]           # 跳过 pointer_field
+            if len(body) < 3 or body[0] != table_id:
+                started, out, expected = False, bytearray(), 0
+                continue
+            started = True
+            out = bytearray(body)
+            expected = 3 + (((body[1] & 0x0F) << 8) | body[2])
+        elif started:
+            out += payload
+        if started and expected and len(out) >= expected:
+            return bytes(out[:expected])
+    return bytes(out) if started and expected and len(out) >= expected else None
 
 
 def parse_pat(buf: bytes) -> dict[int, int]:

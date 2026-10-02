@@ -19,7 +19,12 @@ sys.path.insert(0, str(ROOT / "src"))
 from iptv import h264, tsinfo  # noqa: E402
 from iptv.models import Stream  # noqa: E402
 from iptv.publish import group_by_channel  # noqa: E402
-from iptv.validate import compute_score, resolution_score  # noqa: E402
+from iptv.validate import (  # noqa: E402
+    audio_bad_for,
+    compute_score,
+    resolution_rank,
+    resolution_score,
+)
 
 # ---------------------------------------------------------------------------
 # 真实流的 SPS（从线上源抓的，不是自己造的）——
@@ -194,6 +199,37 @@ def test_unknown_resolution_is_not_treated_as_sd():
     assert resolution_score(0) > resolution_score(576)
 
 
+def test_resolution_rank_boundaries():
+    """720p 及以上算高清；未知归入高清档（HEVC 源多为 4K，误降权代价大）。"""
+    assert resolution_rank(2160) == 0
+    assert resolution_rank(1440) == 0
+    assert resolution_rank(1080) == 0
+    assert resolution_rank(720) == 0
+    assert resolution_rank(0) == 0
+    assert resolution_rank(576) == 1
+    assert resolution_rank(540) == 1
+    assert resolution_rank(480) == 1
+
+
+def test_non_hd_always_sorted_after_hd():
+    """用户的核心要求：非高清一律往后排，哪怕它评分高出很多。
+
+    回归背景：实测有 720x576 的源跑到 4Mbps，光靠评分里的分辨率加分压不住。
+    """
+    hd = Stream(url="hd", key="k", display="X", ok=True, height=1080, score=1000)
+    sd = Stream(url="sd", key="k", display="X", ok=True, height=576, score=99999)
+
+    assert [s.url for s in group_by_channel([sd, hd])["k"]] == ["hd", "sd"]
+
+
+def test_unknown_resolution_not_demoted_behind_sd():
+    """没解出分辨率（fMP4 / HEVC）不当作非高清，不能排到标清后面。"""
+    unknown = Stream(url="unknown", key="k", display="X", ok=True, height=0, score=1000)
+    sd = Stream(url="sd", key="k", display="X", ok=True, height=576, score=99999)
+
+    assert [s.url for s in group_by_channel([sd, unknown])["k"]] == ["unknown", "sd"]
+
+
 # ---------------------------------------------------------------------------
 # H.264 SPS 真实分辨率解析
 # ---------------------------------------------------------------------------
@@ -335,6 +371,17 @@ def test_is_bad_audio_threshold():
     assert tsinfo.is_bad_audio(64.0) is False
     assert tsinfo.is_bad_audio(0.0) is False     # 未知不算坏
     assert tsinfo.is_bad_audio(50.0, threshold=48.0) is False
+
+
+def test_audio_bad_requires_measured_low_bitrate():
+    """回归：曾经把「PMT 声明了音轨但样本里没抓到包」也当残缺，
+    误标了 20 个正常频道（BBC News / France 24 / CNA / CCTV-1 …）——
+    fMP4 这类非 TS 内容很容易撞出假的 PAT/PMT。现在只认真测出的低码率。
+    """
+    assert audio_bad_for(23.8) is True          # CCTV-5+ 实测值
+    assert audio_bad_for(0.0) is False          # 没测出来 -> 不下结论
+    assert audio_bad_for(136.0) is False
+    assert audio_bad_for(54.0) is False         # 凤凰香港实测值，在阈值之上
 
 
 def test_bad_audio_source_scores_lower():

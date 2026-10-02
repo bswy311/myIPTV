@@ -78,6 +78,24 @@ def resolution_score(height: int) -> float:
     return _RES_UNKNOWN
 
 
+# 720p 及以上算高清（用户的要求：非高清一律往后排）
+HD_MIN_HEIGHT = 720
+
+
+def resolution_rank(height: int) -> int:
+    """同频道内线路的**硬档位**：0 = 高清或未知，1 = 实测非高清。
+
+    为什么要硬档位而不是只靠扣分：标清源的码率常常比高清还高
+    （实测有 720x576 的源跑到 4Mbps），评分里那 270 分的分辨率差距
+    压不住「码率 + 速度」的双重加分，标清还是会被顶到第一条线路上。
+
+    height=0（没解出分辨率）**不**当作非高清：fMP4 / HEVC 这类容器
+    本来就解不出 SPS，而它们里面 4K 的不少（HEVC 几乎都是 4K 源），
+    误降权的损失比收益大。
+    """
+    return 1 if 0 < height < HD_MIN_HEIGHT else 0
+
+
 def _audio_min_kbps(cfg) -> float:
     """音轨码率低于多少算「残缺」（validate.audio_min_kbps）。"""
     if cfg is None:
@@ -86,6 +104,19 @@ def _audio_min_kbps(cfg) -> float:
         return float(cfg.validate.get("audio_min_kbps") or tsinfo.DEFAULT_AUDIO_MIN_KBPS)
     except (AttributeError, TypeError, ValueError):
         return tsinfo.DEFAULT_AUDIO_MIN_KBPS
+
+
+def audio_bad_for(audio_kbps: float, cfg=None) -> bool:
+    """是否判为音轨残缺。
+
+    只认「**真测出了**低码率」这一种情况（kbps > 0 且低于阈值）。
+
+    早期版本还把「PMT 里声明了音轨但样本里一个包都没抓到」也算残缺，
+    结果误标了 20 个正常频道：BBC News / France 24 / CNA / CCTV-1 …
+    原因是 fMP4 这类非 TS 内容很容易撞出假的 PAT/PMT。
+    宁漏勿错——音轨本来就不是排序重点，误伤正常高清源代价更大。
+    """
+    return tsinfo.is_bad_audio(audio_kbps, _audio_min_kbps(cfg))
 
 
 def looks_audio(
@@ -408,11 +439,8 @@ async def _measure_hls(
     audio_kbps = round(ts_prof.audio_kbps(bitrate_kbps), 1) if ts_prof else 0.0
     audio_codec = ts_prof.audio_codec if ts_prof else ""
     audio_share = round(ts_prof.audio_share, 5) if ts_prof else 0.0
-    # 音轨残缺：码率低得不正常，或者 PMT 里声明了音轨却一个包都没收到。
-    # 这种源视频往往很好、跑分很高，但听着是唣唣的噪音（CCTV-5+ 实测 23.8k）。
-    audio_bad = bool(ts_prof) and (
-        ts_prof.dead_audio or tsinfo.is_bad_audio(audio_kbps, _audio_min_kbps(cfg))
-    )
+    # 音轨残缺：只有真测出低码率才算（CCTV-5+ 实测 23.8k，听着是唣唣的噪音）
+    audio_bad = audio_bad_for(audio_kbps, cfg)
 
     requested = max(attempted, 1)
     stability = round(ok_segments / requested * 100.0, 1)
