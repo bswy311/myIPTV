@@ -59,6 +59,186 @@ def test_dedupe_by_url():
     assert len(dedupe(items)) == 2
 
 
+def test_published_group_order():
+    """输出分组顺序必须是约定的这个顺序，且不再包含「体育」。"""
+    cfg = load_config()
+    order = list(cfg.get("output_order") or [])
+    assert order[:6] == ["央视", "卫视", "吉林", "长春", "港澳台", "国际新闻"], order
+    assert "体育" not in order, order
+
+    # 分类定义里也要保留「吉林」——现在上游没有可用省台，这组是空的，
+    # 但保留着以后出现了新源才会自动归到这里。
+    names = [c.get("name") for c in (cfg.categories or [])]
+    assert "吉林" in names, names
+    assert "长春" in names, names
+
+    # 体育整类丢弃（配置层面），但分类定义保留，方便以后恢复
+    assert "体育" in [str(x) for x in (cfg.filter.get("drop_categories") or [])]
+    assert "体育" in names, names
+
+
+def test_exact_list_keeps_only_named_channels():
+    """国际新闻用 exact 精确名单，只留最主流电视台的英语主频。
+
+    背景：原来靠 bbc / cnn / dw / cnbc / cna 这类通配关键词，
+    结果把 BBC Earth、BBC Drama、BBC One、CNBC Awaaz、CNN TURK、
+    DW Arabic、Sky News Arabia、Al Jazeera Mubasher 一起捞了进来
+    （实测国际新闻组有 87 个频道）。
+    """
+    cfg = load_config()
+
+    def cat_of(name: str) -> str:
+        st = Stream(url="u", name=name, source="src")
+        st.key = canonical_key(name)
+        st.display = display_name(name)
+        return categorize(st, cfg.categories)
+
+    # 名单内的主流英语新闻台
+    for n in ("BBC News", "CNN", "Al Jazeera English", "France 24 English",
+              "DW English", "Euronews English", "Sky News", "Reuters TV",
+              "NHK World-Japan", "CNA (Singapore)", "Arirang TV",
+              "Bloomberg TV", "CNBC UK", "NBC News NOW", "Fox News Channel"):
+        assert cat_of(n) == "国际新闻", f"{n} 应归国际新闻，实际 {cat_of(n)}"
+        st = Stream(url="u", name=n, source="src")
+        # 不传 modes，让全局 filter.mode=include 生效
+        assert matches_filter(st, cfg) is True, f"{n} 应通过筛选"
+
+    # 以前被误收的，现在既不该归类到国际新闻，也不该通过筛选
+    for n in ("BBC Earth", "BBC Drama", "BBC One", "BBC Alba", "BBC Scotland",
+              "BBC News Africa", "BBC News Hindi", "BBC Arabic", "BBC Persian",
+              "CBBC", "CNBC Awaaz", "CNBC Arabiya", "CNN TURK", "CNN Prima News",
+              "DW Arabic", "DW Russian", "Sky News Arabia", "Sky News Extra 1",
+              "Al Jazeera Mubasher", "Al Jazeera 2", "Euronews Greek",
+              "France 24 Arabic", "Arirang Radio", "Bloomberg TV Mongolia",
+              "CNA Originals", "Fox News Radio", "CBS News Miami",
+              "NHK World Premium", "SABC News"):
+        assert cat_of(n) != "国际新闻", f"{n} 不该归到国际新闻"
+        st = Stream(url="u", name=n, source="src")
+        assert matches_filter(st, cfg) is False, f"{n} 不该通过筛选"
+
+
+def test_hongkong_taiwan_keywords_not_too_broad():
+    """jade / pearl / phoenix 这类宽泛词会误收无关频道。
+
+    实例：Al Jadeed（黎巴嫩）、Golden Jade、98.1 Pearl FM（广播）、
+    ABC 15 Phoenix AZ（美国凤凰城地方台）。
+    真正的频道靠中文关键词和本地化名命中就够了。
+    """
+    cfg = load_config()
+
+    def cat_of(name: str) -> str:
+        st = Stream(url="u", name=name)
+        st.key = canonical_key(name)
+        st.display = display_name(name)
+        return categorize(st, cfg.categories)
+
+    # 真正的港澳台频道必须归对
+    for n in ("翡翠台", "TVB Jade", "明珠台", "TVB Pearl",
+              "Phoenix Hong Kong", "凤凰中文", "香港卫视", "纬来体育"):
+        assert cat_of(n) == "港澳台", f"{n} 应归港澳台，实际 {cat_of(n)}"
+
+    # 这些不该被误收
+    for n in ("Al Jadeed", "Golden Jade", "98.1 Pearl FM",
+              "ABC 15 Phoenix AZ (KNXV)"):
+        assert cat_of(n) != "港澳台", f"{n} 不该归到港澳台"
+
+
+def test_substring_keywords_do_not_cause_false_positives():
+    """短关键词是子串匹配，很容易误伤。
+
+    踩过的坑：
+      - `tvb` 命中 FTV (Bolivia)（ftvbolivia）和 Red Bull TV BR（redbulltvbr）
+      - `f1`  命中 TF1（法一）
+      - `jade` 命中黎巴嫩的 Al Jadeed
+    这些都不能再出现在关键词里。
+    """
+    cfg = load_config()
+    flt = cfg.filter
+    # 筛选关键词和分类关键词都要检查：曾经只删了 include_keywords 里的 tvb，
+    # 分类表里还留着，结果 FTV (Bolivia) 被 sport 放行后又被 tvb 归到了港澳台。
+    all_kw = [str(k).lower() for k in (flt.get("include_keywords") or [])]
+    for cat in (cfg.categories or []):
+        all_kw += [str(k).lower() for k in (cat.get("keywords") or [])]
+    # 精确名单也不该出现这些短词
+    all_kw += [str(x).lower() for cat in (cfg.categories or [])
+               for x in (cat.get("exact") or [])]
+    for bad in ("tvb", "f1", "jade", "pearl", "phoenix"):
+        assert bad not in all_kw, f"关键词里不该有裸的 {bad}"
+
+    # 这些必须被筛掉
+    for n in ("FTV (Bolivia)", "Red Bull TV BR", "TF1", "Al Jadeed",
+              "98.1 Pearl FM", "ABC 15 Phoenix AZ (KNXV)"):
+        st = Stream(url="u", name=n)
+        assert matches_filter(st, cfg) is False, f"{n} 不该通过筛选"
+
+    # 而且就算它们从别的路径混进来（比如 group 里带 sport 被放行），
+    # 分类也不能把它们归到港澳台，否则会被当成正经频道发布出去。
+    def cat_of(name: str, group: str = "") -> str:
+        st = Stream(url="u", name=name, group=group)
+        st.key = canonical_key(name)
+        st.display = display_name(name)
+        return categorize(st, cfg.categories)
+
+    assert cat_of("FTV (Bolivia)", "Sports") != "港澳台"
+    assert cat_of("Red Bull TV BR", "Outdoor;Sports") != "港澳台"
+
+    # 真正的 TVB 频道仍然要留下（靠本地化名 + 中文关键词）
+    for n in ("TVB Jade", "TVB Pearl", "翡翠台", "明珠台"):
+        st = Stream(url="u", name=n)
+        assert matches_filter(st, cfg) is True, f"{n} 应该通过筛选"
+
+
+def test_annotation_is_stripped_from_key():
+    """上游标注不能进归一化键，否则同一个台会变成两个频道。
+
+    实例：CNA (Singapore) [Geo-blocked] 的键曾是 cnasingaporegeoblocked，
+    于是“CNA”和“CNA (Singapore)”在列表里各占一条。
+    """
+    # 标注本身不该进键
+    assert clean_name("湖南卫视[Geo-blocked]") == "湖南卫视"
+    assert canonical_key("CCTV-1 [Not 24/7]") == canonical_key("CCTV-1")
+
+    # CNA 的两种写法靠配置里的 aliases 归并（normalize() 会读这个表）
+    cfg = load_config()
+    aliases = {str(k).lower(): str(v)
+               for k, v in (cfg.normalize.get("aliases") or {}).items()}
+    assert canonical_key("CNA", aliases) == canonical_key("CNA (Singapore)", aliases)
+    assert canonical_key("CNA (Singapore)", aliases) == "cna"
+
+
+def test_cgtn_documentary_variants():
+    """「纪录」和「记录」两种写法要归并到同一个键。"""
+    assert canonical_key("CGTN纪录") == canonical_key("CGTN记录")
+    assert canonical_key("CGTN记录") == "cgtndocumentary"
+    assert canonical_key("CGTN 记录") == "cgtndocumentary"
+    assert canonical_key("CGTN English") == "cgtn"
+    assert canonical_key("CGTN英语") == "cgtn"
+
+
+def test_unknown_channel_falls_back_to_end_of_group():
+    """认不出键的频道不能排到分组最前面。
+
+    「河北4K」的键被削成裸省名「河北」，兜底排序以前是 0.0，
+    比 CCTV-1 的 10、北京卫视的 0 还小，于是排到了第一位。
+    """
+    cfg = load_config()
+
+    def sort_of(name: str) -> float:
+        st = Stream(url="u", name=name)
+        st.key = canonical_key(name)
+        st.display = display_name(name)
+        return channel_sort(st)[0]
+
+    hebei_tv = sort_of("河北卫视")
+    hebei_4k = sort_of("河北4K")
+    beijing = sort_of("北京卫视")
+    unknown = sort_of("某个不认识的地方台")
+
+    assert hebei_tv < hebei_4k <= hebei_tv + 1, (hebei_tv, hebei_4k)
+    assert beijing < hebei_4k, (beijing, hebei_4k)
+    assert unknown > hebei_4k, (unknown, hebei_4k)
+
+
 def test_normalize_and_categorize():
     cfg = load_config()
     streams = [
@@ -161,9 +341,10 @@ def test_per_source_filter_override():
     """
 
     class _Cfg:
-        def __init__(self, filter_cfg, sources):
+        def __init__(self, filter_cfg, sources, categories=None):
             self.filter = filter_cfg
             self.sources = sources
+            self.categories = categories or []
 
     cfg = _Cfg(
         filter_cfg={
@@ -284,6 +465,73 @@ def test_cctv_paid_channels_localized_and_sorted_last():
     assert ordered[1] == "CCTV-17 农业农村"
     # 回归：无编号的央视频道曾被当作 0 权重，排到 CCTV-1 前面
     assert ordered.index("央视台球") > ordered.index("CCTV-17 农业农村")
+
+
+def test_cctv_paid_channels_by_chinese_name_sorted_last():
+    """回归：中文名的央视付费频道曾跑到 CCTV-1 前面。
+
+    vbskycn 这类源给的是纯中文名（兵器科技 / 风云剧场 / CCTV怀旧剧场），
+    canonical_key 认不出来就退化成裸键，channel_sort 的兜底分支是
+    (0.0, display)，比 CCTV-1 的 10 还小 —— 于是这两个频道排到了最前面。
+    """
+    assert canonical_key("兵器科技") == "cctvweapon&technology"
+    assert canonical_key("风云剧场") == "cctvstormtheater"
+    assert canonical_key("央视台球") == "cctvbilliards"
+    assert canonical_key("CCTV怀旧剧场") == "cctvnostalgiatheater"
+
+    # 同一个台的中英文写法要归并成同一频道（否则列表里会出现两条怀旧剧场）
+    assert canonical_key("央视怀旧剧场") == canonical_key("CCTV怀旧剧场")
+    assert canonical_key("CCTV-怀旧剧场") == canonical_key("央视怀旧剧场")
+    assert canonical_key("央视怀旧剧场") == canonical_key("CCTV-Nostalgia Theater")
+
+    cfg = load_config()
+    streams = [Stream(url=f"u{i}", name=n) for i, n in enumerate(
+        ["兵器科技", "风云剧场", "CCTV怀旧剧场", "CCTV-1", "CCTV-17"]
+    )]
+    normalize(streams, cfg)
+    ordered = [s.display for s in sorted(streams, key=channel_sort)]
+
+    assert ordered[0] == "CCTV-1 综合", ordered
+    assert ordered[1] == "CCTV-17 农业农村", ordered
+    assert ordered.index("央视兵器科技") > ordered.index("CCTV-17 农业农村")
+    assert ordered.index("央视风云剧场") > ordered.index("CCTV-17 农业农村")
+    assert ordered.index("央视怀旧剧场") > ordered.index("CCTV-17 农业农村")
+    # 怀旧剧场只应出现一次
+    assert ordered.count("央视怀旧剧场") == 1, ordered
+
+
+def test_cgtn_languages_stay_separate():
+    """回归：CGTN 各语种台曾被并成一个频道。
+
+    canonical_key 里是 re.search(r"(cgtn)([a-z]*)", low)，中文后缀不在 [a-z] 里，
+    于是 CGTN法语 / 西语 / 阿语 / 纪录 全部退化成无后缀的 "cgtn"，
+    六个语种台被并成一个，电视上统一显示「CGTN法语」但播的可能是英语。
+    """
+    pairs = [
+        ("CGTN", "cgtn"),
+        ("CGTN法语", "cgtnfrench"),
+        ("CGTN French", "cgtnfrench"),
+        ("CGTN西语", "cgtnspanish"),
+        ("CGTN Spanish", "cgtnspanish"),
+        ("CGTN阿语", "cgtnarabic"),
+        ("CGTN Arabic", "cgtnarabic"),
+        ("CGTN俄语", "cgtnrussian"),
+        ("CGTN纪录", "cgtndocumentary"),
+    ]
+    for name, want in pairs:
+        assert canonical_key(name) == want, f"{name} -> {canonical_key(name)}"
+
+    names = ["CGTN", "CGTN法语", "CGTN西语", "CGTN阿语", "CGTN俄语", "CGTN纪录"]
+    keys = {canonical_key(n) for n in names}
+    assert len(keys) == len(names), f"语种台被并在一起了: {keys}"
+
+    # 显示名要能区分语种，不能全是「CGTN法语」
+    cfg = load_config()
+    streams = [Stream(url=f"u{i}", name=n) for i, n in enumerate(names)]
+    normalize(streams, cfg)
+    displays = {s.display for s in streams}
+    assert len(displays) == len(names), displays
+    assert "CGTN 英语" in displays and "CGTN 法语" in displays, displays
 
 
 def test_local_channel_whitelist():

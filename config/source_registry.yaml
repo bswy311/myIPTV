@@ -1,0 +1,75 @@
+# ===============================================================
+# 候选源注册表 —— 每次运行会自动测试这里面的源
+# ===============================================================
+# 为什么需要这个文件：
+#   公开源的寿命很短，手工维护的 config.yaml 里的源过几个月就会失效，
+#   同时新的好源在不断冒出来。与其等人去改配置，不如让程序每轮自己测。
+#
+# 工作方式：
+#   1. 每次运行（含 CI 每 6 小时）都会拉取下面每个候选源并解析
+#   2. 统计三个指标：
+#        hits        通过筛选的条数
+#        new         相对现有源新覆盖的频道数（重复的源没有价值）
+#        hit_rate    hits ÷ 总条数（区分「对味的源」和「全量泛列表」）
+#   3. 同时满足下面三条的，流**当场并入本轮**：
+#        新频道数 >= discover.min_new_channels
+#        命中率   >= discover.min_hit_rate
+#        新频道数 <= discover.max_new_channels（防巨型列表灌水）
+#   4. 连续达标 promote_after 次 → 记入 data/source_stats.json 常驻，
+#      以后每轮直接采集；连续没价值/拉不动 demote_after 次 → 自动停用
+#
+# 所以：往里加源是「零风险」的——好用的自动留下，没用的自动淘汰。
+# 想临时试一个源，直接贴在 candidates 下面就行。
+#
+# ⚠️ 地址尽量用国内可达的镜像：
+#     raw.githubusercontent.com 在国内时通时不通（实测经常整个取不到），
+#     jsDelivr（cdn.jsdelivr.net）可达性最好，ghproxy.net 次之。
+#     jsDelivr 写法：https://cdn.jsdelivr.net/gh/<用户>/<仓库>@<分支>/<路径>
+#
+# 字段：
+#   name    用于日志显示
+#   url     清单地址
+#   filter  include（按关键词筛，默认）或 all（整源照收）
+
+candidates:
+  # ---------- 已知好用的中文列表（实测命中率高）----------
+  - name: suxuang-iptv
+    url: https://cdn.jsdelivr.net/gh/suxuang/myIPTV@main/ipv4.m3u
+    filter: include
+  - name: suxuang-iptv-gh
+    url: https://ghproxy.net/https://raw.githubusercontent.com/suxuang/myIPTV/main/ipv4.m3u
+    filter: include
+  - name: kimwang-iptv
+    url: https://cdn.jsdelivr.net/gh/kimwang1978/collect-tv-txt@main/merged_output.m3u
+    filter: include
+  - name: zbds-ipv4
+    url: https://live.zbds.top/tv/iptv4.m3u
+    filter: include
+  - name: zbds-ipv6
+    url: https://live.zbds.top/tv/iptv6.m3u
+    filter: include
+  - name: yanet-cn
+    url: https://yanet.cn/tv/iptv4.m3u
+    filter: include
+  - name: iptv-hacks-tools
+    url: https://iptv.hacks.tools/live.m3u
+    filter: include
+
+  # ---------- iptv-org 的各国/分类列表 ----------
+  # 这些命中率普遍偏低（3%~7%），多数会被 min_hit_rate 挡掉。
+  # 留着是为了万一某个分类刚好合口味时有机会被发现。
+  - name: iptv-org-cn
+    url: https://iptv-org.github.io/iptv/countries/cn.m3u
+    filter: include
+  - name: iptv-org-hk
+    url: https://iptv-org.github.io/iptv/countries/hk.m3u
+    filter: include
+  - name: iptv-org-tw
+    url: https://iptv-org.github.io/iptv/countries/tw.m3u
+    filter: include
+  - name: iptv-org-zho
+    url: https://iptv-org.github.io/iptv/languages/zho.m3u
+    filter: include
+  - name: iptv-org-news
+    url: https://iptv-org.github.io/iptv/categories/news.m3u
+    filter: include

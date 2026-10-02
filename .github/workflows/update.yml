@@ -52,8 +52,12 @@ jobs:
         run: |
           python tests/test_normalize.py
           python tests/test_bandwidth.py
+          python tests/test_epg.py
 
       - name: 采集 + 检测 + 剔除 + 发布
+        env:
+          # 源发现要去 GitHub 搜新源，带上 token 额度从 60/小时 提到 5000/小时
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python main.py run --no-progress --concurrency 120 --timeout 12
 
       - name: 提交历史库与输出结果
@@ -65,7 +69,9 @@ jobs:
           # 只提交需要长期保留的产物。
           # data/raw.json 和 data/probed.json 是中间产物（已在 .gitignore 里），
           # 千万别用 `git add -f data`，那会把它们强推进仓库。
-          git add output data/history.json data/last_run.json 2>/dev/null || true
+          # source_stats.json 必须提交：它记录哪些自动发现的源已达标常驻，
+          # 丢了这个的话每轮都要从零开始重新考核。
+          git add output data/history.json data/last_run.json data/source_stats.json 2>/dev/null || true
 
           if git diff --staged --quiet; then
             echo "没有变化，跳过提交"

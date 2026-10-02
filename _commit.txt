@@ -1,0 +1,74 @@
+feat: 分组重排 + 国际新闻精确名单 + 自动源发现 + 自托管 EPG
+
+一次性解决五个问题，另外修掉若干归一化/筛选的子串误匹配。
+
+一、央视付费频道跑到最前
+    vbskycn 等源直接给中文名（兵器科技/风云剧场），canonical_key 认不出来
+    就退化成裸键，channel_sort 的兜底是 (0.0, ...)，比 CCTV-1 的 10 还小，
+    于是排到了第一位。
+    新增 _CCTV_PAID_ZH，把中文名映射到规范键，顺带把
+    「央视怀旧剧场」和「CCTV怀旧剧场」归并成一个频道。
+    channel_sort 兜底从 0.0 改成 900.0：认不出键的排分组末尾，
+    不会再跑到最前面（「河北4K」也是同一个毛病）。
+
+二、删除体育分类
+    filter.drop_categories: [体育]，流水线在探测前就丢掉，省下三分之一时间。
+    分类定义保留，想恢复清空列表即可。CCTV-5/5+ 属于央视，不受影响。
+
+三、央视频道匹配不对
+    - CGTN 六个语种台被并成一个：正则用了 r"(cgtn)([a-z]*)"，中文后缀匹配不到，
+      CGTN法语/西语/阿语/纪录 全退化成 "cgtn"，电视上统一显示「CGTN法语」，
+      点开听到的却可能是英语。现在中英后缀都归一化，六个台分开显示。
+    - clean_name 没清上游标注：[Geo-blocked] 进到键里，
+      CNA (Singapore) [Geo-blocked] 变成 cnasingaporegeoblocked，与「CNA」重复。
+    - 加 aliases: cnasingapore -> cna。
+
+四、吉林只有乡村（而且是广播）
+    实测：吉视省级 7 个频道已换到 lsfb.avap.jilintv.cn，需要时效性 token
+    （返回 HTTP 567，Referer/UA/Origin 全试过），公开拿不到；
+    stream2.jlntv.cn 上只有地级市频道，省级全是 404。
+    唯一能找到的是长春综合（stream2.jlntv.cn/jlcc/sd/live.m3u8，约 11Mbps），
+    已加入 config/sources/local.m3u。
+    「吉林乡村」走的是 cnr.cn 卫星链路，实际是**广播台**。
+    为此新增广播识别（validate.sniff_audio + looks_audio）：
+      ① 分片容器是 WebM/Ogg/AAC 等纯音频格式
+      ② 码率 < audio_max_kbps 且没有分辨率声明
+    第②条必需：cnr.cn 的广播流是 MPEG-TS 容器，开头也是 0x47，光看容器
+    跟视频一样（实测①没拦住，它们码率只有 230~236kbps）。
+    吉林分类保留在 output_order 里（现在可能是空的）。
+
+五、自动搜新源（6 小时一轮自动发现）
+    新增 src/iptv/discover.py：
+      - 候选来自 config/source_registry.yaml + GitHub 搜索最近更新的 IPTV 仓库
+        （走 git/trees?recursive=1 列文件，不靠猜路径；CI 里带 GITHUB_TOKEN）
+      - 三个指标：新频道数 / 命中率 / 是否巨型列表
+        一个 12525 条的全国家列表能凑出 300 多个「新频道」但命中率只有 3%，
+        而专做中文的列表能到 43%，靠命中率区分。
+        实测碰到过 19000 条、967 个新频道的巨型列表：当轮取一部分有用，
+        但不设为常驻，否则每轮都要采它、列表会被冲垮。
+      - 达标的流当场并入本轮，不用等下一轮
+      - 连续 2 次达标 -> data/source_stats.json 里标记常驻，以后每轮自动采集
+        连续 3 次不合格 -> 自动停用
+    注册表地址尽量用 jsDelivr 镜像：raw.githubusercontent.com 国内时通时不通。
+
+六、节目单加载失败
+    实测 https://live.fanmingming.cn/e.xml 已连不上（ConnectTimeout），
+    .com 和 epg.112114.xyz 也不通，播放器上就是「节目单加载失败」。
+    新增 src/iptv/epg.py：每轮把 EPG 从镜像列表里下回来（jsDelivr 优先），
+    存成 output/e.xml，随 live.m3u 一起发布到 Pages，播放器取自己的域名。
+    output/e.xml 已加进 .gitignore（7MB 且天天变，提交会让 git 历史膨胀）。
+    epg_url 改成「自己域名 + jsDelivr 兜底」。
+
+七、顺手修掉的子串误匹配
+    - tvb 命中 FTV (Bolivia)（ftvbolivia）、Red Bull TV BR（redbulltvbr）
+    - f1  命中 TF1（法一）
+    - jade 命中黎巴嫩的 Al Jadeed；pearl 命中 98.1 Pearl FM（广播）
+    - phoenix 命中美国凤凰城地方台 KNXV
+    国际新闻改用 categories[].exact 精确名单（新增机制）：用规范化后的完整名
+    比对，BBC News 只匹配 BBC News，不会把 BBC Earth/BBC Drama/BBC One/
+    CNBC Awaaz/CNN TURK/DW Arabic 一起捞进来。实测国际新闻从 87 个降到 15 个。
+
+八、分组顺序
+    output_order: 央视 -> 卫视 -> 吉林 -> 长春 -> 港澳台 -> 国际新闻 -> 其他
+
+测试：45 个全绿（28 + 12 + 5），新增 test_epg.py，并把 EPG 检查加进 CI。

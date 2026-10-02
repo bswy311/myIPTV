@@ -11,3 +11,8 @@ venv/
 # 中间产物（历史记录与 output 需要保留以便增量检测 / Pages 发布，故不忽略）
 data/raw.json
 data/probed.json
+
+# 自托管的 EPG 副本：只需要发布到 Pages，不需要进仓库
+# （7MB 且每天都变，提交进去会让 git 历史迅速膨胀）
+output/e.xml
+output/e.xml.tmp

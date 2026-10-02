@@ -15,17 +15,19 @@
 ```mermaid
 flowchart LR
     A[公开源列表<br/>M3U / TXT] --> B[解析 EXTINF<br/>tvg-id/名称/分组]
-    B --> C[关键词筛选<br/>中文 · 体育优先]
+    B --> C[关键词筛选<br/>含英文名本地化]
     C --> D[频道名归一化<br/>CCTV-1 = cctv1 = 央视一套]
-    D --> E{分层探测}
-    E -->|HLS| F[清单 → 子清单 → 拉首个分片]
+    D --> D2[整类丢弃<br/>如体育]
+    D2 --> E{分层探测}
+    E -->|HLS| F[清单 → 子清单 → 拉分片]
     E -->|TS| G[校验 0x47 同步字节]
     E -->|MP4/FLV| H[校验文件头魔数]
-    F --> I[评分排序]
+    F --> I[带宽测速<br/>速度 / 码率 / 余量]
     G --> I
     H --> I
     I --> J[历史库累计成败<br/>连续失败 N 次 → 拉黑]
     J --> K[live.m3u<br/>每频道保留 Top-N 备用线路]
+    K --> L[自己托管的 EPG<br/>一起发到 Pages]
 ```
 
 **关键判定规则**：
@@ -36,6 +38,9 @@ flowchart LR
 | 返回 `200` 但 `Content-Type: text/html` | ❌ 失效 |
 | TS 流前 64KB 里找不到 `0x47` 同步字节 | ❌ 失效 |
 | MP4 缺少 `ftyp` 头 / FLV 缺少 `FLV` 头 | ❌ 失效 |
+| 分片是 WebM/Ogg/AAC 等纯音频容器 | ❌ 广播台 |
+| 码率 < 400kbps 且没有分辨率声明 | ❌ 广播台 |
+| 实测下载速度低于 `min_speed_kbps` | ❌ 太卡，留着也是转圈 |
 | 分片能正常下载且 > 1KB | ✅ 可用 |
 
 ---
@@ -328,20 +333,109 @@ sources:
 > 于是**所有源都可以统一用 `filter: include`**，不必再靠 `filter: all` 绕开。
 > 白名单的初衷（把杂台滤掉）不受影响。
 
+### 手工补充的频道（`config/sources/local.m3u`）
+
+自动采集找不到、但实测可用的频道放这里。目前里面是**长春综合**
+（`stream2.jlntv.cn` 上的地级市分发平台，实测约 11 Mbps）。
+
+> 吉视把省级频道（都市/生活/影视/公共新闻/乡村/电视7/东北戏曲）换到了
+> `lsfb.avap.jilintv.cn`，需要时效性 token（裸请求返回 HTTP 567），
+> Referer / UA / Origin 都试过，公开拿不到；而 `stream2.jlntv.cn` 上
+> **只有地级市频道，省级全是 404**。所以省级那 7 个暂时无解。
+>
+> 同一个文件里按注释列出了吉林其它 11 个地级市（四平/延边/松原/通化/吉林市/
+> 农安/前郭/白城/集安/辽源/白山），实测**全部可用**（速度 4~24 Mbps），
+> 按需求默认注释掉了。想要哪个把对应两行的 `#` 去掉即可。
+
+### 自动源发现（每轮自动搜一遍全网）
+
+公开源寿命短，手工列表过几个月就会大面积失效，而新源不断冒出来。
+所以每轮运行会自己找一遍：
+
+```yaml
+discover:
+  enabled: true
+  registry: config/source_registry.yaml   # 手工候选清单
+  github_search: true                     # 还去 GitHub 搜最近在更新的 IPTV 仓库
+  min_new_channels: 3
+  max_new_channels: 400
+  max_merge_per_source: 120
+  min_hit_rate: 0.15
+  promote_after: 2
+  demote_after: 3
+  auto_enable: true
+```
+
+流程：
+
+```mermaid
+flowchart LR
+    A["候选源<br/>注册表 + GitHub 搜索"] --> B["逐个拉取解析"]
+    B --> C{"新频道数 >= 3<br/>且命中率 >= 15%<br/>且新频道数 <= 400"}
+    C -->|是| D["流当场并入本轮<br/>（单源最多 120 条）"]
+    C -->|否| E["记一次不合格"]
+    D --> F{"连续 2 次达标"}
+    F -->|是| G["写入 data/source_stats.json<br/>以后每轮自动采集"]
+    E --> H{"连续 3 次不合格"}
+    H -->|是| I["自动停用"]
+```
+
+三个指标各自解决一个问题：
+
+| 指标 | 防的是什么 |
+|---|---|
+| `min_new_channels` | 没有价值的源（都是已有频道的重复） |
+| `min_hit_rate` | 全量泛列表。`iptv-org` 的 `index.country` 有 12525 条、能凑出 300 多个"新频道"，但命中率只有 **3%**；专做中文频道的列表能到 **43%** |
+| `max_new_channels` | 巨型聚合列表。实测碰到过 19000 条、凑出 **967 个**新频道的。这种当轮取一部分有用，但**不设为常驻**，否则每轮都要采它、列表会被冲垮 |
+
+自动常驻的源记在 `data/source_stats.json`（已提交进仓库，所以 CI 和本机共享同一份认知）。
+想手工停用某个源，把它的 `enabled` 改成 `false` 即可。
+
+> **CI 里会自动带上 `GITHUB_TOKEN`**，GitHub 搜索的额度从 60 次/小时提到 5000 次/小时。
+> 本机没配 token 也能跑，只是额度低，超了会静默跳过。
+>
+> 注册表里的地址尽量用国内可达的镜像：`raw.githubusercontent.com` 实测时通时不通，
+> `cdn.jsdelivr.net`（jsDelivr）可达性最好。写法：
+> `https://cdn.jsdelivr.net/gh/<用户>/<仓库>@<分支>/<路径>`
+
 ### 节目单 EPG
 
-程序不下载 EPG，只把地址写进 m3u 头部的 `x-tvg-url`，**播放器自己去拉**：
+地址写在 m3u 头部的 `x-tvg-url`，**播放器自己去拉**：
 
 ```
-#EXTM3U x-tvg-url="https://live.fanmingming.cn/e.xml"
+#EXTM3U x-tvg-url="https://bswy311.github.io/myIPTV/e.xml,https://cdn.jsdelivr.net/gh/fanmingming/live@main/e.xml"
 ```
 
-这个 `e.xml` 恰好覆盖**央视全套 + 39 个省卫视**，而且它的 channel id 就是
-`CCTV1` / `CCTV5+` / `北京卫视` 这种格式——程序生成的 `tvg-id` 就是按这个规则
-对齐的（见 `normalize.epg_id()`），所以 央视和卫视两组能直接看到节目单。
+> **踩过的坑：原来直接指向 `https://live.fanmingming.cn/e.xml`，但这个域名
+> 实测已经连不上了（ConnectTimeout，可能改了域名或遭 DNS 污染），
+> 播放器上的表现就是「节目单加载失败」。**
+>
+> 所以现在改成**自己托管**：每轮运行会把 EPG 下回到 `output/e.xml`
+> （见 `src/iptv/epg.py`），随 `live.m3u` 一起发布到 Pages。
+> 播放器取自己的域名，`*.github.io` 是已知可达的，不依赖第三方站点存活，
+> 而且每轮自动更新，节目单不会变旧。
+>
+> 逗号后面是第三方镜像兜底，支持多个 `x-tvg-url` 的播放器会依次尝试。
+>
+> `output/e.xml` 已经在 `.gitignore` 里：它只发布、不提交
+> （7MB 且每天都变，提交进去会让 git 历史迅速膨胀）。
 
-吉林地方台、长春台等上游 EPG 里没有的频道，自然不显示节目单。
-想换 EPG 改 `output.epg_url` 即可；注意换成别的 EPG 往往需要同步改 `epg_id()`
+```yaml
+output:
+  epg_url: "...自己域名/e.xml,...jsdelivr 镜像..."
+  epg_self_host: true          # 是否把 EPG 下回来自己发布（推荐开着）
+  epg_mirrors:                 # 按顺序尝试，第一个成功的就用
+    - https://cdn.jsdelivr.net/gh/fanmingming/live@main/e.xml
+    - https://ghproxy.net/https://raw.githubusercontent.com/fanmingming/live/main/e.xml
+    - https://live.fanmingming.cn/e.xml
+```
+
+这份 EPG 覆盖**央视全套 + 39 个省卫视**，channel id 就是
+`CCTV1` / `CCTV5+` / `北京卫视` 这种格式——程序生成的 `tvg-id` 是按这个规则
+对齐的（见 `normalize.epg_id()`），所以央视和卫视两组能直接看到节目单。
+上游 EPG 里没有的频道（吉林地方台、长春综合等）自然不显示节目单。
+
+想换 EPG 改 `epg_mirrors` 即可；换成别的 EPG 往往需要同步改 `epg_id()`
 的 id 规则，否则匹配不上。
 
 ### 台标
@@ -368,7 +462,68 @@ output:
 - **排序**：央视按 **数字** 排（1,2,3…17，`CCTV-5+` 紧跟 `CCTV-5`），
   而不是字符串排序（否则会变成 1,10,11,12…2,3）。
   卫视按中国行政区划顺序（北京→天津→河北→…→黑龙江→上海→…）。
-- **分组顺序**：央视 → 卫视 → 吉林 → 港澳台 → 体育 → 影视 → 少儿 → 纪录 → 新闻 → 音乐 → 其他。
+  认不出键的频道**排在分组末尾**，不会跑到 CCTV-1 / 北京卫视前面去。
+- **分组顺序**：央视 → 卫视 → 吉林 → 长春 → 港澳台 → 国际新闻 → 其他。
+  改 `output_order` 即可。吉林那组现在可能是空的（吉视官方源已改成 token 鉴权），
+  但分类保留着，以后出现了新源会自动归进去。
+
+#### 央视付费频道与 CGTN 语种
+
+- 央视付费频道（兵器科技 / 风云剧场 / 怀旧剧场 / 第一剧场 / 台球 /
+  高尔夫网球 / 世界地理 / 文化精品 / 女性时尚 / 卫生健康 / 风云音乐 / 风云足球）
+  统一排在 CCTV-17 之后。它们的中文名和英文名（`CCTV-Weapon & Technology`、
+  `央视怀旧剧场`、`CCTV怀旧剧场`）会归并到同一个键，不会重复出现。
+- **CGTN 六个语种台分开**：英语 / 法语 / 西语 / 阿语 / 俄语 / 纪录。
+  曾经因为归一化只认 `[a-z]` 后缀，中文写法（`CGTN法语`）全部退化成同一个
+  `cgtn`，六个台被并成一个，电视上统一显示「CGTN法语」但点开听到的可能是英语。
+
+### 国际新闻：为什么用「精确名单」而不是关键词
+
+```yaml
+  - name: 国际新闻
+    exact:
+      - BBC News
+      - CNN
+      - Al Jazeera English
+      # ... 见 config.yaml
+    keywords: []
+```
+
+需求是「只保留最主流电视台的英语频道」，这靠通配关键词做不干净：
+写个 `bbc`，`BBC Earth` / `BBC Drama` / `BBC One` / `BBC Alba` 全都进来了；
+写个 `cnbc`，`CNBC Awaaz` / `CNBC Arabiya` 进来了；
+写个 `cnn`，`CNN TURK` / `CNN Prima News` 进来了。实测这样能捞到 **87 个**。
+
+`exact:` 用**规范化后的完整名**比对（忽略大小写与画质标注），
+`BBC News` 只匹配 `BBC News`，`BBC News Africa` 不匹配。
+想增减电视台，直接改这个名单。
+
+> 类似的子串坑还有几个，都已在注释里标了原因：
+> `tvb` 会命中 `fTVBolivia`（FTV Bolivia）和 `redbulltvbr`（Red Bull TV BR）；
+> `f1` 会命中 `TF1`（法一）；`jade` 会命中黎巴嫩的 `Al Jadeed`。
+> 所以港澳台不再靠这些英文短词，而是靠中文词 + 本地化名
+> （`TVB Jade` → 翡翠台 → 命中「翡翠」）。
+
+### 广播台识别（重要）
+
+广播电台也大量用 HLS 分发，速度还很快、看起来像好源，但点开只有声音没画面。
+实例：`吉林乡村`（`satellitepull.cnr.cn`）实际是「吉林乡村广播」。
+
+```yaml
+validate:
+  drop_audio: true
+  audio_max_kbps: 400    # 视频频道不可能低于这个码率
+```
+
+识别分两道，两道都要有：
+
+1. **容器特征**：分片是 WebM / Ogg / AAC / MP3 等纯音频格式（`sniff_audio()`）
+2. **码率**：低于 `audio_max_kbps` 且没有分辨率声明
+
+第 2 道是必需的：cnr.cn 的广播流用的是 **MPEG-TS 容器**，开头也是 `0x47`
+同步字节，跟视频 TS 光看容器分不出来（实测第一道没拦住，它们的码率只有
+230~236 kbps，第二道才拦住）。
+判为广播的流会被剔除，并在报告里注明原因。
 
 ### 地方台过滤
 
@@ -388,11 +543,18 @@ filter:
 ```yaml
 filter:
   mode: include          # include=只留命中关键词的；all=全都要
-  include_keywords: [cctv, 卫视, 体育, 翡翠, 凤凰, ...]
-  exclude_keywords: [测试, test, 广告]
+  include_keywords: [cctv, cgtn, 卫视, 吉林, 长春, 翡翠, 凤凰, ...]
+  exclude_keywords: [测试, test, 广告, 白城, 四平, ...]
+  drop_categories: [体育]   # 整类丢弃，连探测都不做
 ```
 
-默认是「中文频道 + 体育频道优先」。想换成全量：`python main.py run --mode all`
+想换成全量：`python main.py run --mode all`
+
+#### 整类丢弃（`drop_categories`）
+
+列表里的分类**既不探测也不发布**。删体育能让整轮快三分之一。
+注意 `CCTV-5` / `CCTV-5+` 属于「央视」，不受影响。
+分类定义本身保留着，想恢复就清空这个列表。
 
 ### 调节速度与吞吐
 
@@ -472,25 +634,31 @@ python main.py reset -y                 # 清空历史库
 ```
 iptv/
 ├── main.py                     # 入口
-├── config/config.yaml          # 全部可调参数
+├── config/
+│   ├── config.yaml             # 全部可调参数
+│   ├── source_registry.yaml    # 自动源发现的候选清单
+│   └── sources/local.m3u       # 手工补充的频道（长春综合等）
 ├── requirements.txt
 ├── run.bat / serve.bat         # Windows 一键脚本
 ├── src/iptv/
 │   ├── collect.py              # 采集 + M3U/TXT 解析
+│   ├── discover.py             # ★ 自动源发现（每轮搜新源、自动常驻/淘汰）
 │   ├── normalize.py            # 频道名归一化、分类、筛选
 │   ├── hls.py                  # 自研极简 m3u8 解析器（零依赖）
-│   ├── validate.py             # ★ 分层探测 + 带宽测速（核心）
+│   ├── validate.py             # ★ 分层探测 + 带宽测速 + 广播识别（核心）
+│   ├── epg.py                  # ★ 抓 EPG 回来自己发布（原第三方域名已失效）
 │   ├── history.py              # 历史战绩：剔除与复活
 │   ├── publish.py              # 生成 M3U / 报告 / 网页
 │   ├── server.py               # 局域网订阅服务
 │   ├── pipeline.py             # 流程编排
 │   └── cli.py                  # 命令行
 ├── tools/speedtest.py          # 量本机宽带，用来定 bw_concurrency
-├── data/                       # history.json / raw.json / probed.json
-├── output/                     # 生成结果
+├── data/                       # history.json / source_stats.json 等
+├── output/                     # 生成结果（e.xml 只发布不入库）
 └── tests/
-    ├── test_normalize.py       # 频道名归一化回归测试
-    └── test_bandwidth.py       # 带宽测速与评分回归测试
+    ├── test_normalize.py       # 归一化 / 筛选 / 分类回归测试
+    ├── test_bandwidth.py       # 带宽测速 / 墙钟预算 / 广播识别
+    └── test_epg.py             # EPG 地址与内容校验
 ```
 
 ---

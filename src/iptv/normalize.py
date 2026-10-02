@@ -121,6 +121,50 @@ CCTV_NAMES = {
     "cctvhealth": "央视卫生健康",
     "cctvcultureofquality": "央视文化精品",
     "cctvweapon&technology": "央视兵器科技",
+    # CGTN 多语种台。每个语种必须有自己的键，否则会全被并成同一个频道，
+    # 电视上显示「CGTN法语」但点开听到的是英语/西语/阿语。
+    "cgtn": "CGTN 英语",
+    "cgtnfrench": "CGTN 法语",
+    "cgtnspanish": "CGTN 西语",
+    "cgtnarabic": "CGTN 阿语",
+    "cgtnrussian": "CGTN 俄语",
+    "cgtndocumentary": "CGTN 纪录",
+    "cgtnglobalbiz": "CGTN 财经",
+}
+
+# CGTN 后缀归一化：中英文写法都映射到同一个键，
+# 这样 “CGTN法语” 和 “CGTN French” 能归并成同一频道的备用线路。
+_CGTN_LANG = {
+    "": "",
+    "英": "", "英语": "", "english": "",
+    "法": "french", "法语": "french", "french": "french",
+    "francais": "french", "français": "french", "fran": "french",
+    "西": "spanish", "西语": "spanish", "西班牙语": "spanish",
+    "spanish": "spanish", "espanol": "spanish", "español": "spanish",
+    "阿": "arabic", "阿语": "arabic", "阿拉伯语": "arabic", "arabic": "arabic",
+    "俄": "russian", "俄语": "russian", "russian": "russian",
+    "纪录": "documentary", "纪录片": "documentary", "记录": "documentary",
+    "documentary": "documentary",
+}
+
+# 央视付费频道的中文名 → 规范键。
+# vbskycn 等源直接给中文名（兵器科技 / 风云剧场 / CCTV怀旧剧场），
+# 不做这层映射的话 canonical_key 会退化成裸键，channel_sort 认不出它是央视频道，
+# 排序权重变 0.0——于是这两个频道跑到 CCTV-1 前面去了。
+# 顺带把“央视怀旧剧场”和“CCTV怀旧剧场”这种同台异名归并成一个频道。
+_CCTV_PAID_ZH = {
+    "兵器科技": "cctvweapon&technology",
+    "风云剧场": "cctvstormtheater",
+    "风云音乐": "cctvstormmusic",
+    "风云足球": "cctvstormfootball",
+    "怀旧剧场": "cctvnostalgiatheater",
+    "第一剧场": "cctvthefirsttheater",
+    "文化精品": "cctvcultureofquality",
+    "台球": "cctvbilliards",
+    "高尔夫网球": "cctvgolf&tennis",
+    "世界地理": "cctvworldgeography",
+    "女性时尚": "cctvwomensfashion",
+    "卫生健康": "cctvhealth",
 }
 
 # 卫视排序参考中国行政区划顺序；未列出的排到中间。
@@ -159,6 +203,10 @@ def _en_to_zh(name: str) -> str | None:
 
 def clean_name(name: str) -> str:
     s = unicodedata.normalize("NFKC", name or "").strip()
+    # 上游标注（[Not 24/7] / [Geo-blocked]）必须先去掉，
+    # 否则它们会进到归一化键里——例如 “CNA (Singapore) [Geo-blocked]”
+    # 会变成键 cnasingaporegeoblocked，跟“CNA”变成两个不同频道。
+    s = _ANNOTATION_RE.sub("", s)
     s = _NOISE_RE.sub("", s)
     s = _PUNCT_RE.sub("", s)
     return s.strip()
@@ -194,10 +242,19 @@ def canonical_key(name: str, aliases: dict[str, str] | None = None) -> str:
     if m and m.group(1) in _CN_NUM:
         return f"cctv{_CN_NUM[m.group(1)]}"
 
-    # CGTN 系列
-    m = re.search(r"(cgtn)([a-z]*)", low)
+    # CGTN 系列（英语主台 / 法语 / 西语 / 阿语 / 俄语 / 纪录）
+    # 后缀可能是中文或带重音的拉丁字母，不能只用 [a-z]*——否则 “CGTN法语”
+    # “CGTN Français” 会退化成不同的键（前者变 cgtn、后者变 cgtnfran），
+    # 同一个语种台会在列表里出现两次。
+    m = re.search(r"cgtn\s*([a-z\u00c0-\u00ff\u4e00-\u9fa5]*)", low)
     if m:
-        return f"cgtn{m.group(2)}"
+        suffix = m.group(1) or ""
+        return "cgtn" + _CGTN_LANG.get(suffix, suffix)
+
+    # 央视付费频道的中文名（兵器科技 / 风云剧场 / 央视台球 / CCTV怀旧剧场…）
+    bare = re.sub(r"^(?:cctv|央视)", "", low)
+    if bare in _CCTV_PAID_ZH:
+        return _CCTV_PAID_ZH[bare]
 
     # 地方卫视：北京卫视 / 湖南卫视高清 → 北京卫视
     m = _SAT_RE.match(s)
@@ -321,13 +378,70 @@ def channel_sort(stream: Stream) -> tuple[float, str]:
         return (500, key)
     if key.endswith("卫视"):
         return (float(_PROVINCE_RANK.get(key[:-2], 500)), key)
-    return (0.0, stream.display or key)
+    # 形如「河北4K」的频道：4K 被当噪声去掉了，键剩个裸省名“河北”，
+    # 上面所有分支都不命中，会掉到兜底。把它排到对应省卫视的紧后面。
+    if key in _PROVINCE_RANK:
+        return (float(_PROVINCE_RANK[key]) + 0.5, key)
+    # 兜底：未知频道排在已知之后。以前这里是 0.0，结果「兵器科技」「河北4K」
+    # 这种认不出键的频道反而排到了 CCTV-1 / 北京卫视前面。
+    return (900.0, stream.display or key)
+
+
+def _exact_norm(name: str) -> str:
+    """「精确名单」比对用的规范化名。
+
+    本地化 → 去掉画质标注 → 只留字母数字与汉字 → 小写。
+    这样 "CNA (Singapore)" 与 "cna singapore" 能对上，
+    而 "BBC News Africa" 不会因为包含 "BBC News" 就被误判成同一台。
+    """
+    s = display_name(name or "").lower()
+    s = re.sub(r"[^a-z0-9\u4e00-\u9fa5]+", " ", s)
+    return re.sub(r"\s{2,}", " ", s).strip()
+
+
+def exact_index(cfg) -> set[str]:
+    """收集所有分类 `exact:` 精确名单里的频道名（规范化后）。"""
+    out: set[str] = set()
+    for cat in (cfg.categories or []):
+        for item in (cat.get("exact") or []):
+            k = _exact_norm(str(item))
+            if k:
+                out.add(k)
+    return out
+
+
+def _exact_hit(stream: Stream, names: set[str]) -> bool:
+    """流的名字是否命中精确名单。"""
+    if not names:
+        return False
+    for cand in (stream.name, stream.tvg_name, stream.display):
+        if cand and _exact_norm(cand) in names:
+            return True
+    return False
 
 
 def categorize(stream: Stream, categories: list) -> str:
-    """按配置的 categories 顺序归类，命中第一条即返回。"""
-    haystack = f"{stream.name} {stream.tvg_name} {stream.group} {stream.key}".lower()
-    for cat in categories:
+    """按配置的 categories 顺序归类。
+
+    判定分两轮：
+      1. 先看各分类的 `exact:` 精确名单。这种需求（「只要这几个台」）
+         靠通配关键词是做不干净的——比如用 "bbc" 会把 BBC Earth / BBC 戏剧
+         一并捞进来。精确名单用规范化后的完整名比对，可控得多。
+      2. 再按 `keywords:` 模糊匹配，命中第一条即返回。
+
+    haystack 里加了 display（本地化名），这样 "Phoenix Hong Kong" 能被
+    「凤凰」命中，不必再写宽泛的 "phoenix"（那个会把美国凤凰城的地方台也捞进来）。
+    """
+    for cat in categories or []:
+        exact = {_exact_norm(str(x)) for x in (cat.get("exact") or []) if str(x).strip()}
+        if exact and _exact_hit(stream, exact):
+            return cat.get("name") or ""
+
+    haystack = (
+        f"{stream.name} {stream.tvg_name} {stream.group} "
+        f"{stream.key} {stream.display}"
+    ).lower()
+    for cat in categories or []:
         name = cat.get("name") or ""
         for kw in cat.get("keywords") or []:
             if kw and str(kw).lower() in haystack:
@@ -412,6 +526,11 @@ def matches_filter(stream: Stream, cfg, modes: dict[str, str] | None = None) -> 
         return False
 
     if mode == "all":
+        return True
+
+    # 分类里 `exact:` 精确名单上的频道一律保留。
+    # 这些通常是「只想要这几个台」的重点频道，不该因为通配关键词没覆盖到而被筛掉。
+    if _exact_hit(stream, exact_index(cfg)):
         return True
 
     keywords = flt.get("include_keywords") or []

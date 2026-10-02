@@ -17,6 +17,14 @@
 # 两个都配、哪条通用哪条，重复的 URL 会被自动去重。
 # 单个源失败不会影响整体，不用管。
 sources:
+  # ===== 手工维护：自动采集找不到但实测可用的频道 =====
+  # 目前里面是长春综合（吉视官方省级频道已改成 token 鉴权，公开拿不到）。
+  # 详见该文件里的注释。
+  - name: local-extra
+    url: config/sources/local.m3u
+    enabled: true
+    filter: include
+
   # ===== 主力：中文频道（央卫全覆盖，实测存活率最高）=====
   # best-fan 的列表上游已做过可用性筛选，实测存活率：
   #   cn_cctv 78% / cn_province 90% / cn_all 85%
@@ -128,7 +136,10 @@ filter:
     - 翡翠
     - 明珠
     - 无线
-    - tvb
+    # 不要写裸的 tvb：它是子串，会把 FTV (Bolivia)（ftvbolivia）、
+    # Red Bull TV BR（redbulltvbr）里的 “tvb” 也命中。
+    # TVB 各台靠 _EN2ZH_EXACT 本地化成翡翠台/明珠台/无线新闻台，
+    # 再被上面的「翡翠 / 明珠 / 无线」命中，不需要这个短词。
     - 凤凰
     - 东森
     - 中天
@@ -149,11 +160,13 @@ filter:
     - 澳门
     - 台湾
     # 港澳台（iptv-org 的英文名，补充关键词）
-    - phoenix
+    # 注意：不要写 jade / pearl / phoenix 这种宽泛词——
+    # jade 会把黎巴嫩的 Al Jadeed、Golden Jade 一起捞进来，
+    # pearl 会捞到 “98.1 Pearl FM”，phoenix 会捞到美国凤凰城的地方台。
+    # TVB Jade / TVB Pearl / Phoenix Hong Kong 会经本地化名
+    # （翡翠台 / 明珠台 / 凤凰卫视香港台）被上面的中文词命中，不需要这些英文词。
     - hong kong
     - macau
-    - jade
-    - pearl
     - viutv
     # 体育（含天空体育 Sky Sports）
     - 体育
@@ -179,36 +192,22 @@ filter:
     - 天空
     - sky sports
     # 体育（iptv-org 的英文体育台，补充关键词）
+    # arena / premier 太通用，会把 TeleArena、Paris Premiere、TF1 这种
+    # 非体育频道也捞进来，所以不列。
     - bein
     - dazn
     - fox sports
-    - f1
+    # 不要写裸的 f1：它会命中 TF1（法一）。
     - nfl
     - nhl
     - mlb
     - ufc
     - boxing
-    - arena
-    - premier
-    # 国际新闻台（只保留明确的主流国际新闻台，避免引入大量低质量小语种 News 台）
-    - bbc
-    - cnn
-    - 半岛
-    - al jazeera
-    - france 24
-    - dw
-    - euronews
-    - sky news
-    - cnbc
-    - bloomberg
-    - reuters
-    - nhk world
-    - cna
-    - arirang
-    - fox news
-    - abc news
-    - cbs news
-    - nbc news
+
+  # 国际新闻**不在这里列关键词**，改用下面的 categories[国际新闻].exact 精确名单。
+  # 原因：bbc / cnn / dw / cnbc / cna 这些通配词会把 BBC Earth、BBC Drama、
+  # BBC One、CNBC Awaaz、CNN TURK、DW Arabic 之类非新闻/非英语频道一起捞进来
+  # （实测捞了 87 个）。精确名单可控得多。
 
   exclude_keywords:
     - 测试
@@ -291,6 +290,15 @@ filter:
   # 不想过滤地级市/县级台就改成 false
   local_filter_enabled: true
 
+  # ---------- 整类丢弃 ----------
+  # 这里列出的分类，既不参与探测、也不会出现在列表里（省时又省事）。
+  # 体育：iptv-org sports 那批国际体育台（ESPN/NBA TV/beIN 等）看着很全，
+  #       但国内直连几乎都卡，留着反而把真正能看的频道挤下去。
+  #       注意 CCTV-5 / CCTV-5+ 属于「央视」，不受影响。
+  # 想恢复就把列表清空：drop_categories: []
+  drop_categories:
+    - 体育
+
 # ---------------------------------------------------------------
 # 3. 频道分类（决定 group-title）
 # ---------------------------------------------------------------
@@ -301,27 +309,58 @@ categories:
   - name: 央视
     keywords: [cctv, cgtn, 央视, 中央电视]
   # 港澳台放「卫视」之前，这样「凤凰卫视」「香港卫视」归港澳台而非卫视
+  # 不要写 jade / pearl / phoenix / 中视 / 亚视 这种宽泛词：
+  #   jade → 黎巴嫩 Al Jadeed、Golden Jade；pearl → “98.1 Pearl FM”（广播）；
+  #   phoenix → 美国凤凰城地方台 KNXV。
+  # TVB Jade / TVB Pearl / Phoenix Hong Kong 会经本地化名
+  # （翡翠台 / 明珠台 / 凤凰卫视香港台）被中文词命中，不需要这些英文词。
   - name: 港澳台
-    keywords: [翡翠, 明珠, 无线, tvb, 凤凰, 东森, 中天, 三立, 民视, 台视, 华视, 中视, 亚视, 澳视, 莲花, 星空, 纬来, 龙华, 爱尔达, 靖天, 香港, 澳门, 台湾, phoenix, hong kong, macau, jade, pearl, viutv]
+    keywords: [翡翠, 明珠, 无线, 凤凰, 东森, 中天, 三立, 民视, 台视, 华视, 亚视, 澳视, 莲花, 星空, 纬来, 龙华, 爱尔达, 靖天, 香港, 澳门, 台湾, viutv]
   - name: 卫视
     keywords: [卫视]
   - name: 吉林
-    # 吉林省台（吉视系列等）。排在「卫视」后，吉林卫视/延边卫视仍归卫视
+    # 吉林省台（吉视系列等）。排在「卫视」后，吉林卫视/延边卫视仍归卫视。
+    # 目前上游没有可用的省台（吉视已改成 token 鉴权），所以这组可能是空的——
+    # 保留着，以后出现了新源会自动归到这里。
     keywords: [吉视, 吉林]
   - name: 长春
     # 长春市级台（长春综合/长春新闻等）
     keywords: [长春]
   - name: 体育
-    # 央视5/5+已在「央视」组；这里收五星/劲爆/ESPN/天空体育等其它体育台
+    # 央视5/5+已在「央视」组；这里收五星/劲爆/ESPN/天空体育等其它体育台。
+    # 注：filter.drop_categories 里已经把「体育」整类丢弃，这组只是为了
+    # 以后想恢复时改一个开关即可，不用重写规则。
     keywords: [体育, 足球, 篮球, 网球, 台球, 赛车, 围棋, 赛事, 五星, 劲爆, 天元, espn, sports, sport, golf, nba, 中超, 英超, 西甲, 天空, sky sports]
   - name: 国际新闻
-    # 与 include_keywords 保持一致，只收主流国际新闻台
-    keywords: [bbc, cnn, 半岛, al jazeera, france 24, dw, euronews, sky news, cnbc, bloomberg, reuters, nhk world, cna, arirang, fox news, abc news, cbs news, nbc news]
+    # exact = 精确频道名（忽略大小写与画质标注，名称要完整相同）。
+    # 只保留最主流电视台的**英语主频**。不用通配关键词，因为
+    # bbc / cnbc / cna 这类词会把 BBC Earth、BBC Drama、BBC One、
+    # CNBC Awaaz、CNN TURK 一起捞进来（实测捞了 87 个）。
+    # 想增减电视台，直接改下面这个名单即可。
+    exact:
+      - BBC News              # 英国
+      - CNN                   # 美国
+      - CNN International
+      - Al Jazeera English    # 卡塔尔
+      - France 24 English     # 法国
+      - DW English            # 德国
+      - Euronews English      # 欧盟
+      - Sky News              # 英国
+      - Reuters TV            # 英国
+      - NHK World-Japan       # 日本
+      - CNA                   # 新加坡（Channel NewsAsia）
+      - CNA (Singapore)
+      - Arirang TV            # 韩国
+      - Bloomberg TV          # 美国（财经）
+      - CNBC UK               # 美国/英国（财经）
+      - NBC News NOW          # 美国
+      - Fox News Channel      # 美国
+    keywords: []
   - name: 其他
     keywords: []
 
 # 输出时的分组先后顺序（未列出的分组排最后）
-output_order: [央视, 卫视, 吉林, 长春, 体育, 港澳台, 国际新闻, 其他]
+output_order: [央视, 卫视, 吉林, 长春, 港澳台, 国际新闻, 其他]
 
 # ---------------------------------------------------------------
 # 4. 频道名归一化
@@ -329,8 +368,11 @@ output_order: [央视, 卫视, 吉林, 长春, 体育, 港澳台, 国际新闻, 
 normalize:
   # 把不同写法合并成同一频道的补充别名，格式 "归一化键": "显示名"
   display_overrides: {}
-  # 手工补充别名：把左侧写法并入右侧频道键
-  aliases: {}
+  # 手工补充别名：把左侧写法并入右侧频道键（子串匹配，键写规范化后的形式）
+  aliases:
+    # CNA = Channel NewsAsia（新加坡）。同一个台在不同源里写成
+    # “CNA” / “CNA (Singapore)”，不归并的话列表里会出现两条。
+    cnasingapore: cna
 
 # ---------------------------------------------------------------
 # 5. 网络与探测
@@ -356,6 +398,15 @@ validate:
   request_hard_timeout: 25   # 单个 HTTP 请求的墙钟硬上限（秒）
   min_segment_bytes: 1024
   allowed_kinds: [hls, ts, mp4, flv, dash, audio]
+  # 广播电台（纯音频 HLS）直接判死。
+  # cnr.cn 这类卫星播流、以及不少地方台都会用 HLS 分发音频，
+  # 速度还很快、看起来像好源，但点开只有声音没画面。
+  # 例：吉林乡村（satellitepull.cnr.cn）实际是「吉林乡村广播」。
+  # 识别分两道：① 分片容器是 WebM/Ogg/AAC 等纯音频格式；
+  #             ② 码率低于 audio_max_kbps 且没有分辨率声明（cnr.cn 的广播流
+  #                是 TS 容器，光看容器跟视频一样，只能靠码率区分）。
+  drop_audio: true
+  audio_max_kbps: 400      # 视频频道不可能低于这个码率，低于即为广播
   skipped_schemes: [rtmp, rtsp, udp, rtp, mms, rtmpi]   # 无法用 HTTP 探测的协议
 
   # ---------- 带宽测速（解决「卡」的关键）----------
@@ -381,6 +432,60 @@ validate:
   bw_total_timeout: 18
 
 # ---------------------------------------------------------------
+# 6.1 自动源发现（每轮自动搜一遍全网有没有新的好源）
+# ---------------------------------------------------------------
+# 公开源寿命短，手工列表过几个月就会失效，而新源不断冒出来。
+# 开了这个之后每轮会：
+#   1. 测试 config/source_registry.yaml 里的候选源
+#   2. 去 GitHub 搜最近还在更新的 IPTV 仓库，把它里面的 .m3u 拿来测
+#   3. 新覆盖频道数达标的，流**当场并入本轮**（不用等下次）
+#   4. 连续达标 → 记入 data/source_stats.json 常驻，以后每轮直接采集
+#      连续没价值 / 拉不动 → 自动停用
+# 往注册表里加源是零风险的：好用的自动留下，没用的自动淘汰。
+discover:
+  enabled: true
+  registry: config/source_registry.yaml
+  # 已自动常驻的源记在这里，按需可手工编辑（把 enabled 改成 false 即可停用）
+  stats: data/source_stats.json
+
+  # ---------- GitHub 自动搜源 ----------
+  # CI 里会自动带上 GITHUB_TOKEN 走 5000 次/小时的额度；
+  # 本机没配 token 也能跑，只是额度低（60 次/小时），超了会静默跳过。
+  github_search: true
+  github_token: ""                 # 留空则读环境变量 GITHUB_TOKEN
+  github_queries:
+    - "iptv in:name,description"
+    - "iptv m3u in:name,description"
+    - "直播源 in:name,description"
+  github_pushed_within_days: 45    # 只搜这段时间内更新过的仓库
+  github_repos: 12                 # 每轮最多看几个仓库
+  files_per_repo: 2                # 每个仓库最多取几个 .m3u
+
+  # ---------- 测试参数 ----------
+  max_candidates: 40               # 每轮最多测几个候选，控制耗时
+  concurrency: 8
+  timeout: 12
+
+  # ---------- 判定标准 ----------
+  # new_channels = 相对现有源新覆盖的频道数（重复的源不算价值）
+  min_new_channels: 3              # 新频道数低于这个值就算「没价值」
+  # 新频道数也别太多：一次冒出上千个的，多半是巨型聚合列表
+  # （实测碰到过 19000 条、凑出 967 个“新频道”的）。
+  # 这种可以当轮取一部分，但不设为常驻——否则每轮都要采它，列表会被冲垮。
+  max_new_channels: 400
+  # 单个源本轮最多并入多少条流，避免一个巨型列表把探测量推高好几倍。
+  max_merge_per_source: 120
+  # 命中率 = 通过筛选的条数 ÷ 解析到的总条数。
+  # 这是区分「对味的源」和「全量泛列表」的关键：
+  # iptv-org 的 index.country（全国家列表）有 12525 条，能凑出 300 多个“新频道”，
+  # 但命中率只有 3%——收进来只会让探测量翻几倍、还带一堆噪声。
+  # 专做中文频道的列表命中率通常在 25%~70%。
+  min_hit_rate: 0.15
+  promote_after: 2                 # 连续 N 次达标 → 自动常驻
+  demote_after: 3                  # 连续 N 次没价值/失败 → 自动停用
+  auto_enable: true                # false = 只报告，不自动改动
+
+# ---------------------------------------------------------------
 # 6. 失效源剔除 / 自动复活
 # ---------------------------------------------------------------
 history:
@@ -404,11 +509,28 @@ output:
   min_keep_ratio: 0.5      # 断崖保护：新结果频道数不足上次 50% 时拒绝覆盖旧文件
 
   # ---------- 节目单（EPG）----------
-  # 会被写进 m3u 的 #EXTM3U x-tvg-url="..."，由播放器自己去拉，我们不下载。
-  # 这个 e.xml 恰好覆盖央视全套 + 39 个省卫视，并且 id 就是 CCTV1 / 北京卫视
-  # 这种格式，与程序生成的 tvg-id 完全对齐。
-  # 缺省覆盖不到的频道（吉林地方台等）自然不显示节目单。
-  epg_url: "https://live.fanmingming.cn/e.xml"
+  # 会被写进 m3u 的 #EXTM3U x-tvg-url="..."，由播放器自己去拉。
+  #
+  # 注意：原来写死的 https://live.fanmingming.cn/e.xml **已经连不上了**
+  # （ConnectTimeout，可能改了域名或遭 DNS 污染），播放器上表现为「节目单加载失败」。
+  #
+  # 现在改成自己托管：每轮运行会把 EPG 下回到 output/e.xml，
+  # 随 live.m3u 一起发布到 Pages，播放器直接取我们自己的域名（*.github.io 更稳）。
+  # 逗号后面是第三方镜像兜底，支持多个 x-tvg-url 的播放器会依次尝试。
+  # 自己托管的总开关见下面 epg_self_host / epg_mirrors。
+  epg_url: "https://bswy311.github.io/myIPTV/e.xml,https://cdn.jsdelivr.net/gh/fanmingming/live@main/e.xml"
+
+  # 是否把 EPG 下回来自己发布（推荐开着）
+  epg_self_host: true
+  # 按顺序尝试这些镜像，第一个成功的就用。
+  # jsDelivr 是国内可达性最好的公共 CDN，放在第一位；
+  # raw.githubusercontent.com 与 fanmingming 自家域名都实测不稳定，放后面。
+  epg_mirrors:
+    - https://cdn.jsdelivr.net/gh/fanmingming/live@main/e.xml
+    - https://ghproxy.net/https://raw.githubusercontent.com/fanmingming/live/main/e.xml
+    - https://gh-proxy.com/https://raw.githubusercontent.com/fanmingming/live/main/e.xml
+    - https://raw.githubusercontent.com/fanmingming/live/main/e.xml
+    - https://live.fanmingming.cn/e.xml
 
   # ---------- 台标 ----------
   # 源里没提供台标、或台标来自已失效的图床时，用这个模板按 tvg-id 拼一个。

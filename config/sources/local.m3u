@@ -1,0 +1,52 @@
+#EXTM3U
+# ===============================================================
+# 手工维护的频道清单
+# ===============================================================
+# 用途：把「自动采集找不到、但实测可用」的频道固定下来。
+# 加进来的源会走完整的筛选 / 探测 / 历史剔除流程，
+# 哪天失效了会被自动拉黑，不会一直赖在列表里。
+#
+# 格式就是标准 M3U，group-title 决定它在电视上归到哪一组。
+
+# ---------------------------------------------------------------
+# 长春
+# ---------------------------------------------------------------
+# 吉视把省级频道（都市/生活/影视/公共新闻/乡村/电视7/东北戏曲）换到了
+# lsfb.avap.jilintv.cn，需要时效性 token（裸请求返回 HTTP 567），
+# 公开拿不到。而 stream2.jlntv.cn 这个地级市分发平台上没有省级频道（全是 404）。
+# 所以长春只保住了这一个——但速度很好（实测约 11 Mbps）。
+#EXTINF:-1 tvg-name="长春综合" group-title="长春台",长春综合
+https://stream2.jlntv.cn/jlcc/sd/live.m3u8
+
+# ---------------------------------------------------------------
+# 吉林省其它地级市（实测全部可用，但按需求未启用）
+# 想加哪个，把下面那两行的 # 都去掉即可。
+# 实测速度：延边 19M / 松原 24M / 通化 13M / 吉林市 13M / 农安 13M /
+#           前郭 12M / 白城 11M / 集安 7M / 辽源 4.8M / 白山 4.2M
+# ---------------------------------------------------------------
+#EXTINF:-1 tvg-name="四平新闻综合" group-title="四平台",四平新闻综合
+#https://stream2.jlntv.cn/sptv/sd/live.m3u8
+#EXTINF:-1 tvg-name="延边新闻综合" group-title="延边台",延边新闻综合
+#https://stream2.jlntv.cn/jlyb/sd/live.m3u8
+#EXTINF:-1 tvg-name="松原新闻综合" group-title="松原台",松原新闻综合
+#https://stream2.jlntv.cn/sytv/sd/live.m3u8
+#EXTINF:-1 tvg-name="白城新闻综合" group-title="白城台",白城新闻综合
+#https://stream2.jlntv.cn/baicheng1/sd/live.m3u8
+#EXTINF:-1 tvg-name="通化新闻综合" group-title="通化台",通化新闻综合
+#https://stream2.jlntv.cn/tonghua1/sd/live.m3u8
+#EXTINF:-1 tvg-name="辽源新闻综合" group-title="辽源台",辽源新闻综合
+#https://stream2.jlntv.cn/liaoyuan1/sd/live.m3u8
+#EXTINF:-1 tvg-name="白山新闻综合" group-title="白山台",白山新闻综合
+#https://stream2.jlntv.cn/baishan1/sd/live.m3u8
+#EXTINF:-1 tvg-name="吉林市新闻综合" group-title="吉林市台",吉林市新闻综合
+#https://stream2.jlntv.cn/jilin1/sd/live.m3u8
+#EXTINF:-1 tvg-name="农安新闻综合" group-title="农安台",农安新闻综合
+#https://stream2.jlntv.cn/naxw/sd/live.m3u8
+#EXTINF:-1 tvg-name="前郭综合" group-title="前郭台",前郭综合
+#https://stream2.jlntv.cn/qg/sd/live.m3u8
+#EXTINF:-1 tvg-name="集安综合" group-title="集安台",集安综合
+#https://stream2.jlntv.cn/ja/sd/live.m3u8
+
+# ---------------------------------------------------------------
+# 其它手工补充的频道写在这下面
+# ---------------------------------------------------------------

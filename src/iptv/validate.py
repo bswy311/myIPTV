@@ -22,6 +22,58 @@ from .models import ProbeResult, Stream
 HTML_HINTS = ("text/html", "text/xml", "application/xhtml")
 HLS_HINTS = ("mpegurl", "m3u")
 
+# 纯音频容器特征。
+# 为什么要单独判断：广播电台也大量用 HLS 分发（如 cnr.cn 的卫星播流），
+# 对播放器来说能正常拉流、速度还很快，于是会极大地混进电视列表里——
+# 实际点开只有声音没画面。（用户就因为这个吃过亏：“吉林乡村”看着像电视频道，
+# 其实是广播台。）
+_AUDIO_MAGIC: tuple[tuple[bytes, str], ...] = (
+    (b"\x1aE\xdf\xa3", "WebM/Matroska 容器"),
+    (b"OggS", "Ogg 容器"),
+    (b"#!AMR", "AMR 音频"),
+    (b"ID3", "MP3 音频"),
+)
+
+
+def sniff_audio(head: bytes) -> str:
+    """分片头部看起来是纯音频就返回原因，否则返回空串。"""
+    if not head:
+        return ""
+    for magic, why in _AUDIO_MAGIC:
+        if head.startswith(magic):
+            return why
+    # ADTS 裸 AAC：同步字 0xFFF，第二字节高 4 位为 0xF
+    if head[0] == 0xFF and len(head) > 1 and (head[1] & 0xF0) == 0xF0:
+        return "AAC 裸流"
+    return ""
+
+
+# 低于这个码率的“视领”几乎不可能存在，只可能是广播。
+DEFAULT_AUDIO_MAX_KBPS = 400.0
+
+
+def looks_audio(
+    declared_kbps: float,
+    measured_kbps: float,
+    resolution: str,
+    threshold: float = DEFAULT_AUDIO_MAX_KBPS,
+) -> bool:
+    """靠码率判断是不是广播。
+
+    为什么要多这一道：cnr.cn 这类卫星播流用的是 **MPEG-TS 容器**，
+    开头也是 0x47 同步字节，光看容器与视频 TS 完全一样（sniff_audio 识别不了）。
+    但它们的码率只有两百多 kbps——真实视频频道不可能这么低。
+
+    只在「没有任何分辨率声明」且「至少有一个码率数据」时才下结论，
+    避免把信息不足的流误杀（长春综合的码率就是测不出来的 0）。
+    """
+    if resolution:
+        return False                      # 声明了分辨率，肯定是视频
+    candidates = [x for x in (declared_kbps, measured_kbps) if x and x > 0]
+    if not candidates:
+        return False                      # 拿不到码率，不下结论
+    return max(candidates) < threshold
+
 # 单个请求的墙钟硬上限（秒），可由 config.validate.request_hard_timeout 覆盖
 DEFAULT_HARD_TIMEOUT = 15.0
 
@@ -145,6 +197,7 @@ async def _download_timed(
     headers: dict,
     timeout: float,
     hard: float | None = None,
+    sniff: bytearray | None = None,
 ) -> tuple[int, int, float, bool]:
     """下载分片并计时，最多读 max_bytes。
 
@@ -155,6 +208,8 @@ async def _download_timed(
 
     「是否被截断」很重要：截断意味着这一段没下完，它只能用来算**速度**，
     不能用来算**码率**（字节数不足，除出来的码率会偏小、把余量虚抬）。
+
+    传了 sniff 就把开头几十字节拷进去，用来判断容器类型（识别广播台）。
     """
     stats = {"status": 0, "n": 0}
     truncated = False
@@ -169,6 +224,8 @@ async def _download_timed(
                 return
             try:
                 async for chunk in resp.aiter_bytes(32768):
+                    if sniff is not None and len(sniff) < 16:
+                        sniff.extend(chunk[: 16 - len(sniff)])
                     stats["n"] += len(chunk)
                     if stats["n"] >= max_bytes:
                         break
@@ -222,6 +279,7 @@ async def _measure_hls(
     want = max(1, int(v.get("bw_segments") or 3))
     sample_bytes = max(262144, int(v.get("bw_sample_bytes") or 2_400_000))
     min_speed = float(v.get("min_speed_kbps") or 0)
+    drop_audio = bool(v.get("drop_audio", True))
     cap = hard or _hard_timeout()
 
     total_bytes = 0
@@ -254,8 +312,10 @@ async def _measure_hls(
         # 按「总预算」分配：第一个分片给足，尽量完整读完才能算出真实码率
         budget = min(sample_bytes, max(sample_bytes - total_bytes, 262144))
         attempted += 1
+        # 第一个分片顺便嗅一下容器类型，用来识别广播台
+        sniff = bytearray() if (ok_segments == 0 and drop_audio) else None
         st, n, ms, cut = await _download_timed(
-            client, seg_url, budget, headers, soft, hard_seg
+            client, seg_url, budget, headers, soft, hard_seg, sniff
         )
         if st and st >= 400:
             if ok_segments == 0:
@@ -264,6 +324,15 @@ async def _measure_hls(
             break
         if n < min_seg:
             break
+
+        # 广播电台也大量用 HLS 分发，速度还很快，会被当成好源混进电视列表。
+        # 点开只有声音没画面，所以这里直接判死。
+        if sniff is not None:
+            why = sniff_audio(bytes(sniff))
+            if why:
+                return ProbeResult(False, "audio", status, resolution=resolution,
+                                   bandwidth=bandwidth,
+                                   error=f"纯音频流（{why}），不是电视频道")
 
         total_bytes += n
         total_ms += ms
@@ -287,6 +356,18 @@ async def _measure_hls(
 
     requested = max(attempted, 1)
     stability = round(ok_segments / requested * 100.0, 1)
+
+    # 码率维度的广播识别（TS 容器的音频流容器特征与视频一样，只能靠码率区分）
+    if drop_audio:
+        audio_max = float(v.get("audio_max_kbps") or DEFAULT_AUDIO_MAX_KBPS)
+        if looks_audio(bandwidth / 1000.0, bitrate_kbps, resolution, audio_max):
+            return ProbeResult(False, "audio", status, resolution=resolution,
+                               bandwidth=bandwidth,
+                               bitrate_kbps=round(bitrate_kbps, 1),
+                               speed_kbps=round(speed_kbps, 1),
+                               stability=stability,
+                               error=f"纯音频流（码率仅 {max(bandwidth / 1000.0, bitrate_kbps):.0f}k，"
+                                     f"应为广播），不是电视频道")
 
     if min_speed > 0 and speed_kbps < min_speed:
         return ProbeResult(False, "hls", status, resolution=resolution, bandwidth=bandwidth,

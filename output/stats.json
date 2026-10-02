@@ -1,8 +1,15 @@
 {
- "started_at": "2026-10-02T05:46:57+00:00",
- "finished_at": "2026-10-02T05:49:15+00:00",
- "elapsed_sec": 137.10698571799998,
+ "started_at": "2026-10-02T07:40:16+00:00",
+ "finished_at": "2026-10-02T07:42:52+00:00",
+ "elapsed_sec": 155.90385929999957,
  "sources": [
+  {
+   "name": "local-extra",
+   "url": "config/sources/local.m3u",
+   "fetched": 2221,
+   "parsed": 1,
+   "error": ""
+  },
   {
    "name": "bestfan-cctv",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_cctv.m3u8",
@@ -95,20 +102,19 @@
    "error": ""
   }
  ],
- "total_parsed": 3924,
- "after_filter": 1422,
- "after_dedup": 893,
- "probed": 893,
- "skipped_blacklist": 279,
- "alive": 510,
- "dead": 104,
- "channels": 393,
- "published_channels": 393,
- "published_streams": 472,
+ "total_parsed": 4165,
+ "after_filter": 1056,
+ "after_dedup": 538,
+ "probed": 538,
+ "skipped_blacklist": 0,
+ "alive": 197,
+ "dead": 341,
+ "channels": 84,
+ "published_channels": 84,
+ "published_streams": 165,
  "kind_breakdown": {
-  "hls": 499,
-  "mp4": 8,
-  "dash": 3
+  "hls": 187,
+  "mp4": 10
  },
- "alive_rate": 57.11
+ "alive_rate": 36.62
 }

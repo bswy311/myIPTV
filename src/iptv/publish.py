@@ -40,6 +40,12 @@ def group_by_channel(streams: list[Stream]) -> dict[str, list[Stream]]:
 
 def select_published(streams: list[Stream], cfg) -> list[Stream]:
     """每个频道保留 score 最高的前 N 条，作为备用线路。"""
+    # 整类丢弃要在这里再滤一道：`publish` 子命令是直接读上次的探测结果重新生成的，
+    # 不走流水线，少了这一步的话旧分类会被又发出去。
+    drop = {str(x) for x in (cfg.filter.get("drop_categories") or []) if str(x)}
+    if drop:
+        streams = [s for s in streams if s.category not in drop]
+
     max_per = int(cfg.output.get("max_per_channel") or 3)
     groups = group_by_channel(streams)
     out: list[Stream] = []

@@ -101,19 +101,26 @@ class _FakeCfg:
 
 
 class _FakeResp:
-    """按固定码率吐数据的假响应。"""
+    """按固定码率吐数据的假响应。payload 可以指定开头的容器特征字节。"""
 
     CHUNK = 32768
 
-    def __init__(self, kbps: float):
+    def __init__(self, kbps: float, payload: bytes = b""):
         self.status_code = 200
+        self._payload = payload
+        self._first = True
         self._delay = self.CHUNK * 8.0 / (kbps * 1000.0) if kbps else 0.0
 
     async def aiter_bytes(self, _n: int):
         for _ in range(100000):
             if self._delay:
                 await asyncio.sleep(self._delay)
-            yield b"\x47" * self.CHUNK
+            if self._first and self._payload:
+                self._first = False
+                pad = b"\x47" * max(0, self.CHUNK - len(self._payload))
+                yield self._payload + pad
+            else:
+                yield b"\x47" * self.CHUNK
 
     async def __aenter__(self):
         return self
@@ -123,24 +130,80 @@ class _FakeResp:
 
 
 class _FakeClient:
-    def __init__(self, kbps: float):
+    def __init__(self, kbps: float, payload: bytes = b""):
         self._kbps = kbps
+        self._payload = payload
 
     def stream(self, *_a, **_kw):
-        return _FakeResp(self._kbps)
+        return _FakeResp(self._kbps, self._payload)
 
 
-async def _measure_with_budget(kbps: float, budget: float):
+async def _measure_with_budget(kbps: float, budget: float, payload: bytes = b""):
     cfg = _FakeCfg({"bw_segments": 2, "bw_sample_bytes": 700000,
-                    "min_speed_kbps": 100})
+                    "min_speed_kbps": 100, "drop_audio": True})
     t0 = time.perf_counter()
     res = await _measure_hls(
-        _FakeClient(kbps), hls.parse_playlist(MEDIA_PLAYLIST),
+        _FakeClient(kbps, payload), hls.parse_playlist(MEDIA_PLAYLIST),
         "http://example.com/", 200, "", 0,
         cfg, {}, 8.0, 1024, 25.0,
         time.perf_counter() + budget,
     )
     return res, time.perf_counter() - t0
+
+
+def test_sniff_audio_recognizes_radio_containers():
+    """广播台也会用 HLS 分发，速度还很快，不识别就会混进电视列表。
+
+    实例：cnr.cn 的「吉林乡村」（satellitepull.cnr.cn/live/wxjlxcgb）
+    实际是吉林乡村广播——看着像电视频道，点开只有声音没画面。
+    """
+    from iptv.validate import sniff_audio
+
+    assert sniff_audio(b"\x1aE\xdf\xa3" + b"\x00" * 12).startswith("WebM")
+    assert sniff_audio(b"OggS\x00\x02\x00\x00") == "Ogg 容器"
+    assert sniff_audio(b"ID3\x04\x00\x00\x00") == "MP3 音频"
+    assert sniff_audio(b"\xff\xf1\x50\x80\x00") == "AAC 裸流"
+
+    # 真正的视频分片不能误判
+    assert sniff_audio(b"G" + b"\x00" * 187) == ""            # MPEG-TS
+    assert sniff_audio(b"\x00\x00\x00\x18ftypmp42") == ""     # MP4
+    assert sniff_audio(b"") == ""
+
+
+def test_measure_hls_drops_audio_only_stream():
+    """纯音频流要被判死，并且 kind 标成 audio 方便排查。"""
+    res, _ = asyncio.run(
+        _measure_with_budget(800, 2.0, b"\x1aE\xdf\xa3" + b"\x00" * 8)
+    )
+    assert not res.ok
+    assert res.kind == "audio"
+    assert "纯音频流" in (res.error or "")
+
+
+def test_measure_hls_keeps_normal_video_stream():
+    """对照：普通 TS 视频流不能被音频检测误杀。"""
+    res, _ = asyncio.run(_measure_with_budget(800, 1.0, b"G" + b"\x00" * 187))
+    assert res.ok, res.error
+
+
+def test_looks_audio_by_bitrate():
+    """cnr.cn 的广播流是 TS 容器，光看容器跟视频一样，只能靠码率区分。
+
+    实例：吉林乡村 235kbps、吉林卫视(cnr链路) 232kbps，两者都是广播；
+    而长春综合的码率测不出来（0），不能因此就把它当广播杀掉。
+    """
+    from iptv.validate import looks_audio
+
+    # 广播：码率几百 kbps，没有分辨率声明
+    assert looks_audio(228.0, 235.0, "") is True
+    assert looks_audio(0.0, 232.0, "") is True
+    assert looks_audio(300.0, 0.0, "") is True
+
+    # 视频：任何一条就不该 判为广播
+    assert looks_audio(2000.0, 0.0, "") is False      # 声明的就是视频码率
+    assert looks_audio(228.0, 235.0, "1280x720") is False  # 有分辨率就是视频
+    assert looks_audio(0.0, 3000.0, "") is False
+    assert looks_audio(0.0, 0.0, "") is False         # 信息不足，不下结论
 
 
 def test_measure_hls_finishes_within_budget_and_keeps_data():

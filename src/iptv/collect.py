@@ -152,14 +152,20 @@ def parse_content(text: str, source_name: str, base_dir: Path | None = None) -> 
     return parse_plain(text, source_name, base_dir)
 
 
-async def fetch_source(
+async def fetch_text(
     client: httpx.AsyncClient, src, timeout: float
-) -> tuple[list[Stream], SourceStat]:
+) -> tuple[str, SourceStat, Path | None]:
+    """拉取一个源的原始文本（支持 http / 本地文件）。
+
+    返回 (文本, 统计, 相对链接的基准目录)。单独抽出来是为了让源发现模块
+    也能复用同一套逻辑，不用把本地文件/协议判断重复一遍。
+    """
     name = src.get("name") or src.get("url", "")
     url = src.get("url") or ""
     stat = SourceStat(name=name, url=url)
     source_timeout = float(src.get("timeout") or timeout)
     base_dir: Path | None = None
+    text = ""
 
     try:
         if url.startswith("file://"):
@@ -168,14 +174,14 @@ async def fetch_source(
             text = path.read_text(encoding="utf-8", errors="ignore")
         elif _URL_LIKE.match(url) and not url.lower().startswith(("http://", "https://")):
             stat.error = "非 HTTP 协议，跳过"
-            return [], stat
+            return "", stat, None
         elif not _URL_LIKE.match(url):
             path = Path(url)
             if not path.is_absolute():
                 path = Path.cwd() / path
             if not path.exists():
                 stat.error = "本地文件不存在"
-                return [], stat
+                return "", stat, None
             base_dir = path.parent
             text = path.read_text(encoding="utf-8", errors="ignore")
         else:
@@ -184,17 +190,36 @@ async def fetch_source(
             text = resp.text
     except Exception as exc:  # noqa: BLE001 - 单个源失败不能影响整体
         stat.error = f"{type(exc).__name__}: {exc}"[:200]
-        return [], stat
+        return "", stat, None
 
     stat.fetched = len(text)
-    streams = parse_content(text, name, base_dir)
+    return text, stat, base_dir
+
+
+async def fetch_source(
+    client: httpx.AsyncClient, src, timeout: float
+) -> tuple[list[Stream], SourceStat]:
+    text, stat, base_dir = await fetch_text(client, src, timeout)
+    if not text:
+        return [], stat
+    streams = parse_content(text, stat.name, base_dir)
     stat.parsed = len(streams)
     return streams, stat
 
 
-async def collect_all(cfg, on_progress=None) -> tuple[list[Stream], list[SourceStat]]:
-    """并发拉取所有启用的采集源，返回原始流列表与各源统计。"""
+async def collect_all(
+    cfg, on_progress=None, extra_sources: list | None = None
+) -> tuple[list[Stream], list[SourceStat]]:
+    """并发拉取所有启用的采集源，返回原始流列表与各源统计。
+
+    extra_sources 是源发现自动常驻下来的源，调用方（pipeline）传进来，
+    避免 collect 反过来依赖 discover 造成循环导入。
+    """
     sources = [s for s in (cfg.sources or []) if s.get("enabled", True)]
+    if extra_sources:
+        configured = {str(s.get("url") or "") for s in sources}
+        sources += [s for s in extra_sources
+                    if str(s.get("url") or "") not in configured]
     if not sources:
         return [], []
 
