@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-05T14:50:24+00:00",
- "finished_at": "2026-10-05T14:56:19+00:00",
- "elapsed_sec": 355.301752737,
+ "started_at": "2026-10-06T00:07:12+00:00",
+ "finished_at": "2026-10-06T00:11:26+00:00",
+ "elapsed_sec": 253.768081933,
  "sources": [
   {
    "name": "local-extra",
@@ -13,29 +13,29 @@
   {
    "name": "bestfan-cctv",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_cctv.m3u8",
-   "fetched": 9976,
-   "parsed": 49,
+   "fetched": 14905,
+   "parsed": 73,
    "error": ""
   },
   {
    "name": "bestfan-province",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_province.m3u8",
-   "fetched": 23462,
-   "parsed": 106,
+   "fetched": 17962,
+   "parsed": 81,
    "error": ""
   },
   {
    "name": "bestfan-all",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
-   "fetched": 36308,
-   "parsed": 168,
+   "fetched": 34613,
+   "parsed": 162,
    "error": ""
   },
   {
    "name": "bestfan-all-direct",
    "url": "https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
-   "fetched": 36308,
-   "parsed": 168,
+   "fetched": 34613,
+   "parsed": 162,
    "error": ""
   },
   {
@@ -118,29 +118,29 @@
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live_full.m3u",
-   "fetched": 125936,
-   "parsed": 564,
+   "fetched": 114967,
+   "parsed": 535,
    "error": ""
   },
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live.m3u",
-   "fetched": 83539,
-   "parsed": 350,
+   "fetched": 75385,
+   "parsed": 332,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/kodi.m3u8",
-   "fetched": 218004,
-   "parsed": 399,
+   "fetched": 315138,
+   "parsed": 546,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/TV.m3u8",
-   "fetched": 204720,
-   "parsed": 399,
+   "fetched": 294008,
+   "parsed": 546,
    "error": ""
   },
   {
@@ -172,22 +172,22 @@
    "error": ""
   }
  ],
- "total_parsed": 11605,
- "after_filter": 3594,
- "after_dedup": 1829,
- "probed": 1800,
- "skipped_blacklist": 225,
- "alive": 535,
- "dead": 1040,
- "channels": 188,
- "published_channels": 188,
- "published_streams": 332,
+ "total_parsed": 11875,
+ "after_filter": 3789,
+ "after_dedup": 2106,
+ "probed": 2077,
+ "skipped_blacklist": 741,
+ "alive": 626,
+ "dead": 710,
+ "channels": 214,
+ "published_channels": 214,
+ "published_streams": 373,
  "kind_breakdown": {
-  "hls": 516,
-  "mp4": 12,
+  "hls": 594,
+  "mp4": 25,
   "flv": 3,
   "ts": 2,
   "dash": 2
  },
- "alive_rate": 29.72
+ "alive_rate": 30.14
 }
