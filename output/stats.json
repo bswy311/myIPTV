@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-06T18:26:40+00:00",
- "finished_at": "2026-10-06T18:28:37+00:00",
- "elapsed_sec": 117.503402303,
+ "started_at": "2026-10-07T06:07:27+00:00",
+ "finished_at": "2026-10-07T06:10:34+00:00",
+ "elapsed_sec": 187.387185463,
  "sources": [
   {
    "name": "local-extra",
@@ -13,29 +13,29 @@
   {
    "name": "bestfan-cctv",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_cctv.m3u8",
-   "fetched": 14905,
-   "parsed": 73,
+   "fetched": 17180,
+   "parsed": 83,
    "error": ""
   },
   {
    "name": "bestfan-province",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_province.m3u8",
-   "fetched": 17962,
-   "parsed": 81,
+   "fetched": 24185,
+   "parsed": 108,
    "error": ""
   },
   {
    "name": "bestfan-all",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
-   "fetched": 34613,
-   "parsed": 162,
+   "fetched": 44014,
+   "parsed": 203,
    "error": ""
   },
   {
    "name": "bestfan-all-direct",
    "url": "https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
-   "fetched": 34613,
-   "parsed": 162,
+   "fetched": 44014,
+   "parsed": 203,
    "error": ""
   },
   {
@@ -62,15 +62,15 @@
   {
    "name": "iptv-org-sports",
    "url": "https://iptv-org.github.io/iptv/categories/sports.m3u",
-   "fetched": 114645,
-   "parsed": 459,
+   "fetched": 111536,
+   "parsed": 449,
    "error": ""
   },
   {
    "name": "iptv-org-cn",
    "url": "https://iptv-org.github.io/iptv/countries/cn.m3u",
-   "fetched": 29257,
-   "parsed": 145,
+   "fetched": 29444,
+   "parsed": 146,
    "error": ""
   },
   {
@@ -90,15 +90,15 @@
   {
    "name": "iptv-org-zho",
    "url": "https://iptv-org.github.io/iptv/languages/zho.m3u",
-   "fetched": 43473,
-   "parsed": 214,
+   "fetched": 43660,
+   "parsed": 215,
    "error": ""
   },
   {
    "name": "iptv-org-news",
    "url": "https://iptv-org.github.io/iptv/categories/news.m3u",
-   "fetched": 233069,
-   "parsed": 1035,
+   "fetched": 232670,
+   "parsed": 1033,
    "error": ""
   },
   {
@@ -118,43 +118,43 @@
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live_full.m3u",
-   "fetched": 124299,
-   "parsed": 600,
+   "fetched": 123462,
+   "parsed": 603,
    "error": ""
   },
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live.m3u",
-   "fetched": 75666,
+   "fetched": 73876,
    "parsed": 348,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/kodi.m3u8",
-   "fetched": 281700,
-   "parsed": 496,
+   "fetched": 306746,
+   "parsed": 534,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/TV.m3u8",
-   "fetched": 263219,
-   "parsed": 496,
+   "fetched": 286155,
+   "parsed": 534,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/app-bot-server/iptv/main/lista.m3u8",
-   "fetched": 19107,
-   "parsed": 70,
-   "error": ""
+   "fetched": 0,
+   "parsed": 0,
+   "error": "HTTPStatusError: Client error '404 Not Found' for url 'https://raw.githubusercontent.com/app-bot-server/iptv/main/lista.m3u8'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/H"
   },
   {
    "name": "gh:iptv-bridge",
    "url": "https://raw.githubusercontent.com/Mimosass/iptv-bridge/main/dist/live.m3u",
-   "fetched": 98622,
-   "parsed": 633,
+   "fetched": 98766,
+   "parsed": 634,
    "error": ""
   },
   {
@@ -172,22 +172,22 @@
    "error": ""
   }
  ],
- "total_parsed": 11735,
- "after_filter": 3617,
- "after_dedup": 1875,
- "probed": 1846,
- "skipped_blacklist": 1169,
- "alive": 603,
- "dead": 74,
- "channels": 187,
- "published_channels": 187,
- "published_streams": 348,
+ "total_parsed": 12194,
+ "after_filter": 4073,
+ "after_dedup": 2288,
+ "probed": 2255,
+ "skipped_blacklist": 1083,
+ "alive": 578,
+ "dead": 594,
+ "channels": 183,
+ "published_channels": 183,
+ "published_streams": 339,
  "kind_breakdown": {
-  "hls": 572,
-  "mp4": 24,
+  "hls": 546,
+  "mp4": 25,
   "flv": 3,
   "ts": 2,
   "dash": 2
  },
- "alive_rate": 32.67
+ "alive_rate": 25.63
 }
