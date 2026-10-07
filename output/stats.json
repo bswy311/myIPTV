@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-07T06:07:27+00:00",
- "finished_at": "2026-10-07T06:10:34+00:00",
- "elapsed_sec": 187.387185463,
+ "started_at": "2026-10-07T13:32:24+00:00",
+ "finished_at": "2026-10-07T13:35:51+00:00",
+ "elapsed_sec": 207.212524451,
  "sources": [
   {
    "name": "local-extra",
@@ -118,29 +118,29 @@
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live_full.m3u",
-   "fetched": 123462,
-   "parsed": 603,
+   "fetched": 118395,
+   "parsed": 578,
    "error": ""
   },
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live.m3u",
-   "fetched": 73876,
-   "parsed": 348,
+   "fetched": 72367,
+   "parsed": 339,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/kodi.m3u8",
-   "fetched": 306746,
-   "parsed": 534,
+   "fetched": 163365,
+   "parsed": 317,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/TV.m3u8",
-   "fetched": 286155,
-   "parsed": 534,
+   "fetched": 156495,
+   "parsed": 317,
    "error": ""
   },
   {
@@ -172,22 +172,22 @@
    "error": ""
   }
  ],
- "total_parsed": 12194,
- "after_filter": 4073,
- "after_dedup": 2288,
- "probed": 2255,
- "skipped_blacklist": 1083,
- "alive": 578,
- "dead": 594,
- "channels": 183,
- "published_channels": 183,
- "published_streams": 339,
+ "total_parsed": 11367,
+ "after_filter": 3691,
+ "after_dedup": 1905,
+ "probed": 1876,
+ "skipped_blacklist": 1143,
+ "alive": 599,
+ "dead": 134,
+ "channels": 179,
+ "published_channels": 179,
+ "published_streams": 341,
  "kind_breakdown": {
-  "hls": 546,
-  "mp4": 25,
+  "hls": 568,
+  "mp4": 24,
   "flv": 3,
   "ts": 2,
   "dash": 2
  },
- "alive_rate": 25.63
+ "alive_rate": 31.93
 }
