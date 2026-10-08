@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-08T06:13:18+00:00",
- "finished_at": "2026-10-08T06:17:08+00:00",
- "elapsed_sec": 230.37773881699997,
+ "started_at": "2026-10-08T13:40:13+00:00",
+ "finished_at": "2026-10-08T13:44:35+00:00",
+ "elapsed_sec": 261.98474296300003,
  "sources": [
   {
    "name": "local-extra",
@@ -13,23 +13,23 @@
   {
    "name": "bestfan-cctv",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_cctv.m3u8",
-   "fetched": 0,
-   "parsed": 0,
-   "error": "HTTPStatusError: Client error '429 TOO MANY REQUESTS' for url 'https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_cctv.m3u8'\nFor more information check: https://develo"
+   "fetched": 13795,
+   "parsed": 68,
+   "error": ""
   },
   {
    "name": "bestfan-province",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_province.m3u8",
-   "fetched": 0,
-   "parsed": 0,
-   "error": "HTTPStatusError: Client error '429 TOO MANY REQUESTS' for url 'https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_province.m3u8'\nFor more information check: https://de"
+   "fetched": 24979,
+   "parsed": 112,
+   "error": ""
   },
   {
    "name": "bestfan-all",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
-   "fetched": 0,
-   "parsed": 0,
-   "error": "HTTPStatusError: Client error '429 TOO MANY REQUESTS' for url 'https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8'\nFor more information check: https://develop"
+   "fetched": 40291,
+   "parsed": 187,
+   "error": ""
   },
   {
    "name": "bestfan-all-direct",
@@ -55,9 +55,9 @@
   {
    "name": "chinaiptv-cntv",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/hujingguang/ChinaIPTV/main/cnTV1_ALL.m3u8",
-   "fetched": 0,
-   "parsed": 0,
-   "error": "HTTPStatusError: Client error '429 TOO MANY REQUESTS' for url 'https://ghproxy.net/https://raw.githubusercontent.com/hujingguang/ChinaIPTV/main/cnTV1_ALL.m3u8'\nFor more information check: https://deve"
+   "fetched": 76279,
+   "parsed": 405,
+   "error": ""
   },
   {
    "name": "iptv-org-sports",
@@ -111,36 +111,36 @@
   {
    "name": "suxuang-iptv-gh",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/suxuang/myIPTV/main/ipv4.m3u",
-   "fetched": 0,
-   "parsed": 0,
-   "error": "HTTPStatusError: Client error '429 TOO MANY REQUESTS' for url 'https://ghproxy.net/https://raw.githubusercontent.com/suxuang/myIPTV/main/ipv4.m3u'\nFor more information check: https://developer.mozilla"
+   "fetched": 230681,
+   "parsed": 1225,
+   "error": ""
   },
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live_full.m3u",
-   "fetched": 147135,
-   "parsed": 698,
+   "fetched": 136751,
+   "parsed": 654,
    "error": ""
   },
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live.m3u",
-   "fetched": 80405,
-   "parsed": 356,
+   "fetched": 77855,
+   "parsed": 352,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/kodi.m3u8",
-   "fetched": 219633,
-   "parsed": 401,
+   "fetched": 198658,
+   "parsed": 371,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/TV.m3u8",
-   "fetched": 207576,
-   "parsed": 401,
+   "fetched": 188645,
+   "parsed": 371,
    "error": ""
   },
   {
@@ -165,6 +165,13 @@
    "error": ""
   },
   {
+   "name": "gh:iptv",
+   "url": "https://raw.githubusercontent.com/schumijo/iptv/main/playlists/iptv/fr_plex.m3u8",
+   "fetched": 89709,
+   "parsed": 221,
+   "error": ""
+  },
+  {
    "name": "gh:m3u-autoupdate",
    "url": "https://raw.githubusercontent.com/4yt1k/m3u-autoupdate/master/output/ipv6/result.m3u",
    "fetched": 1844,
@@ -172,22 +179,22 @@
    "error": ""
   }
  ],
- "total_parsed": 9971,
- "after_filter": 3138,
- "after_dedup": 2105,
- "probed": 2076,
- "skipped_blacklist": 1086,
- "alive": 654,
- "dead": 336,
- "channels": 188,
- "published_channels": 188,
+ "total_parsed": 11814,
+ "after_filter": 3831,
+ "after_dedup": 2031,
+ "probed": 2002,
+ "skipped_blacklist": 1171,
+ "alive": 679,
+ "dead": 152,
+ "channels": 186,
+ "published_channels": 186,
  "published_streams": 352,
  "kind_breakdown": {
-  "hls": 624,
-  "mp4": 23,
+  "hls": 647,
+  "mp4": 25,
   "flv": 3,
   "ts": 2,
   "dash": 2
  },
- "alive_rate": 31.5
+ "alive_rate": 33.92
 }
