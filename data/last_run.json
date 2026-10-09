@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-09T06:16:36+00:00",
- "finished_at": "2026-10-09T06:22:13+00:00",
- "elapsed_sec": 336.697084767,
+ "started_at": "2026-10-09T13:29:13+00:00",
+ "finished_at": "2026-10-09T13:32:04+00:00",
+ "elapsed_sec": 170.480459683,
  "sources": [
   {
    "name": "local-extra",
@@ -118,29 +118,29 @@
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live_full.m3u",
-   "fetched": 171673,
-   "parsed": 768,
+   "fetched": 140012,
+   "parsed": 691,
    "error": ""
   },
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live.m3u",
-   "fetched": 95692,
-   "parsed": 380,
+   "fetched": 72057,
+   "parsed": 343,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/kodi.m3u8",
-   "fetched": 304231,
-   "parsed": 528,
+   "fetched": 268463,
+   "parsed": 471,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/TV.m3u8",
-   "fetched": 282308,
-   "parsed": 528,
+   "fetched": 252008,
+   "parsed": 471,
    "error": ""
   },
   {
@@ -181,34 +181,41 @@
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/playlist.m3u",
-   "fetched": 9345,
-   "parsed": 43,
+   "fetched": 11217,
+   "parsed": 53,
    "error": ""
   },
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/cntv.m3u",
-   "fetched": 3044,
+   "fetched": 3047,
    "parsed": 20,
+   "error": ""
+  },
+  {
+   "name": "gh:iptv",
+   "url": "https://raw.githubusercontent.com/haiibo/iptv/master/上海联通单播.m3u",
+   "fetched": 82968,
+   "parsed": 109,
    "error": ""
   }
  ],
- "total_parsed": 12531,
- "after_filter": 4231,
- "after_dedup": 2335,
- "probed": 2306,
- "skipped_blacklist": 742,
- "alive": 691,
- "dead": 873,
- "channels": 181,
- "published_channels": 181,
- "published_streams": 343,
+ "total_parsed": 12280,
+ "after_filter": 3910,
+ "after_dedup": 2073,
+ "probed": 2044,
+ "skipped_blacklist": 1172,
+ "alive": 687,
+ "dead": 185,
+ "channels": 177,
+ "published_channels": 177,
+ "published_streams": 332,
  "kind_breakdown": {
-  "hls": 659,
+  "hls": 655,
   "mp4": 25,
   "flv": 3,
   "ts": 2,
   "dash": 2
  },
- "alive_rate": 29.97
+ "alive_rate": 33.61
 }
