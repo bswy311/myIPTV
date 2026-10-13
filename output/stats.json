@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-13T14:19:16+00:00",
- "finished_at": "2026-10-13T14:24:07+00:00",
- "elapsed_sec": 291.583149052,
+ "started_at": "2026-10-13T22:51:17+00:00",
+ "finished_at": "2026-10-13T22:56:20+00:00",
+ "elapsed_sec": 302.526557584,
  "sources": [
   {
    "name": "local-extra",
@@ -13,43 +13,43 @@
   {
    "name": "bestfan-cctv",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_cctv.m3u8",
-   "fetched": 15052,
-   "parsed": 72,
+   "fetched": 15245,
+   "parsed": 73,
    "error": ""
   },
   {
    "name": "bestfan-province",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_province.m3u8",
-   "fetched": 19785,
-   "parsed": 90,
+   "fetched": 28402,
+   "parsed": 128,
    "error": ""
   },
   {
    "name": "bestfan-all",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
-   "fetched": 37252,
-   "parsed": 173,
+   "fetched": 46066,
+   "parsed": 212,
    "error": ""
   },
   {
    "name": "bestfan-all-direct",
    "url": "https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
-   "fetched": 37252,
-   "parsed": 173,
+   "fetched": 46066,
+   "parsed": 212,
    "error": ""
   },
   {
    "name": "vbskycn-ipv4",
    "url": "https://live.zbds.top/tv/iptv4.m3u",
-   "fetched": 93530,
-   "parsed": 521,
+   "fetched": 94924,
+   "parsed": 526,
    "error": ""
   },
   {
    "name": "vbskycn-ipv4-gh",
    "url": "https://gh-proxy.com/raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv4.m3u",
-   "fetched": 93530,
-   "parsed": 521,
+   "fetched": 94924,
+   "parsed": 526,
    "error": ""
   },
   {
@@ -118,29 +118,29 @@
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live_full.m3u",
-   "fetched": 136431,
-   "parsed": 658,
+   "fetched": 116938,
+   "parsed": 590,
    "error": ""
   },
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live.m3u",
-   "fetched": 78003,
-   "parsed": 359,
+   "fetched": 69159,
+   "parsed": 343,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/kodi.m3u8",
-   "fetched": 291951,
-   "parsed": 497,
+   "fetched": 428877,
+   "parsed": 715,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/TV.m3u8",
-   "fetched": 272711,
-   "parsed": 497,
+   "fetched": 397626,
+   "parsed": 715,
    "error": ""
   },
   {
@@ -181,21 +181,21 @@
   {
    "name": "gh:IPTV-M3U-TOOL",
    "url": "https://raw.githubusercontent.com/DarkSeaWhiteMoon/IPTV-M3U-TOOL/main/output/mytv.m3u",
-   "fetched": 13456,
-   "parsed": 71,
+   "fetched": 13588,
+   "parsed": 72,
    "error": ""
   },
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/playlist.m3u",
-   "fetched": 9628,
-   "parsed": 46,
+   "fetched": 10214,
+   "parsed": 48,
    "error": ""
   },
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/cntv.m3u",
-   "fetched": 3052,
+   "fetched": 3049,
    "parsed": 20,
    "error": ""
   },
@@ -209,27 +209,27 @@
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/direct.m3u",
-   "fetched": 3360,
-   "parsed": 17,
+   "fetched": 3745,
+   "parsed": 19,
    "error": ""
   }
  ],
- "total_parsed": 12286,
- "after_filter": 3850,
- "after_dedup": 2038,
- "probed": 2009,
- "skipped_blacklist": 1078,
- "alive": 590,
- "dead": 341,
- "channels": 177,
- "published_channels": 177,
- "published_streams": 343,
+ "total_parsed": 13010,
+ "after_filter": 3946,
+ "after_dedup": 2129,
+ "probed": 2100,
+ "skipped_blacklist": 1211,
+ "alive": 691,
+ "dead": 198,
+ "channels": 191,
+ "published_channels": 191,
+ "published_streams": 358,
  "kind_breakdown": {
-  "hls": 554,
+  "hls": 654,
   "mp4": 25,
+  "ts": 7,
   "flv": 3,
-  "ts": 6,
   "dash": 2
  },
- "alive_rate": 29.37
+ "alive_rate": 32.9
 }
