@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-13T22:51:17+00:00",
- "finished_at": "2026-10-13T22:56:20+00:00",
- "elapsed_sec": 302.526557584,
+ "started_at": "2026-10-14T05:00:02+00:00",
+ "finished_at": "2026-10-14T05:04:00+00:00",
+ "elapsed_sec": 238.31891271700002,
  "sources": [
   {
    "name": "local-extra",
@@ -41,15 +41,15 @@
   {
    "name": "vbskycn-ipv4",
    "url": "https://live.zbds.top/tv/iptv4.m3u",
-   "fetched": 94924,
-   "parsed": 526,
+   "fetched": 97147,
+   "parsed": 538,
    "error": ""
   },
   {
    "name": "vbskycn-ipv4-gh",
    "url": "https://gh-proxy.com/raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv4.m3u",
-   "fetched": 94924,
-   "parsed": 526,
+   "fetched": 97147,
+   "parsed": 538,
    "error": ""
   },
   {
@@ -118,29 +118,29 @@
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live_full.m3u",
-   "fetched": 116938,
-   "parsed": 590,
+   "fetched": 144251,
+   "parsed": 691,
    "error": ""
   },
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live.m3u",
-   "fetched": 69159,
-   "parsed": 343,
+   "fetched": 79161,
+   "parsed": 358,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/kodi.m3u8",
-   "fetched": 428877,
-   "parsed": 715,
+   "fetched": 396296,
+   "parsed": 664,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/TV.m3u8",
-   "fetched": 397626,
-   "parsed": 715,
+   "fetched": 365697,
+   "parsed": 664,
    "error": ""
   },
   {
@@ -188,7 +188,7 @@
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/playlist.m3u",
-   "fetched": 10214,
+   "fetched": 10053,
    "parsed": 48,
    "error": ""
   },
@@ -209,27 +209,27 @@
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/direct.m3u",
-   "fetched": 3745,
+   "fetched": 3586,
    "parsed": 19,
    "error": ""
   }
  ],
- "total_parsed": 13010,
- "after_filter": 3946,
- "after_dedup": 2129,
- "probed": 2100,
- "skipped_blacklist": 1211,
- "alive": 691,
- "dead": 198,
- "channels": 191,
- "published_channels": 191,
+ "total_parsed": 12688,
+ "after_filter": 4211,
+ "after_dedup": 2252,
+ "probed": 2223,
+ "skipped_blacklist": 1237,
+ "alive": 636,
+ "dead": 350,
+ "channels": 196,
+ "published_channels": 196,
  "published_streams": 358,
  "kind_breakdown": {
-  "hls": 654,
+  "hls": 600,
   "mp4": 25,
-  "ts": 7,
   "flv": 3,
+  "ts": 6,
   "dash": 2
  },
- "alive_rate": 32.9
+ "alive_rate": 28.61
 }
