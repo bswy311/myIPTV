@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-15T21:28:54+00:00",
- "finished_at": "2026-10-15T21:34:45+00:00",
- "elapsed_sec": 351.140180967,
+ "started_at": "2026-10-16T04:39:02+00:00",
+ "finished_at": "2026-10-16T04:46:18+00:00",
+ "elapsed_sec": 436.037069815,
  "sources": [
   {
    "name": "local-extra",
@@ -41,15 +41,15 @@
   {
    "name": "vbskycn-ipv4",
    "url": "https://live.zbds.top/tv/iptv4.m3u",
-   "fetched": 96501,
-   "parsed": 537,
+   "fetched": 96986,
+   "parsed": 540,
    "error": ""
   },
   {
    "name": "vbskycn-ipv4-gh",
    "url": "https://gh-proxy.com/raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv4.m3u",
-   "fetched": 96501,
-   "parsed": 537,
+   "fetched": 96986,
+   "parsed": 540,
    "error": ""
   },
   {
@@ -62,8 +62,8 @@
   {
    "name": "iptv-org-sports",
    "url": "https://iptv-org.github.io/iptv/categories/sports.m3u",
-   "fetched": 114588,
-   "parsed": 465,
+   "fetched": 116501,
+   "parsed": 469,
    "error": ""
   },
   {
@@ -97,8 +97,8 @@
   {
    "name": "iptv-org-news",
    "url": "https://iptv-org.github.io/iptv/categories/news.m3u",
-   "fetched": 230875,
-   "parsed": 1017,
+   "fetched": 231102,
+   "parsed": 1018,
    "error": ""
   },
   {
@@ -116,39 +116,25 @@
    "error": ""
   },
   {
-   "name": "gh:myIPTV",
-   "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live_full.m3u",
-   "fetched": 215175,
-   "parsed": 1151,
-   "error": ""
-  },
-  {
-   "name": "gh:myIPTV",
-   "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live.m3u",
-   "fetched": 74298,
-   "parsed": 359,
-   "error": ""
-  },
-  {
    "name": "gh:iptv",
-   "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/kodi.m3u8",
-   "fetched": 425801,
-   "parsed": 709,
+   "url": "https://raw.githubusercontent.com/yanghanhanyingshi/iptv/main/live.m3u",
+   "fetched": 202523,
+   "parsed": 2113,
    "error": ""
   },
   {
-   "name": "gh:iptv",
-   "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/TV.m3u8",
-   "fetched": 395094,
-   "parsed": 709,
+   "name": "gh:Xixi-iptv",
+   "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/playlist.m3u",
+   "fetched": 7188,
+   "parsed": 39,
    "error": ""
   },
   {
-   "name": "gh:iptv",
-   "url": "https://raw.githubusercontent.com/app-bot-server/iptv/main/lista.m3u8",
-   "fetched": 0,
-   "parsed": 0,
-   "error": "HTTPStatusError: Client error '404 Not Found' for url 'https://raw.githubusercontent.com/app-bot-server/iptv/main/lista.m3u8'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/H"
+   "name": "gh:Xixi-iptv",
+   "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/cntv.m3u",
+   "fetched": 3044,
+   "parsed": 20,
+   "error": ""
   },
   {
    "name": "gh:iptv-bridge",
@@ -165,17 +151,31 @@
    "error": ""
   },
   {
-   "name": "gh:iptv",
-   "url": "https://raw.githubusercontent.com/schumijo/iptv/main/playlists/iptv/fr_plex.m3u8",
-   "fetched": 89709,
-   "parsed": 221,
-   "error": ""
-  },
-  {
    "name": "gh:m3u-autoupdate",
    "url": "https://raw.githubusercontent.com/4yt1k/m3u-autoupdate/master/output/ipv6/result.m3u",
    "fetched": 1844,
    "parsed": 5,
+   "error": ""
+  },
+  {
+   "name": "gh:iptv",
+   "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/kodi.m3u8",
+   "fetched": 302173,
+   "parsed": 527,
+   "error": ""
+  },
+  {
+   "name": "gh:iptv",
+   "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/TV.m3u8",
+   "fetched": 282433,
+   "parsed": 527,
+   "error": ""
+  },
+  {
+   "name": "gh:Xixi-iptv",
+   "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/direct.m3u",
+   "fetched": 1613,
+   "parsed": 11,
    "error": ""
   },
   {
@@ -187,23 +187,9 @@
   },
   {
    "name": "gh:iptv",
-   "url": "https://raw.githubusercontent.com/yanghanhanyingshi/iptv/main/live.m3u",
-   "fetched": 201745,
-   "parsed": 2116,
-   "error": ""
-  },
-  {
-   "name": "gh:Xixi-iptv",
-   "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/playlist.m3u",
-   "fetched": 8750,
-   "parsed": 41,
-   "error": ""
-  },
-  {
-   "name": "gh:Xixi-iptv",
-   "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/cntv.m3u",
-   "fetched": 3044,
-   "parsed": 20,
+   "url": "https://raw.githubusercontent.com/schumijo/iptv/main/playlists/iptv/fr_plex.m3u8",
+   "fetched": 89709,
+   "parsed": 221,
    "error": ""
   },
   {
@@ -214,29 +200,43 @@
    "error": ""
   },
   {
-   "name": "gh:Xixi-iptv",
-   "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/direct.m3u",
-   "fetched": 1468,
-   "parsed": 10,
+   "name": "gh:myIPTV",
+   "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live_full.m3u",
+   "fetched": 217279,
+   "parsed": 1167,
    "error": ""
+  },
+  {
+   "name": "gh:myIPTV",
+   "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live.m3u",
+   "fetched": 72101,
+   "parsed": 355,
+   "error": ""
+  },
+  {
+   "name": "gh:iptv",
+   "url": "https://raw.githubusercontent.com/app-bot-server/iptv/main/lista.m3u8",
+   "fetched": 0,
+   "parsed": 0,
+   "error": "HTTPStatusError: Client error '404 Not Found' for url 'https://raw.githubusercontent.com/app-bot-server/iptv/main/lista.m3u8'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/H"
   }
  ],
- "total_parsed": 15245,
- "after_filter": 6359,
- "after_dedup": 3908,
- "probed": 3879,
- "skipped_blacklist": 1326,
- "alive": 1167,
- "dead": 1386,
- "channels": 183,
- "published_channels": 183,
- "published_streams": 355,
+ "total_parsed": 14889,
+ "after_filter": 6515,
+ "after_dedup": 4064,
+ "probed": 4000,
+ "skipped_blacklist": 2024,
+ "alive": 1104,
+ "dead": 872,
+ "channels": 190,
+ "published_channels": 190,
+ "published_streams": 361,
  "kind_breakdown": {
-  "hls": 1113,
-  "mp4": 34,
-  "ts": 10,
-  "flv": 8,
+  "hls": 1064,
+  "mp4": 25,
+  "ts": 8,
+  "flv": 5,
   "dash": 2
  },
- "alive_rate": 30.09
+ "alive_rate": 27.6
 }
