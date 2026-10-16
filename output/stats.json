@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-16T04:39:02+00:00",
- "finished_at": "2026-10-16T04:46:18+00:00",
- "elapsed_sec": 436.037069815,
+ "started_at": "2026-10-16T11:31:53+00:00",
+ "finished_at": "2026-10-16T11:39:34+00:00",
+ "elapsed_sec": 460.6127024780001,
  "sources": [
   {
    "name": "local-extra",
@@ -41,15 +41,15 @@
   {
    "name": "vbskycn-ipv4",
    "url": "https://live.zbds.top/tv/iptv4.m3u",
-   "fetched": 96986,
-   "parsed": 540,
+   "fetched": 95284,
+   "parsed": 530,
    "error": ""
   },
   {
    "name": "vbskycn-ipv4-gh",
    "url": "https://gh-proxy.com/raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv4.m3u",
-   "fetched": 96986,
-   "parsed": 540,
+   "fetched": 95284,
+   "parsed": 530,
    "error": ""
   },
   {
@@ -118,14 +118,14 @@
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/yanghanhanyingshi/iptv/main/live.m3u",
-   "fetched": 202523,
-   "parsed": 2113,
+   "fetched": 174725,
+   "parsed": 1935,
    "error": ""
   },
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/playlist.m3u",
-   "fetched": 7188,
+   "fetched": 8035,
    "parsed": 39,
    "error": ""
   },
@@ -174,8 +174,8 @@
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/direct.m3u",
-   "fetched": 1613,
-   "parsed": 11,
+   "fetched": 1321,
+   "parsed": 9,
    "error": ""
   },
   {
@@ -202,15 +202,15 @@
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live_full.m3u",
-   "fetched": 217279,
-   "parsed": 1167,
+   "fetched": 209800,
+   "parsed": 1104,
    "error": ""
   },
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live.m3u",
-   "fetched": 72101,
-   "parsed": 355,
+   "fetched": 76670,
+   "parsed": 361,
    "error": ""
   },
   {
@@ -221,22 +221,22 @@
    "error": "HTTPStatusError: Client error '404 Not Found' for url 'https://raw.githubusercontent.com/app-bot-server/iptv/main/lista.m3u8'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/H"
   }
  ],
- "total_parsed": 14889,
- "after_filter": 6515,
- "after_dedup": 4064,
- "probed": 4000,
- "skipped_blacklist": 2024,
- "alive": 1104,
- "dead": 872,
- "channels": 190,
- "published_channels": 190,
- "published_streams": 361,
+ "total_parsed": 14632,
+ "after_filter": 6276,
+ "after_dedup": 3872,
+ "probed": 3843,
+ "skipped_blacklist": 2073,
+ "alive": 1087,
+ "dead": 683,
+ "channels": 187,
+ "published_channels": 187,
+ "published_streams": 353,
  "kind_breakdown": {
-  "hls": 1064,
+  "hls": 1049,
   "mp4": 25,
-  "ts": 8,
-  "flv": 5,
+  "flv": 4,
+  "ts": 7,
   "dash": 2
  },
- "alive_rate": 27.6
+ "alive_rate": 28.29
 }
