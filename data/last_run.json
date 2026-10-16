@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-16T16:44:18+00:00",
- "finished_at": "2026-10-16T16:49:33+00:00",
- "elapsed_sec": 314.55789977,
+ "started_at": "2026-10-16T21:17:27+00:00",
+ "finished_at": "2026-10-16T21:22:33+00:00",
+ "elapsed_sec": 306.205728994,
  "sources": [
   {
    "name": "local-extra",
@@ -13,29 +13,29 @@
   {
    "name": "bestfan-cctv",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_cctv.m3u8",
-   "fetched": 12031,
+   "fetched": 12133,
    "parsed": 61,
    "error": ""
   },
   {
    "name": "bestfan-province",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_province.m3u8",
-   "fetched": 21689,
-   "parsed": 98,
+   "fetched": 20079,
+   "parsed": 92,
    "error": ""
   },
   {
    "name": "bestfan-all",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
-   "fetched": 36827,
-   "parsed": 173,
+   "fetched": 34407,
+   "parsed": 163,
    "error": ""
   },
   {
    "name": "bestfan-all-direct",
    "url": "https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
-   "fetched": 36827,
-   "parsed": 173,
+   "fetched": 34407,
+   "parsed": 163,
    "error": ""
   },
   {
@@ -118,14 +118,14 @@
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/playlist.m3u",
-   "fetched": 7595,
-   "parsed": 39,
+   "fetched": 12815,
+   "parsed": 58,
    "error": ""
   },
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/cntv.m3u",
-   "fetched": 3044,
+   "fetched": 3047,
    "parsed": 20,
    "error": ""
   },
@@ -139,8 +139,8 @@
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/yanghanhanyingshi/iptv/main/live.m3u",
-   "fetched": 203745,
-   "parsed": 2128,
+   "fetched": 203040,
+   "parsed": 2126,
    "error": ""
   },
   {
@@ -160,29 +160,29 @@
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/kodi.m3u8",
-   "fetched": 257024,
-   "parsed": 475,
+   "fetched": 343249,
+   "parsed": 597,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/TV.m3u8",
-   "fetched": 239793,
-   "parsed": 475,
+   "fetched": 319155,
+   "parsed": 597,
    "error": ""
   },
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/direct.m3u",
-   "fetched": 1451,
-   "parsed": 10,
+   "fetched": 5521,
+   "parsed": 27,
    "error": ""
   },
   {
    "name": "gh:IPTV-M3U-TOOL",
    "url": "https://raw.githubusercontent.com/DarkSeaWhiteMoon/IPTV-M3U-TOOL/main/output/mytv.m3u",
-   "fetched": 13745,
-   "parsed": 73,
+   "fetched": 13884,
+   "parsed": 74,
    "error": ""
   },
   {
@@ -202,15 +202,15 @@
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live_full.m3u",
-   "fetched": 205325,
-   "parsed": 1087,
+   "fetched": 211574,
+   "parsed": 1122,
    "error": ""
   },
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live.m3u",
-   "fetched": 73423,
-   "parsed": 353,
+   "fetched": 75657,
+   "parsed": 363,
    "error": ""
   },
   {
@@ -221,22 +221,22 @@
    "error": "HTTPStatusError: Client error '404 Not Found' for url 'https://raw.githubusercontent.com/app-bot-server/iptv/main/lista.m3u8'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/H"
   }
  ],
- "total_parsed": 14705,
- "after_filter": 6244,
- "after_dedup": 3878,
- "probed": 3849,
- "skipped_blacklist": 2156,
- "alive": 1122,
- "dead": 571,
- "channels": 190,
- "published_channels": 190,
- "published_streams": 363,
+ "total_parsed": 15057,
+ "after_filter": 6316,
+ "after_dedup": 3918,
+ "probed": 3889,
+ "skipped_blacklist": 2343,
+ "alive": 1207,
+ "dead": 339,
+ "channels": 193,
+ "published_channels": 193,
+ "published_streams": 366,
  "kind_breakdown": {
-  "hls": 1083,
+  "hls": 1166,
   "mp4": 25,
-  "ts": 8,
+  "ts": 10,
   "flv": 4,
   "dash": 2
  },
- "alive_rate": 29.15
+ "alive_rate": 31.04
 }
