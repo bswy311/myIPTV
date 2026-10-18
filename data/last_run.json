@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-18T11:16:45+00:00",
- "finished_at": "2026-10-18T11:23:14+00:00",
- "elapsed_sec": 388.935698919,
+ "started_at": "2026-10-18T15:56:27+00:00",
+ "finished_at": "2026-10-18T16:00:53+00:00",
+ "elapsed_sec": 266.52840571499996,
  "sources": [
   {
    "name": "local-extra",
@@ -118,15 +118,15 @@
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/playlist.m3u",
-   "fetched": 12708,
-   "parsed": 59,
+   "fetched": 11031,
+   "parsed": 51,
    "error": ""
   },
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/direct.m3u",
-   "fetched": 5527,
-   "parsed": 28,
+   "fetched": 3850,
+   "parsed": 20,
    "error": ""
   },
   {
@@ -174,15 +174,15 @@
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/kodi.m3u8",
-   "fetched": 630281,
-   "parsed": 1035,
+   "fetched": 639463,
+   "parsed": 1059,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/TV.m3u8",
-   "fetched": 579426,
-   "parsed": 1035,
+   "fetched": 586775,
+   "parsed": 1059,
    "error": ""
   },
   {
@@ -209,15 +209,15 @@
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live_full.m3u",
-   "fetched": 197906,
-   "parsed": 1046,
+   "fetched": 121285,
+   "parsed": 631,
    "error": ""
   },
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live.m3u",
-   "fetched": 75059,
-   "parsed": 369,
+   "fetched": 65185,
+   "parsed": 327,
    "error": ""
   },
   {
@@ -228,22 +228,22 @@
    "error": "HTTPStatusError: Client error '404 Not Found' for url 'https://raw.githubusercontent.com/app-bot-server/iptv/main/lista.m3u8'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/H"
   }
  ],
- "total_parsed": 15696,
- "after_filter": 6084,
- "after_dedup": 3887,
- "probed": 3858,
- "skipped_blacklist": 1946,
- "alive": 631,
- "dead": 1281,
- "channels": 170,
- "published_channels": 170,
- "published_streams": 327,
+ "total_parsed": 15271,
+ "after_filter": 5547,
+ "after_dedup": 3652,
+ "probed": 3623,
+ "skipped_blacklist": 1484,
+ "alive": 929,
+ "dead": 1210,
+ "channels": 180,
+ "published_channels": 180,
+ "published_streams": 343,
  "kind_breakdown": {
-  "hls": 591,
+  "hls": 887,
   "mp4": 27,
-  "flv": 5,
-  "ts": 6,
+  "flv": 4,
+  "ts": 9,
   "dash": 2
  },
- "alive_rate": 16.36
+ "alive_rate": 25.64
 }
