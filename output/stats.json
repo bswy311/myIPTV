@@ -1,7 +1,7 @@
 {
- "started_at": "2026-10-19T04:49:43+00:00",
- "finished_at": "2026-10-19T04:57:12+00:00",
- "elapsed_sec": 448.80891248399996,
+ "started_at": "2026-10-19T13:28:57+00:00",
+ "finished_at": "2026-10-19T13:33:48+00:00",
+ "elapsed_sec": 291.03339444299996,
  "sources": [
   {
    "name": "local-extra",
@@ -13,23 +13,23 @@
   {
    "name": "bestfan-cctv",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_cctv.m3u8",
-   "fetched": 8348,
-   "parsed": 42,
-   "error": ""
+   "fetched": 0,
+   "parsed": 0,
+   "error": "HTTPStatusError: Server error '502 Bad Gateway' for url 'https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_cctv.m3u8'\nFor more information check: https://developer.mo"
   },
   {
    "name": "bestfan-province",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_province.m3u8",
-   "fetched": 14706,
-   "parsed": 68,
-   "error": ""
+   "fetched": 0,
+   "parsed": 0,
+   "error": "HTTPStatusError: Server error '502 Bad Gateway' for url 'https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_province.m3u8'\nFor more information check: https://develope"
   },
   {
    "name": "bestfan-all",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8",
-   "fetched": 25255,
-   "parsed": 120,
-   "error": ""
+   "fetched": 0,
+   "parsed": 0,
+   "error": "HTTPStatusError: Server error '502 Bad Gateway' for url 'https://ghproxy.net/https://raw.githubusercontent.com/best-fan/iptv-sources/main/cn_all.m3u8'\nFor more information check: https://developer.moz"
   },
   {
    "name": "bestfan-all-direct",
@@ -41,23 +41,23 @@
   {
    "name": "vbskycn-ipv4",
    "url": "https://live.zbds.top/tv/iptv4.m3u",
-   "fetched": 94632,
-   "parsed": 526,
+   "fetched": 94236,
+   "parsed": 524,
    "error": ""
   },
   {
    "name": "vbskycn-ipv4-gh",
    "url": "https://gh-proxy.com/raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv4.m3u",
-   "fetched": 94632,
-   "parsed": 526,
+   "fetched": 94236,
+   "parsed": 524,
    "error": ""
   },
   {
    "name": "chinaiptv-cntv",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/hujingguang/ChinaIPTV/main/cnTV1_ALL.m3u8",
-   "fetched": 76279,
-   "parsed": 405,
-   "error": ""
+   "fetched": 0,
+   "parsed": 0,
+   "error": "HTTPStatusError: Server error '502 Bad Gateway' for url 'https://ghproxy.net/https://raw.githubusercontent.com/hujingguang/ChinaIPTV/main/cnTV1_ALL.m3u8'\nFor more information check: https://developer."
   },
   {
    "name": "iptv-org-sports",
@@ -111,22 +111,29 @@
   {
    "name": "suxuang-iptv-gh",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/suxuang/myIPTV/main/ipv4.m3u",
-   "fetched": 230681,
-   "parsed": 1225,
+   "fetched": 0,
+   "parsed": 0,
+   "error": "HTTPStatusError: Server error '502 Bad Gateway' for url 'https://ghproxy.net/https://raw.githubusercontent.com/suxuang/myIPTV/main/ipv4.m3u'\nFor more information check: https://developer.mozilla.org/e"
+  },
+  {
+   "name": "gh:iptv-m3u-bot",
+   "url": "https://raw.githubusercontent.com/ashik4u/iptv-m3u-bot/main/output/all.m3u",
+   "fetched": 54267,
+   "parsed": 209,
    "error": ""
   },
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/playlist.m3u",
-   "fetched": 12623,
-   "parsed": 59,
+   "fetched": 12178,
+   "parsed": 55,
    "error": ""
   },
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/direct.m3u",
-   "fetched": 5251,
-   "parsed": 27,
+   "fetched": 4527,
+   "parsed": 23,
    "error": ""
   },
   {
@@ -174,22 +181,22 @@
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/yanghanhanyingshi/iptv/main/live.m3u",
-   "fetched": 177782,
-   "parsed": 1832,
+   "fetched": 120575,
+   "parsed": 1284,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/kodi.m3u8",
-   "fetched": 301137,
-   "parsed": 536,
+   "fetched": 213194,
+   "parsed": 401,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/TV.m3u8",
-   "fetched": 278490,
-   "parsed": 536,
+   "fetched": 199204,
+   "parsed": 401,
    "error": ""
   },
   {
@@ -209,15 +216,15 @@
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live_full.m3u",
-   "fetched": 204781,
-   "parsed": 1063,
+   "fetched": 174520,
+   "parsed": 914,
    "error": ""
   },
   {
    "name": "gh:myIPTV",
    "url": "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live.m3u",
-   "fetched": 78744,
-   "parsed": 364,
+   "fetched": 69890,
+   "parsed": 345,
    "error": ""
   },
   {
@@ -228,22 +235,22 @@
    "error": "HTTPStatusError: Client error '404 Not Found' for url 'https://raw.githubusercontent.com/app-bot-server/iptv/main/lista.m3u8'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/H"
   }
  ],
- "total_parsed": 14494,
- "after_filter": 5917,
- "after_dedup": 3687,
- "probed": 3658,
- "skipped_blacklist": 1354,
- "alive": 914,
- "dead": 1390,
- "channels": 181,
- "published_channels": 181,
- "published_streams": 345,
+ "total_parsed": 11932,
+ "after_filter": 4416,
+ "after_dedup": 3016,
+ "probed": 2987,
+ "skipped_blacklist": 1638,
+ "alive": 999,
+ "dead": 350,
+ "channels": 178,
+ "published_channels": 178,
+ "published_streams": 341,
  "kind_breakdown": {
-  "hls": 872,
+  "hls": 958,
   "mp4": 27,
   "flv": 5,
-  "ts": 8,
+  "ts": 7,
   "dash": 2
  },
- "alive_rate": 24.99
+ "alive_rate": 33.44
 }
