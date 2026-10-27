@@ -124,3 +124,28 @@ jobs:
       - name: 发布到 GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+      # 电视端不走 github.io，走 jsDelivr CDN（国内可达性实测好得多）。
+      # jsDelivr 会缓存分支引用（@main）最长 12 小时，
+      # 所以每轮发布后主动清一次缓存，保证电视拿到的总是最新列表。
+      # 清不掉也没关系：最迟 12h 自然过期，只影响这轮的新旧。
+      - name: 刷新 jsDelivr CDN 缓存
+        run: |
+          repo="${{ github.repository }}"
+          for f in output/live.m3u output/live_full.m3u output/e.xml; do
+            confirmed=false
+            for attempt in 1 2 3; do
+              resp=$(curl -s --max-time 30 "https://purge.jsdelivr.net/gh/${repo}@main/${f}" || true)
+              if echo "$resp" | grep -q '"success":true'; then
+                echo "已刷新: ${f}"
+                confirmed=true
+                break
+              fi
+              # 首次 purge 可能因为文件还没进过 CDN 而无成功标记，
+              # 追发一次 GET 把它预热进缓存，下次 purge 就能命中
+              curl -s -o /dev/null --max-time 60 "https://cdn.jsdelivr.net/gh/${repo}@main/${f}" || true
+              echo "第 $attempt 次刷新 ${f} 未确认成功，预热后重试 ..."
+              sleep 10
+            done
+            $confirmed || echo "::warning::${f} 缓存刷新未确认（会最迟 12h 自然过期）"
+          done

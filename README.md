@@ -143,6 +143,27 @@ PotPlayer / 本机测试：
 https://<你的用户名>.github.io/<仓库名>/live.m3u
 ```
 
+### 电视端订阅：连不上 github.io 怎么办
+
+`*.github.io` 在部分电视网络下间歇性连不上。解决办法是**走 jsDelivr CDN**：
+workflow 每轮都会把 `output/` 提交进 `main` 分支，而 jsDelivr 可以直接分发
+仓库里的文件，国内可达性明显更好：
+
+```
+https://cdn.jsdelivr.net/gh/<你的用户名>/<仓库名>@main/output/live.m3u
+```
+
+jsDelivr 对分支引用（@main）有最长 12 小时的缓存，所以 workflow 在每轮
+发布后会自动调 `purge.jsdelivr.net` 清掉 `live.m3u` / `live_full.m3u` /
+`e.xml` 的缓存——这个地址每轮检测后几分钟内就是新的，电视上不用换地址。
+
+> - jsDelivr 要求仓库必须是 **Public**，且单个文件 ≤ 20MB（e.xml 约 7MB，没问题）
+> - 如果哪天 jsDelivr 也不稳，备选是 ghproxy 镜像：
+>   `https://ghproxy.net/https://raw.githubusercontent.com/<用户名>/<仓库名>/main/output/live.m3u`
+>   （镜像站域名经常变，失效时自己找一个替换）
+> - EPG 同理：生成的 m3u 头部 `x-tvg-url` 已按「jsDelivr 自托管 → github.io → 第三方」排序，
+>   支持多地址的播放器会依次尝试
+
 > **首次使用必须手动做两件事，缺一不可：**
 >
 > 1. **仓库必须是 Public**。GitHub Pages 在私有仓库上需要付费账号（Pro / Team / Enterprise），

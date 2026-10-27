@@ -531,7 +531,10 @@ output:
   # 随 live.m3u 一起发布到 Pages，播放器直接取我们自己的域名（*.github.io 更稳）。
   # 逗号后面是第三方镜像兜底，支持多个 x-tvg-url 的播放器会依次尝试。
   # 自己托管的总开关见下面 epg_self_host / epg_mirrors。
-  epg_url: "https://bswy311.github.io/myIPTV/e.xml,https://cdn.jsdelivr.net/gh/fanmingming/live@main/e.xml"
+  # 播放器会依次尝试逗号分隔的多个地址。
+  # 顺序按「电视端可达性」排：自己的 jsDelivr 镜像（CDN，国内最稳）
+  # → 自己的 github.io（部分网络下不稳定）→ 第三方镜像兑底。
+  epg_url: "https://cdn.jsdelivr.net/gh/bswy311/myIPTV@main/output/e.xml,https://bswy311.github.io/myIPTV/e.xml,https://cdn.jsdelivr.net/gh/fanmingming/live@main/e.xml"
 
   # 是否把 EPG 下回来自己发布（推荐开着）
   epg_self_host: true
