@@ -265,6 +265,7 @@ async def _download_timed(
     timeout: float,
     hard: float | None = None,
     sniff: bytearray | None = None,
+    info: dict | None = None,
 ) -> tuple[int, int, float, bool]:
     """下载分片并计时，最多读 max_bytes。
 
@@ -287,6 +288,9 @@ async def _download_timed(
             "GET", url, headers=headers, timeout=timeout, follow_redirects=True
         ) as resp:
             stats["status"] = resp.status_code
+            if info is not None:
+                info["headers"] = {k.lower(): v for k, v in resp.headers.items()}
+                info["final_url"] = str(resp.url)
             if resp.status_code >= 400:
                 return
             try:
@@ -467,6 +471,16 @@ async def _measure_hls(
                            audio_bad=audio_bad,
                            error=f"带宽不足 {speed_kbps:.0f}kbps")
 
+    min_headroom = float(v.get("min_headroom") or 0)
+    headroom = speed_kbps / bitrate_kbps if bitrate_kbps > 0 else 0.0
+    if min_headroom > 0 and bitrate_kbps > 0 and headroom < min_headroom:
+        return ProbeResult(False, "hls", status, resolution=resolution, bandwidth=bandwidth,
+                           bitrate_kbps=round(bitrate_kbps, 1), speed_kbps=round(speed_kbps, 1),
+                           stability=stability, audio_kbps=audio_kbps,
+                           audio_codec=audio_codec, audio_share=audio_share,
+                           audio_bad=audio_bad,
+                           error=f"带宽余量不足 {headroom:.2f}x（要求 {min_headroom:.2f}x）")
+
     return ProbeResult(True, "hls", status, resolution=resolution, bandwidth=bandwidth,
                        bitrate_kbps=round(bitrate_kbps, 1), speed_kbps=round(speed_kbps, 1),
                        stability=stability, audio_kbps=audio_kbps,
@@ -602,10 +616,25 @@ async def probe(
             res.latency_ms = (time.perf_counter() - t0) * 1000
             return res
 
-        status, hdrs, body, final = await _read_head(
-            client, stream.url, max(seg_limit, 188 * 8), headers, timeout,
-            _limit(deadline, hard),
-        )
+        if measure:
+            # 直连 TS/MP4/FLV 也必须真的下载样本计时；以前这里只重读文件头，
+            # speed_kbps 恒为 0，慢源便绕过了带宽门槛混进电视列表。
+            sample_bytes = max(seg_limit, int(v.get("bw_sample_bytes") or 700000))
+            sniff = bytearray()
+            response_info: dict = {}
+            status, n, measured_ms, cut = await _download_timed(
+                client, stream.url, sample_bytes, headers, seg_timeout,
+                _limit(deadline, hard), sniff, response_info,
+            )
+            body = bytes(sniff)
+            hdrs = response_info.get("headers") or {}
+            final = response_info.get("final_url") or stream.url
+        else:
+            status, hdrs, body, final = await _read_head(
+                client, stream.url, max(seg_limit, 188 * 8), headers, timeout,
+                _limit(deadline, hard),
+            )
+            n, measured_ms, cut = len(body), 0.0, False
         latency = (time.perf_counter() - t0) * 1000
         ctype = hdrs.get("content-type", "")
         kind = guess_kind(final or stream.url, ctype)
@@ -629,6 +658,11 @@ async def probe(
 
         if allowed and kind not in allowed:
             return ProbeResult(False, kind, status, latency, error=f"类型不允许: {kind}")
+        if bool(v.get("drop_audio", True)):
+            why = sniff_audio(body[:16])
+            if why:
+                return ProbeResult(False, "audio", status, latency,
+                                   error=f"纯音频流（{why}），不是电视频道")
         if kind == "ts":
             if len(body) < 188:
                 return ProbeResult(False, kind, status, latency, error="数据不足 188 字节")
@@ -652,7 +686,28 @@ async def probe(
         else:
             return ProbeResult(False, kind, status, latency, error=f"未知类型: {kind}")
 
-        return ProbeResult(True, kind, status, latency)
+        resolution = ""
+        if kind == "ts":
+            prof = tsinfo.profile(body)
+            if prof.ok:
+                resolution = prof.resolution
+                if bool(v.get("drop_audio", True)) and not prof.has_video:
+                    return ProbeResult(False, "audio", status, latency,
+                                       error="TS 中没有视频轨，不是电视频道")
+
+        if measure:
+            speed_kbps = n * 8.0 / max(measured_ms, 1.0)
+            min_speed = float(v.get("min_speed_kbps") or 0)
+            if min_speed > 0 and speed_kbps < min_speed:
+                return ProbeResult(False, kind, status, latency, resolution=resolution,
+                                   speed_kbps=round(speed_kbps, 1),
+                                   stability=50.0 if cut else 100.0,
+                                   error=f"带宽不足 {speed_kbps:.0f}kbps")
+            return ProbeResult(True, kind, status, latency, resolution=resolution,
+                               speed_kbps=round(speed_kbps, 1),
+                               stability=50.0 if cut else 100.0)
+
+        return ProbeResult(True, kind, status, latency, resolution=resolution)
 
     except httpx.TimeoutException:
         return ProbeResult(False, "other", 0, (time.perf_counter() - t0) * 1000, error="超时")
@@ -805,7 +860,10 @@ async def probe_all(
                     st.audio_bad = result.audio_bad
                     st.error = result.error
                     st.score = compute_score(st) if result.ok else 0.0
-                    history.record(st)
+                    # 一轮只记一次历史。第二阶段测速失败不等于源已死亡，
+                    # 既不能让 ok_count 双计，也不能把「慢」累计成连续失效。
+                    if not measure:
+                        history.record(st)
 
             tasks = [asyncio.create_task(worker(s)) for s in items]
             for fut in asyncio.as_completed(tasks):

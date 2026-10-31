@@ -278,6 +278,10 @@ filter:
     # 频道不会整个消失——同频道另一路（120.198.95.220 的 1049_1）会保留。
     # 如果那一路也不对，把两条都加进来（或直接把频道名加进 exclude_keywords）。
     - tsfile/live/0143_1
+    # 上游把西班牙语官方 URL 错标成「CGTN 法语」；没有可靠内容识别前不收。
+    - espanol-liveali.cgtn.com
+    # 上游把 CCTV-8K 混进 CCTV-8；8K/HEVC 也不适合作为电视端默认线路。
+    - /cctv8k.m3u8
 
   # ---------- 地方台过滤 ----------
   # 有些源（如 chinaiptv）用 group-title="浙江台"/"黑龙江台"/"吉林台" 这种形式
@@ -428,7 +432,10 @@ validate:
   # 余量来排序。余量 >= 2 基本不会卡。
   bw_segments: 2            # 每个流连续拉几个分片（2 个就够判断稳定性）
   bw_sample_bytes: 700000   # 每个流总共最多下载多少字节（约 0.68MB）
-  min_speed_kbps: 800       # 实测速度低于此值直接判死；嫌频道少就调到 400
+  min_speed_kbps: 3000      # 主列表宁少勿滥：低于 3Mbps 的线路不保留
+  # 已知视频码率时，下载速度至少要是码率的 1.5 倍；低于 1 倍一定会卡。
+  # 只验证 HTTP 200 或单个分片可下载，不代表电视能持续播放。
+  min_headroom: 1.5
   bw_enabled: true          # 流量吃紧可关掉（关掉后退回「只验证能出流」）
   # 测速并发。太高会把自己家宽带占满导致测得不准，太低则很慢。
   # 16 并发 × 3Mbps ≈ 48Mbps，百兆宽带留得下余量；50M 以下请改成 8。
@@ -441,7 +448,7 @@ validate:
   # 结果是 122 条流被判「整体超时(>12s)」，其中央视 26 条、卫视 26 条 —— 
   # 央视/卫视频道数直接腰斩。现在内层会按剩余预算主动收工，
   # 这里只要留够「683KB + 拉清单」的余量即可：
-  #   800kbps 需 6.8s，400kbps 需 13.7s（会被 min_speed_kbps 正确剔除，而不是误报超时）
+  #   800kbps 需 6.8s，400kbps 需 13.7s（会被速度/余量门槛剔除，而不是误报超时）
   bw_total_timeout: 18
 
 # ---------------------------------------------------------------
@@ -456,7 +463,10 @@ validate:
 #      连续没价值 / 拉不动 → 自动停用
 # 往注册表里加源是零风险的：好用的自动留下，没用的自动淘汰。
 discover:
+  # 只使用注册表和已有质量记录的常驻源；所有线路仍须通过实测带宽门槛。
   enabled: true
+  # 自己的 live.m3u/live_full.m3u 永远不能作为输入，防止错误自我强化。
+  self_repo: bswy311/myIPTV
   registry: config/source_registry.yaml
   # 已自动常驻的源记在这里，按需可手工编辑（把 enabled 改成 false 即可停用）
   stats: data/source_stats.json
@@ -464,7 +474,7 @@ discover:
   # ---------- GitHub 自动搜源 ----------
   # CI 里会自动带上 GITHUB_TOKEN 走 5000 次/小时的额度；
   # 本机没配 token 也能跑，只是额度低（60 次/小时），超了会静默跳过。
-  github_search: true
+  github_search: false          # 暂停随机仓库搜源，避免巨型聚合列表灌水
   github_token: ""                 # 留空则读环境变量 GITHUB_TOKEN
   github_queries:
     - "iptv in:name,description"

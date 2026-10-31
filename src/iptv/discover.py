@@ -42,6 +42,24 @@ M3U_SUFFIXES = (".m3u", ".m3u8")
 SKIP_HINTS = ("sample", "example", "demo", "backup", "old", "test")
 
 
+def _self_repo(cfg) -> str:
+    return str(
+        cfg.discover.get("self_repo") or os.environ.get("GITHUB_REPOSITORY") or ""
+    ).strip("/").casefold()
+
+
+def _is_self_url(url: str, cfg) -> bool:
+    """自己的发布产物不能再当采集源，否则错误会被每轮回收并放大。"""
+    repo = _self_repo(cfg)
+    if not repo:
+        return False
+    low = str(url or "").casefold()
+    return (
+        f"raw.githubusercontent.com/{repo}/" in low
+        or f"cdn.jsdelivr.net/gh/{repo}@" in low
+    )
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
@@ -165,7 +183,7 @@ async def github_candidates(cfg, on_progress=None) -> list[dict]:
 
             for repo in repos:
                 full = str(repo.get("full_name") or "")
-                if not full or full in seen_repos:
+                if not full or full in seen_repos or full.casefold() == _self_repo(cfg):
                     continue
                 seen_repos.add(full)
                 # 一天更新的仓库更容易包含可用的新源
@@ -258,7 +276,7 @@ async def discover(cfg, base_streams: list[Stream], log=print) -> tuple[list[Str
     seen: set[str] = set()
     for c in registry_candidates(cfg) + await github_candidates(cfg, log):
         u = c["url"]
-        if u in configured or u in seen:
+        if u in configured or u in seen or _is_self_url(u, cfg):
             continue
         seen.add(u)
         cands.append(c)
@@ -388,7 +406,7 @@ def extra_sources(cfg) -> list[dict]:
     """把已自动常驻的源转成采集源定义，供 collect_all 每轮直接使用。"""
     out: list[dict] = []
     for url, ent in load_stats(cfg).items():
-        if not ent.get("enabled"):
+        if not ent.get("enabled") or _is_self_url(url, cfg):
             continue
         if str(url) in {str(s.get("url") or "") for s in (cfg.sources or [])}:
             continue

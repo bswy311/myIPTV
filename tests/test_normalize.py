@@ -239,6 +239,50 @@ def test_unknown_channel_falls_back_to_end_of_group():
     assert unknown > hebei_4k, (unknown, hebei_4k)
 
 
+def test_channel_name_overrides_wrong_upstream_group():
+    """上游 group-title 不能把北京卫视洗成央视，也不能把 CCTV 洗成卫视。"""
+    cfg = load_config()
+
+    def cat_of(name: str, group: str) -> str:
+        st = Stream(url="u", name=name, group=group)
+        st.key = canonical_key(name)
+        st.display = display_name(name)
+        return categorize(st, cfg.categories)
+
+    assert cat_of("北京卫视", "央视") == "卫视"
+    assert cat_of("CCTV-1 综合", "卫视") == "央视"
+    # 频道名没有可识别关键词时，仍保留上游分组的兜底价值。
+    assert cat_of("某个未识别频道", "央视") == "央视"
+
+
+def test_own_published_playlists_are_never_collected():
+    """自己的输出不能再作为输入，常驻历史里的旧条目也要排除。"""
+    from iptv import discover
+
+    class _Cfg:
+        discover = {"self_repo": "bswy311/myIPTV"}
+        sources = []
+
+    cfg = _Cfg()
+    own = "https://raw.githubusercontent.com/bswy311/myIPTV/main/output/live.m3u"
+    other = "https://raw.githubusercontent.com/example/other/main/live.m3u"
+    assert discover._is_self_url(own, cfg)
+    assert discover._is_self_url(
+        "https://cdn.jsdelivr.net/gh/bswy311/myIPTV@main/output/live_full.m3u", cfg
+    )
+    assert not discover._is_self_url(other, cfg)
+
+    original = discover.load_stats
+    discover.load_stats = lambda _cfg: {
+        own: {"enabled": True, "name": "self"},
+        other: {"enabled": True, "name": "other"},
+    }
+    try:
+        assert [s["url"] for s in discover.extra_sources(cfg)] == [other]
+    finally:
+        discover.load_stats = original
+
+
 def test_normalize_and_categorize():
     cfg = load_config()
     streams = [
@@ -443,6 +487,12 @@ def test_current_config_excludes_the_reported_bad_entries():
 
     assert not matches_filter(Stream(url="u", name="河北4K"), cfg, modes)
     assert matches_filter(Stream(url="u2", name="河北卫视"), cfg, modes)
+
+    # 名字与实际上游内容不符的线路也不能因为速度快就混入列表。
+    wrong_lang = Stream(url="http://espanol-liveali.cgtn.com/live.m3u8", name="CGTN法语")
+    wrong_cctv = Stream(url="http://example.com/cctv8k.m3u8", name="CCTV-8")
+    assert not matches_filter(wrong_lang, cfg, modes)
+    assert not matches_filter(wrong_cctv, cfg, modes)
 
 
 def test_epg_ids_match_the_epg_file():

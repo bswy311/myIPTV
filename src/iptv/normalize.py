@@ -421,7 +421,7 @@ def _exact_hit(stream: Stream, names: set[str]) -> bool:
 
 
 def categorize(stream: Stream, categories: list) -> str:
-    """按配置的 categories 顺序归类。
+    """按配置的 categories 顺序归类，频道名优先于上游分组。
 
     判定分两轮：
       1. 先看各分类的 `exact:` 精确名单。这种需求（「只要这几个台」）
@@ -437,15 +437,24 @@ def categorize(stream: Stream, categories: list) -> str:
         if exact and _exact_hit(stream, exact):
             return cat.get("name") or ""
 
-    haystack = (
-        f"{stream.name} {stream.tvg_name} {stream.group} "
-        f"{stream.key} {stream.display}"
-    ).lower()
-    for cat in categories or []:
-        name = cat.get("name") or ""
-        for kw in cat.get("keywords") or []:
-            if kw and str(kw).lower() in haystack:
-                return name
+    def match(haystack: str) -> str:
+        for cat in categories or []:
+            name = cat.get("name") or ""
+            for kw in cat.get("keywords") or []:
+                if kw and str(kw).lower() in haystack:
+                    return name
+        return ""
+
+    # 上游 group-title 只是元数据，不能压过频道自身的名字。否则「北京卫视」
+    # 只要被某个源错标成「央视」，就会归到央视；回收自己的输出后还会不断放大。
+    own_name = f"{stream.name} {stream.tvg_name} {stream.key} {stream.display}".lower()
+    category = match(own_name)
+    if category:
+        return category
+    # 名字确实认不出来时才用 group 兜底，保留地方台等列表的组织信息。
+    category = match((stream.group or "").lower())
+    if category:
+        return category
     return categories[-1].get("name", "其他") if categories else "其他"
 
 

@@ -107,6 +107,8 @@ class _FakeResp:
 
     def __init__(self, kbps: float, payload: bytes = b""):
         self.status_code = 200
+        self.headers = {"content-type": "video/mp2t"}
+        self.url = "http://example.com/live.ts"
         self._payload = payload
         self._first = True
         self._delay = self.CHUNK * 8.0 / (kbps * 1000.0) if kbps else 0.0
@@ -184,6 +186,41 @@ def test_measure_hls_keeps_normal_video_stream():
     """对照：普通 TS 视频流不能被音频检测误杀。"""
     res, _ = asyncio.run(_measure_with_budget(800, 1.0, b"G" + b"\x00" * 187))
     assert res.ok, res.error
+
+
+def test_measure_hls_rejects_insufficient_headroom():
+    """能下载但速度喂不饱视频码率的源，不能作为可流畅观看的线路发布。"""
+    cfg = _FakeCfg({"bw_segments": 2, "bw_sample_bytes": 700000,
+                    "min_speed_kbps": 100, "min_headroom": 1.5,
+                    "drop_audio": True})
+    res = asyncio.run(_measure_hls(
+        _FakeClient(800, b"G" + b"\x00" * 187),
+        hls.parse_playlist(MEDIA_PLAYLIST), "http://example.com/", 200,
+        "1280x720", 2_000_000, cfg, {}, 8.0, 1024, 25.0,
+        time.perf_counter() + 1.0,
+    ))
+    assert not res.ok
+    assert "余量不足" in res.error
+
+
+def test_measure_direct_ts_applies_speed_threshold():
+    """非 HLS 第二阶段也必须测速，不能再让 speed=0 绕过质量门槛。"""
+    from iptv.validate import probe
+
+    cfg = _FakeCfg({
+        "bw_sample_bytes": 262144, "min_speed_kbps": 800,
+        "segment_bytes": 65536, "segment_timeout": 2.0,
+        "request_hard_timeout": 3.0, "min_segment_bytes": 1024,
+        "allowed_kinds": ["ts"], "drop_audio": True,
+    })
+    st = Stream(url="http://example.com/live.ts")
+    res = asyncio.run(probe(
+        _FakeClient(400, b"G" + b"\x00" * 187), st, cfg,
+        measure=True, budget=2.2,
+    ))
+    assert not res.ok
+    assert 300 <= res.speed_kbps <= 500, res.speed_kbps
+    assert "带宽不足" in res.error
 
 
 def test_looks_audio_by_bitrate():
@@ -265,6 +302,36 @@ def test_probe_all_smoke():
     assert all(s.ok is False for s in streams)
     assert all(s.error for s in streams), "失败必须带上原因"
     hist_path.unlink(missing_ok=True)
+
+
+def test_probe_all_records_history_once_per_run():
+    """第二阶段只更新测速指标，不能把同一轮成功在历史里记两次。"""
+    from unittest.mock import patch
+    from iptv.models import ProbeResult
+    from iptv.validate import probe_all
+
+    class _History:
+        def __init__(self):
+            self.records = 0
+
+        def is_blacklisted(self, _url):
+            return False
+
+        def record(self, _st):
+            self.records += 1
+
+    cfg = _FakeCfg({"bw_enabled": True, "bw_concurrency": 1,
+                    "bw_total_timeout": 2, "deep": True})
+    cfg.network = {"concurrency": 1, "timeout": 1, "connect_timeout": 1,
+                   "retries": 0, "total_timeout": 2, "verify_ssl": False}
+
+    async def fake_probe(*_args, **_kwargs):
+        return ProbeResult(True, "ts", 200, speed_kbps=5000, stability=100)
+
+    hist = _History()
+    with patch("iptv.validate.probe", fake_probe):
+        asyncio.run(probe_all([Stream(url="http://example.com/live.ts")], cfg, hist))
+    assert hist.records == 1, hist.records
 
 
 def _run() -> int:

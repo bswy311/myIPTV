@@ -82,11 +82,9 @@ async def run_pipeline(
     t_begin = time.perf_counter()
 
     # ---------- 1. 采集 ----------
-    log("[1/6] 采集公开源 ...")
-    # ---------- 1. 采集 ----------
     log("[1/7] 采集公开源 ...")
-    # 自动常驻的源（源发现判定达标的）一并采集
-    extra = discover.extra_sources(cfg)
+    # 源发现关闭时，其历史常驻源也不能绕过开关继续进入采集。
+    extra = discover.extra_sources(cfg) if cfg.discover.get("enabled", True) else []
     raw, source_stats = await collect.collect_all(cfg, on_progress=log,
                                                   extra_sources=extra)
     stats.sources = source_stats
