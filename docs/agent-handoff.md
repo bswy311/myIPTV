@@ -59,7 +59,7 @@ IPTV 直播源自动采集→深检→剔除→发布（Python，仅依赖 httpx
 
 **2026-10-31**：修复分类被 `group-title` 污染、自我采集、非 HLS 测速空转和历史双计；暂停随机 GitHub 搜源，只用注册表及有质量记录的常驻源。76 项直接运行回归通过。完整运行探测 2630 条、初筛 208 条，首轮发布 60 频道/135 线路；随后对 132 条候选独立复测，再淘汰 33 条，最终 `output/live.m3u` 为 **55 频道/99 线路**。北京、吉林、浙江卫视另做约 19~24 秒连续分片抽查，均为 1080p 且音视频轨完整；这不等于已在用户电视上逐台目视确认。
 
-统计口径注意：`data/last_run.json` 仍记录完整运行的 60/135；`data/probed.json` 已被重建为 132 条复测候选（99 条通过），最终数量以 `output/stats.json` 和 M3U 为准。复测数据写 JSON 必须显式 `encoding="utf-8"`，Windows 默认 GBK 会因 URL 特殊字符截断文件。本轮改动尚未提交或推送。
+统计口径注意：`data/last_run.json` 仍记录完整运行的 60/135；`data/probed.json` 已被重建为 132 条复测候选（99 条通过），最终数量以 `output/stats.json` 和 M3U 为准。复测数据写 JSON 必须显式 `encoding="utf-8"`，Windows 默认 GBK 会因 URL 特殊字符截断文件。本轮修复与精选结果已提交并推送（`6cddcb8`）。
 
 本机推送注意：仓库 local git config 配了代理 127.0.0.1:7897（Clash），代理没开时直连会被 GFW 重置（API 能通但 git 通道被掐）；开代理后直接 git push 即可。远端可能有 CI 自动提交，先 git pull --rebase -X theirs（冲突以远端为准，那是 CI 新生成的 output/data）。SSH 443 通道也试过，握手被掐，不可靠。
 
