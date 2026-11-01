@@ -1,7 +1,7 @@
 {
- "started_at": "2026-11-01T06:17:00+00:00",
- "finished_at": "2026-11-01T06:21:57+00:00",
- "elapsed_sec": 296.101123985,
+ "started_at": "2026-11-01T10:59:37+00:00",
+ "finished_at": "2026-11-01T11:05:45+00:00",
+ "elapsed_sec": 367.277238926,
  "sources": [
   {
    "name": "local-extra",
@@ -41,15 +41,15 @@
   {
    "name": "vbskycn-ipv4",
    "url": "https://live.zbds.top/tv/iptv4.m3u",
-   "fetched": 81518,
-   "parsed": 443,
+   "fetched": 81787,
+   "parsed": 442,
    "error": ""
   },
   {
    "name": "vbskycn-ipv4-gh",
    "url": "https://gh-proxy.com/raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv4.m3u",
-   "fetched": 81518,
-   "parsed": 443,
+   "fetched": 81787,
+   "parsed": 442,
    "error": ""
   },
   {
@@ -111,9 +111,9 @@
   {
    "name": "suxuang-iptv-gh",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/suxuang/myIPTV/main/ipv4.m3u",
-   "fetched": 230681,
-   "parsed": 1225,
-   "error": ""
+   "fetched": 0,
+   "parsed": 0,
+   "error": "ReadTimeout: "
   },
   {
    "name": "gh:iptv-web-player",
@@ -153,7 +153,7 @@
   {
    "name": "gh:iptv-api",
    "url": "https://raw.githubusercontent.com/fingersc/iptv-api/master/output/user_result.m3u",
-   "fetched": 79459,
+   "fetched": 79743,
    "parsed": 288,
    "error": ""
   },
@@ -230,33 +230,33 @@
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/IvanStoilov2/iptv/main/bg.m3u",
-   "fetched": 17650,
+   "fetched": 17649,
    "parsed": 72,
    "error": ""
   },
   {
    "name": "gh:iptv-m3u-bot",
    "url": "https://raw.githubusercontent.com/ashik4u/iptv-m3u-bot/main/output/all.m3u",
-   "fetched": 61913,
-   "parsed": 223,
+   "fetched": 50724,
+   "parsed": 194,
    "error": ""
   }
  ],
- "total_parsed": 14374,
- "after_filter": 4831,
- "after_dedup": 3469,
- "probed": 3440,
- "skipped_blacklist": 1576,
- "alive": 668,
- "dead": 1196,
- "channels": 128,
- "published_channels": 128,
- "published_streams": 259,
+ "total_parsed": 13118,
+ "after_filter": 4384,
+ "after_dedup": 3460,
+ "probed": 3431,
+ "skipped_blacklist": 1798,
+ "alive": 593,
+ "dead": 1040,
+ "channels": 121,
+ "published_channels": 121,
+ "published_streams": 248,
  "kind_breakdown": {
-  "hls": 651,
+  "hls": 576,
   "mp4": 14,
   "flv": 1,
   "ts": 2
  },
- "alive_rate": 19.42
+ "alive_rate": 17.28
 }
