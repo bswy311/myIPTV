@@ -200,15 +200,19 @@ def test_unknown_resolution_is_not_treated_as_sd():
 
 
 def test_resolution_rank_boundaries():
-    """720p 及以上算高清；未知归入高清档（HEVC 源多为 4K，误降权代价大）。"""
+    """三档分层：1080p+ 或未知 → 0，720p → 1，低于 720p → 2。
+
+    720p 和 1080p 不能同档：实测 720p 咪咕源靠 score 优势压过 1080p 源，
+    电视端看起来就是糊的，必须用硬档位隔开。
+    """
     assert resolution_rank(2160) == 0
     assert resolution_rank(1440) == 0
     assert resolution_rank(1080) == 0
-    assert resolution_rank(720) == 0
-    assert resolution_rank(0) == 0
-    assert resolution_rank(576) == 1
-    assert resolution_rank(540) == 1
-    assert resolution_rank(480) == 1
+    assert resolution_rank(0) == 0      # 未知归入最高档（HEVC 多为 4K）
+    assert resolution_rank(720) == 1    # 720p → 中间档
+    assert resolution_rank(576) == 2    # 标清 → 最低档
+    assert resolution_rank(540) == 2
+    assert resolution_rank(480) == 2
 
 
 def test_non_hd_always_sorted_after_hd():

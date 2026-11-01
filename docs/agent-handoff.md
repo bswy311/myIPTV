@@ -4,7 +4,7 @@
 > **会话收尾必写**：新坑写进 §3、工作写进 §6、待办写进 §7；过时内容直接删，宁短勿长。
 > 原则：只记「不看就绕不过去」的内容，不写流水账，每节保持精炼。
 
-最后更新：2026-10-31
+最后更新：2026-11-01
 
 ---
 
@@ -34,6 +34,7 @@ IPTV 直播源自动采集→深检→剔除→发布（Python，仅依赖 httpx
 - **筛选先本地化英文名**：`Beijing Satellite TV` → `北京卫视` 再匹配关键词，否则 iptv-org 的 cn 源 122 条只剩 17 条。
 - **子串关键词误命中**：不要写裸的 `tvb`（命中 fTVBolivia）、`f1`（命中 TF1）、`jade/pearl/phoenix`（捞进黎巴嫩/广播/凤凰城台）。TVB/凤凰靠英文名本地化成中文名后再命中中文词。
 - **EPG 必须自托管**：`live.fanmingming.cn` 已失效；每轮把 e.xml 下到 `output/`（只发布不提交，7MB）随 Pages 发布。
+- **EPG URL 配置踩坑**：`output/e.xml` 被 .gitignore 排除，jsDelivr 自托管 URL 永远 404；`epg_url` 配置必须把 GitHub Pages URL 放首位。`epg_mirrors` 中 ghproxy.net 和 live.fanmingming.cn 已确认 SSL 故障，已清理。
 - **镜像源**：GitHub 原始地址在本机时通时不通，所有 GitHub 源配 ghproxy/jsdelivr 镜像 + 直连双份，重复 URL 自动去重。
 - **禁止回收自己的发布文件**：`live.m3u/live_full.m3u` 再作为输入会把错误分组和旧线路不断放大。`discover.py` 必须在新搜索、候选合并、历史常驻源三个入口排除本仓库的 raw GitHub / jsDelivr URL；`discover.enabled=false` 时也不能加载常驻源。
 - **频道名优先于上游分组**：`group-title` 只能兜底，不能和频道名混在同一关键词串里抢分类，否则“北京卫视 + 央视分组”会错进央视。修复在 `normalize.categorize()`，回归在 `tests/test_normalize.py`。
@@ -56,6 +57,8 @@ IPTV 直播源自动采集→深检→剔除→发布（Python，仅依赖 httpx
 - 手工加频道：`config/sources/local.m3u`；手动重置历史：`python main.py reset -y`
 
 ## 6. 工作记录（只留最近一次的结论，旧的删）
+
+**2026-11-01**：修复 EPG 刷新失败：config.yaml 中 epg_url 移除永远 404 的 jsDelivr 自托管 URL（output/e.xml 被 .gitignore 排除），GitHub Pages 放首位；epg_mirrors 清理 SSL 故障的 ghproxy.net 和 live.fanmingming.cn；update.yml 移除无意义的 e.xml CDN purge。
 
 **2026-10-31**：修复分类被 `group-title` 污染、自我采集、非 HLS 测速空转和历史双计；暂停随机 GitHub 搜源，只用注册表及有质量记录的常驻源。76 项直接运行回归通过。完整运行探测 2630 条、初筛 208 条，首轮发布 60 频道/135 线路；随后对 132 条候选独立复测，再淘汰 33 条，最终 `output/live.m3u` 为 **55 频道/99 线路**。北京、吉林、浙江卫视另做约 19~24 秒连续分片抽查，均为 1080p 且音视频轨完整；这不等于已在用户电视上逐台目视确认。
 
@@ -81,3 +84,4 @@ IPTV 直播源自动采集→深检→剔除→发布（Python，仅依赖 httpx
 - 2026-10-27 初版：从全仓通读中沉淀架构/坑/配方；登记 8 条优化方案待办。
 - 2026-10-27 二次：本地跑通全流程；CI 增加 jsDelivr 缓存自动刷新（电视端订阅走 CDN 解决 github.io 不稳）；已推送远端并触发 CI。记录本机 git 代理推坑。
 - 2026-10-31：修复分类、自我采集与测速根因；双轮实测后精选为 55 频道/99 线路，并记录复测数据统计口径。
+- 2026-11-01：修复 EPG 刷新失败（config URL 顺序 + 清理 SSL 故障镜像 + 移除无效 CDN purge）。

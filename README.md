@@ -513,8 +513,8 @@ output:
   epg_self_host: true          # 是否把 EPG 下回来自己发布（推荐开着）
   epg_mirrors:                 # 按顺序尝试，第一个成功的就用
     - https://cdn.jsdelivr.net/gh/fanmingming/live@main/e.xml
-    - https://ghproxy.net/https://raw.githubusercontent.com/fanmingming/live/main/e.xml
-    - https://live.fanmingming.cn/e.xml
+    - https://gh-proxy.com/https://raw.githubusercontent.com/fanmingming/live/main/e.xml
+    - https://raw.githubusercontent.com/fanmingming/live/main/e.xml
 ```
 
 这份 EPG 覆盖**央视全套 + 39 个省卫视**，channel id 就是

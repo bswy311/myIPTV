@@ -542,9 +542,9 @@ output:
   # 逗号后面是第三方镜像兜底，支持多个 x-tvg-url 的播放器会依次尝试。
   # 自己托管的总开关见下面 epg_self_host / epg_mirrors。
   # 播放器会依次尝试逗号分隔的多个地址。
-  # 顺序按「电视端可达性」排：自己的 jsDelivr 镜像（CDN，国内最稳）
-  # → 自己的 github.io（部分网络下不稳定）→ 第三方镜像兑底。
-  epg_url: "https://cdn.jsdelivr.net/gh/bswy311/myIPTV@main/output/e.xml,https://bswy311.github.io/myIPTV/e.xml,https://cdn.jsdelivr.net/gh/fanmingming/live@main/e.xml"
+  # 顺序：自己的 GitHub Pages（已验证可达）→ fanmingming 的 jsDelivr 镜像兜底。
+  # 注意：output/e.xml 被 .gitignore 排除，不要加 jsDelivr 自托管 URL（永远 404）。
+  epg_url: "https://bswy311.github.io/myIPTV/e.xml,https://cdn.jsdelivr.net/gh/fanmingming/live@main/e.xml"
 
   # 是否把 EPG 下回来自己发布（推荐开着）
   epg_self_host: true
@@ -553,10 +553,8 @@ output:
   # raw.githubusercontent.com 与 fanmingming 自家域名都实测不稳定，放后面。
   epg_mirrors:
     - https://cdn.jsdelivr.net/gh/fanmingming/live@main/e.xml
-    - https://ghproxy.net/https://raw.githubusercontent.com/fanmingming/live/main/e.xml
     - https://gh-proxy.com/https://raw.githubusercontent.com/fanmingming/live/main/e.xml
     - https://raw.githubusercontent.com/fanmingming/live/main/e.xml
-    - https://live.fanmingming.cn/e.xml
 
   # ---------- 台标 ----------
   # 源里没提供台标、或台标来自已失效的图床时，用这个模板按 tvg-id 拼一个。

@@ -78,22 +78,30 @@ def resolution_score(height: int) -> float:
     return _RES_UNKNOWN
 
 
-# 720p 及以上算高清（用户的要求：非高清一律往后排）
+# 分辨率分档阈值。
+# 1080p 和 720p 不能混为一谈：实测 720p 咪咕源（score=1857）靠评分优势
+# 压过 1080p 源（score=1649），电视端看起来就是糊的。
 HD_MIN_HEIGHT = 720
+HD_MID_HEIGHT = 1080
 
 
 def resolution_rank(height: int) -> int:
-    """同频道内线路的**硬档位**：0 = 高清或未知，1 = 实测非高清。
+    """同频道内线路的**硬档位**：0 = 1080p+或未知，1 = 720p，2 = 实测非高清。
 
     为什么要硬档位而不是只靠扣分：标清源的码率常常比高清还高
     （实测有 720x576 的源跑到 4Mbps），评分里那 270 分的分辨率差距
     压不住「码率 + 速度」的双重加分，标清还是会被顶到第一条线路上。
 
+    三档而非两档：720p 和 1080p 在电视上差距明显，不能只用 score 微调。
     height=0（没解出分辨率）**不**当作非高清：fMP4 / HEVC 这类容器
     本来就解不出 SPS，而它们里面 4K 的不少（HEVC 几乎都是 4K 源），
     误降权的损失比收益大。
     """
-    return 1 if 0 < height < HD_MIN_HEIGHT else 0
+    if height <= 0 or height >= HD_MID_HEIGHT:
+        return 0  # 1080p+ 或未知 → 最高档
+    if height >= HD_MIN_HEIGHT:
+        return 1  # 720p → 中间档
+    return 2      # 低于 720p → 最低档
 
 
 def _audio_min_kbps(cfg) -> float:
@@ -729,16 +737,31 @@ def compute_score(stream: Stream) -> float:
     """
     score = 1000.0
 
+    # --- 带宽余量（headroom）---
+    # bitrate_kbps == 0 时直接用 0 做除数会让 headroom 归零，
+    # 丢失最高 +480 的余量加分。改为用实测速度做保守估计：
+    # 假设「刚好够看」，至少给一个合理的 headroom。
     headroom = stream.headroom
-    if headroom <= 0 and stream.bitrate_kbps > 0:
-        headroom = stream.speed_kbps / stream.bitrate_kbps
+    if headroom <= 0:
+        if stream.bitrate_kbps > 0:
+            headroom = stream.speed_kbps / stream.bitrate_kbps
+        elif stream.speed_kbps > 0:
+            # 码率未知但有实测速度 → 用速度本身做保守估计（headroom = 1.0）
+            headroom = 1.0
 
     score += min(headroom, 6.0) * 80.0                     # 带宽余量，最多 +480
     score += min(stream.speed_kbps / 1000.0, 12.0) * 20.0  # 绝对速度，最多 +240
     score += min(stream.bitrate_kbps, 8000.0) * 0.02       # 码率（画质），最多 +160
     score += resolution_score(stream.height)               # 分辨率档位，标清被压到最低
     score += (stream.stability / 100.0) * 120.0            # 稳定性，最多 +120
-    score -= min(stream.latency_ms, 5000.0) * 0.02         # 延迟只做微调，最多 -100
+    score -= min(stream.latency_ms, 5000.0) * 0.02         # 延迟微调，最多 -100
+
+    # 高延迟硬门槛：>2000ms 的源额外重罚。
+    # 法国 OVH 等高延迟源（>1500ms）虽然 headroom 好看，但电视端实际体验很卡，
+    # 100 分的延迟微调根本压不住。直接额外扣 200 分。
+    if stream.latency_ms > 2000:
+        score -= 200.0
+
     score += min(stream.ok_count, 20) * 4.0                # 历史稳定加分
     score -= stream.fail_streak * 120.0
     # 音轨残缺的源（视频很高清、声音是噪音）降权

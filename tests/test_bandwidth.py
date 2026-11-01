@@ -89,6 +89,51 @@ def test_score_rewards_higher_bitrate_at_same_headroom():
     assert compute_score(hi) > compute_score(lo)
 
 
+def test_score_headroom_not_zero_when_bitrate_unknown():
+    """码率未知时 headroom 不能归零，否则丢失最高 +480 的余量加分。
+
+    回归：大量 1080p/4K 源因为 bitrate_kbps=0，headroom 直接为 0，
+    评分偏低，排在了低质量源后面。
+    """
+    # 码率未知但有实测速度 → 至少给 headroom=1.0
+    s = Stream(url="x", ok=True, kind="hls", speed_kbps=5000,
+               bitrate_kbps=0, height=1080, stability=100)
+    score = compute_score(s)
+    # headroom=1.0 → +80，绝对速度 +100，稳定性 +120，分辨率 300 → 至少 >1500
+    assert score > 1500, f"码率未知时评分过低: {score}"
+
+    # 对比：如果 headroom 被归零（没有修复），分数会少 80 分
+    # 手动验证：headroom=1.0 时比 headroom=0 多 80 分
+    s_zero = Stream(url="z", ok=True, kind="hls", speed_kbps=0,
+                    bitrate_kbps=0, height=1080, stability=100)
+    score_zero = compute_score(s_zero)
+    # s 有 speed=5000 → headroom=1.0 → +80；s_zero 没有 → +0
+    assert score - score_zero >= 80, (
+        f"码率未知时 headroom 未生效: diff={score - score_zero}"
+    )
+
+
+def test_score_penalizes_high_latency():
+    """延迟 >2000ms 的源必须被额外重罚。
+
+    回归：法国 OVH 等高延迟源（>1500ms）虽然 headroom 好看，
+    但电视端实际体验很卡，100 分的延迟微调根本压不住。
+    """
+    # 低延迟正常源
+    normal = Stream(url="n", ok=True, kind="hls", latency_ms=500,
+                    speed_kbps=5000, bitrate_kbps=3000, height=1080, stability=100)
+    # 高延迟源（其他指标一样好）
+    high_lat = Stream(url="h", ok=True, kind="hls", latency_ms=3000,
+                      speed_kbps=5000, bitrate_kbps=3000, height=1080, stability=100)
+
+    score_normal = compute_score(normal)
+    score_high = compute_score(high_lat)
+    # 高延迟至少比正常低 200 分（硬门槛）
+    assert score_normal - score_high >= 200, (
+        f"高延迟源未被有效降权: normal={score_normal}, high_lat={score_high}"
+    )
+
+
 # ---------------------------------------------------------------------------
 # 墙钟预算（回归：曾经把好源批量误判成「整体超时」）
 # ---------------------------------------------------------------------------

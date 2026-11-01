@@ -132,7 +132,7 @@ jobs:
       - name: 刷新 jsDelivr CDN 缓存
         run: |
           repo="${{ github.repository }}"
-          for f in output/live.m3u output/live_full.m3u output/e.xml; do
+          for f in output/live.m3u output/live_full.m3u; do
             confirmed=false
             for attempt in 1 2 3; do
               resp=$(curl -s --max-time 30 "https://purge.jsdelivr.net/gh/${repo}@main/${f}" || true)
