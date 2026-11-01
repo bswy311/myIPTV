@@ -1,7 +1,7 @@
 {
- "started_at": "2026-11-01T10:59:37+00:00",
- "finished_at": "2026-11-01T11:05:45+00:00",
- "elapsed_sec": 367.277238926,
+ "started_at": "2026-11-01T13:38:09+00:00",
+ "finished_at": "2026-11-01T13:42:56+00:00",
+ "elapsed_sec": 286.958066488,
  "sources": [
   {
    "name": "local-extra",
@@ -111,9 +111,9 @@
   {
    "name": "suxuang-iptv-gh",
    "url": "https://ghproxy.net/https://raw.githubusercontent.com/suxuang/myIPTV/main/ipv4.m3u",
-   "fetched": 0,
-   "parsed": 0,
-   "error": "ReadTimeout: "
+   "fetched": 230681,
+   "parsed": 1225,
+   "error": ""
   },
   {
    "name": "gh:iptv-web-player",
@@ -132,15 +132,15 @@
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/playlist.m3u",
-   "fetched": 10589,
-   "parsed": 50,
+   "fetched": 7312,
+   "parsed": 37,
    "error": ""
   },
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/direct.m3u",
-   "fetched": 4661,
-   "parsed": 23,
+   "fetched": 2055,
+   "parsed": 11,
    "error": ""
   },
   {
@@ -181,22 +181,22 @@
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/cntv.m3u",
-   "fetched": 3057,
+   "fetched": 3054,
    "parsed": 20,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/kodi.m3u8",
-   "fetched": 404370,
-   "parsed": 677,
+   "fetched": 461460,
+   "parsed": 781,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/TV.m3u8",
-   "fetched": 362065,
-   "parsed": 675,
+   "fetched": 423839,
+   "parsed": 781,
    "error": ""
   },
   {
@@ -216,8 +216,8 @@
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/yanghanhanyingshi/iptv/main/live.m3u",
-   "fetched": 178530,
-   "parsed": 1829,
+   "fetched": 153012,
+   "parsed": 1689,
    "error": ""
   },
   {
@@ -230,7 +230,7 @@
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/IvanStoilov2/iptv/main/bg.m3u",
-   "fetched": 17649,
+   "fetched": 17646,
    "parsed": 72,
    "error": ""
   },
@@ -242,21 +242,21 @@
    "error": ""
   }
  ],
- "total_parsed": 13118,
- "after_filter": 4384,
- "after_dedup": 3460,
- "probed": 3431,
- "skipped_blacklist": 1798,
- "alive": 593,
- "dead": 1040,
+ "total_parsed": 14388,
+ "after_filter": 4680,
+ "after_dedup": 3341,
+ "probed": 3312,
+ "skipped_blacklist": 1733,
+ "alive": 657,
+ "dead": 922,
  "channels": 121,
  "published_channels": 121,
  "published_streams": 248,
  "kind_breakdown": {
-  "hls": 576,
+  "hls": 640,
   "mp4": 14,
   "flv": 1,
   "ts": 2
  },
- "alive_rate": 17.28
+ "alive_rate": 19.84
 }
