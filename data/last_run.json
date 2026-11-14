@@ -1,7 +1,7 @@
 {
- "started_at": "2026-11-13T19:48:39+00:00",
- "finished_at": "2026-11-13T19:56:00+00:00",
- "elapsed_sec": 441.100047662,
+ "started_at": "2026-11-14T06:35:32+00:00",
+ "finished_at": "2026-11-14T06:42:06+00:00",
+ "elapsed_sec": 393.26694519,
  "sources": [
   {
    "name": "local-extra",
@@ -41,15 +41,15 @@
   {
    "name": "vbskycn-ipv4",
    "url": "https://live.zbds.top/tv/iptv4.m3u",
-   "fetched": 72559,
-   "parsed": 394,
+   "fetched": 77905,
+   "parsed": 430,
    "error": ""
   },
   {
    "name": "vbskycn-ipv4-gh",
    "url": "https://gh-proxy.com/raw.githubusercontent.com/vbskycn/iptv/refs/heads/master/tv/iptv4.m3u",
-   "fetched": 72559,
-   "parsed": 394,
+   "fetched": 77905,
+   "parsed": 430,
    "error": ""
   },
   {
@@ -62,8 +62,8 @@
   {
    "name": "iptv-org-sports",
    "url": "https://iptv-org.github.io/iptv/categories/sports.m3u",
-   "fetched": 129682,
-   "parsed": 510,
+   "fetched": 130666,
+   "parsed": 513,
    "error": ""
   },
   {
@@ -132,15 +132,15 @@
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/playlist.m3u",
-   "fetched": 68698,
-   "parsed": 374,
+   "fetched": 67948,
+   "parsed": 370,
    "error": ""
   },
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/direct.m3u",
-   "fetched": 68698,
-   "parsed": 374,
+   "fetched": 67948,
+   "parsed": 370,
    "error": ""
   },
   {
@@ -153,15 +153,15 @@
   {
    "name": "gh:iptv-api",
    "url": "https://raw.githubusercontent.com/fingersc/iptv-api/master/output/user_result.m3u",
-   "fetched": 75259,
-   "parsed": 303,
+   "fetched": 75069,
+   "parsed": 342,
    "error": ""
   },
   {
    "name": "gh:iptv-api",
    "url": "https://raw.githubusercontent.com/fingersc/iptv-api/master/output/ipv6/result.m3u",
-   "fetched": 80815,
-   "parsed": 269,
+   "fetched": 80624,
+   "parsed": 268,
    "error": ""
   },
   {
@@ -181,22 +181,22 @@
   {
    "name": "gh:Xixi-iptv",
    "url": "https://raw.githubusercontent.com/leoxw/Xixi-iptv/main/cntv.m3u",
-   "fetched": 3049,
+   "fetched": 3046,
    "parsed": 20,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/kodi.m3u8",
-   "fetched": 226348,
-   "parsed": 420,
+   "fetched": 245462,
+   "parsed": 456,
    "error": ""
   },
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/doms9/iptv/default/M3U8/TV.m3u8",
-   "fetched": 210624,
-   "parsed": 420,
+   "fetched": 228534,
+   "parsed": 456,
    "error": ""
   },
   {
@@ -216,15 +216,15 @@
   {
    "name": "gh:iptv",
    "url": "https://raw.githubusercontent.com/yanghanhanyingshi/iptv/main/live.m3u",
-   "fetched": 198249,
-   "parsed": 2078,
+   "fetched": 198052,
+   "parsed": 2060,
    "error": ""
   },
   {
    "name": "gh:IPTV-M3U-TOOL",
    "url": "https://raw.githubusercontent.com/DarkSeaWhiteMoon/IPTV-M3U-TOOL/main/output/mytv.m3u",
-   "fetched": 13621,
-   "parsed": 72,
+   "fetched": 14212,
+   "parsed": 75,
    "error": ""
   },
   {
@@ -237,26 +237,26 @@
   {
    "name": "gh:iptv-m3u-bot",
    "url": "https://raw.githubusercontent.com/ashik4u/iptv-m3u-bot/main/output/all.m3u",
-   "fetched": 37586,
-   "parsed": 151,
+   "fetched": 56387,
+   "parsed": 207,
    "error": ""
   }
  ],
- "total_parsed": 15400,
- "after_filter": 5816,
- "after_dedup": 3863,
- "probed": 3834,
- "skipped_blacklist": 624,
- "alive": 732,
- "dead": 2478,
- "channels": 117,
- "published_channels": 117,
- "published_streams": 257,
+ "total_parsed": 15618,
+ "after_filter": 5859,
+ "after_dedup": 3993,
+ "probed": 3964,
+ "skipped_blacklist": 2030,
+ "alive": 802,
+ "dead": 1132,
+ "channels": 120,
+ "published_channels": 120,
+ "published_streams": 260,
  "kind_breakdown": {
-  "hls": 716,
+  "hls": 786,
   "mp4": 12,
   "flv": 2,
   "ts": 2
  },
- "alive_rate": 19.09
+ "alive_rate": 20.23
 }
